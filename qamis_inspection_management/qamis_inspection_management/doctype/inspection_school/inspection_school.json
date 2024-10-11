@@ -11,9 +11,8 @@
  "fields": [
   {
    "fieldname": "school",
-   "fieldtype": "Link",
-   "label": "School",
-   "options": "School"
+   "fieldtype": "Data",
+   "label": "School Name"
   }
  ],
  "index_web_pages_for_search": 1,
