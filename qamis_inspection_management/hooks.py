@@ -1,9 +1,11 @@
+from . import __version__ as app_version
+
 app_name = "qamis_inspection_management"
 app_title = "Qamis Inspection Management"
 app_publisher = "Bailly Rurangirwa"
 app_description = "Frappe-based application for managing the school inspection process, including scheduling, user assignment, checklist management, and multi-level approvals."
 app_email = "rubailly@gmail.com"
-app_license = "mit"
+app_license = "MIT"
 
 # Apps
 # ------------------
