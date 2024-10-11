@@ -129,21 +129,22 @@ app_license = "mit"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Inspection": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.Inspection",
+	"Inspection School": "qamis_inspection_management.qamis_inspection_management.doctype.inspection_school.inspection_school.InspectionSchool"
+}
 
 # Document Events
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Inspection": {
+		"on_update": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.on_update",
+		"on_cancel": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.on_cancel",
+		"on_trash": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.on_trash"
+	}
+}
 
 # Scheduled Tasks
 # ---------------
