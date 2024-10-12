@@ -38,21 +38,18 @@
   },
   {
    "fieldname": "assigned_users",
-   "fieldtype": "Table MultiSelect",
-   "label": "Assigned Users",
-   "options": "User"
+   "fieldtype": "JSON",
+   "label": "Assigned Users"
   },
   {
    "fieldname": "checklists",
-   "fieldtype": "Table MultiSelect",
-   "label": "Checklists",
-   "options": "Checklist"
+   "fieldtype": "JSON",
+   "label": "Checklists"
   },
   {
    "fieldname": "schools",
-   "fieldtype": "Table",
-   "label": "Schools",
-   "options": "Inspection School"
+   "fieldtype": "JSON",
+   "label": "Schools"
   },
   {
    "fieldname": "status",
