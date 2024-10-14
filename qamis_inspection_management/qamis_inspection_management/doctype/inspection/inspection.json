@@ -8,12 +8,22 @@
  "engine": "InnoDB",
  "field_order": [
   "inspection_name",
+  "basic_information_section",
   "start_date",
   "end_date",
-  "assigned_users",
-  "checklists",
-  "schools",
+  "column_break_5",
   "status",
+  "team_and_schools_section",
+  "team_members",
+  "schools",
+  "checklists_section",
+  "checklists",
+  "inspection_details_section",
+  "introduction",
+  "objectives",
+  "methodology",
+  "summary_section",
+  "executive_summary",
   "comments_section",
   "department_manager_comments",
   "head_of_department_comments",
@@ -27,6 +37,11 @@
    "unique": 1
   },
   {
+   "fieldname": "basic_information_section",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
+  {
    "fieldname": "start_date",
    "fieldtype": "Date",
    "label": "Start Date"
@@ -37,25 +52,72 @@
    "label": "End Date"
   },
   {
-   "fieldname": "assigned_users",
-   "fieldtype": "JSON",
-   "label": "Assigned Users"
-  },
-  {
-   "fieldname": "checklists",
-   "fieldtype": "JSON",
-   "label": "Checklists"
-  },
-  {
-   "fieldname": "schools",
-   "fieldtype": "JSON",
-   "label": "Schools"
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
    "options": "Draft\nPending Review\nApproved"
+  },
+  {
+   "fieldname": "team_and_schools_section",
+   "fieldtype": "Section Break",
+   "label": "Team and Schools"
+  },
+  {
+   "fieldname": "team_members",
+   "fieldtype": "Table MultiSelect",
+   "label": "Team Members",
+   "options": "User"
+  },
+  {
+   "fieldname": "schools",
+   "fieldtype": "Table MultiSelect",
+   "label": "Schools",
+   "options": "DHIS2 Organization Unit"
+  },
+  {
+   "fieldname": "checklists_section",
+   "fieldtype": "Section Break",
+   "label": "Checklists"
+  },
+  {
+   "fieldname": "checklists",
+   "fieldtype": "Table MultiSelect",
+   "label": "Checklists",
+   "options": "DHIS2 Dataset"
+  },
+  {
+   "fieldname": "inspection_details_section",
+   "fieldtype": "Section Break",
+   "label": "Inspection Details"
+  },
+  {
+   "fieldname": "introduction",
+   "fieldtype": "Text Editor",
+   "label": "Introduction"
+  },
+  {
+   "fieldname": "objectives",
+   "fieldtype": "Text Editor",
+   "label": "Objectives"
+  },
+  {
+   "fieldname": "methodology",
+   "fieldtype": "Text Editor",
+   "label": "Methodology"
+  },
+  {
+   "fieldname": "summary_section",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "executive_summary",
+   "fieldtype": "Text Editor",
+   "label": "Executive Summary"
   },
   {
    "fieldname": "comments_section",
