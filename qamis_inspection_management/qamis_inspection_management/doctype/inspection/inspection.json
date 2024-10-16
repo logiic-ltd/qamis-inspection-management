@@ -64,9 +64,9 @@
   },
   {
    "fieldname": "team_members",
-   "fieldtype": "Long Text",
+   "fieldtype": "Table",
    "label": "Team Members",
-   "description": "JSON data of team members from external API"
+   "options": "Inspection Team Member"
   },
   {
    "fieldname": "schools",

@@ -1,6 +1,7 @@
 import frappe
 from frappe.model.document import Document
 import json
+import requests
 
 class Inspection(Document):
     def before_save(self):
@@ -8,13 +9,8 @@ class Inspection(Document):
 
     def fetch_external_data(self):
         # Fetch data from external API and store as JSON strings
-        self.team_members = json.dumps(self.get_users_from_external_service())
         self.checklists = json.dumps(self.get_checklists_from_external_service())
         self.schools = json.dumps(self.get_schools_from_external_service())
-
-    def get_users_from_external_service(self):
-        # TODO: Replace with actual API call to DHIS2
-        return [{"id": "user1", "name": "John Doe"}, {"id": "user2", "name": "Jane Smith"}]
 
     def get_checklists_from_external_service(self):
         # TODO: Replace with actual API call to DHIS2
@@ -26,6 +22,15 @@ class Inspection(Document):
 
     def load_external_data(self):
         # Helper method to load JSON data into Python objects
-        self.team_members_data = json.loads(self.team_members)
         self.checklists_data = json.loads(self.checklists)
         self.schools_data = json.loads(self.schools)
+
+@frappe.whitelist()
+def search_users(search_term):
+    url = f"http://localhost:8081/api/dhis2users/search/name?name={search_term}&page=0&size=20&sort=username,asc"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        return data['content']
+    else:
+        frappe.throw("Error fetching users from external API")
