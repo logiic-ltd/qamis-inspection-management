@@ -13,6 +13,11 @@ class Inspection(Document):
         logger.info(f"Saving Inspection: {self.name}")
         self.fetch_external_data()
 
+    def on_update(self):
+        logger.info(f"Updating Inspection: {self.name}")
+        # Add any specific update logic here if needed
+        pass
+
     def fetch_external_data(self):
         logger.info(f"Fetching external data for Inspection: {self.name}")
         self.checklists = json.dumps(self.get_checklists_from_external_service())
