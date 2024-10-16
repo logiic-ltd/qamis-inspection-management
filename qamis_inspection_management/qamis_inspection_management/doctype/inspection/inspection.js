@@ -29,43 +29,50 @@ function show_user_search_dialog(frm) {
 
     let $results = d.fields_dict.results.$wrapper;
     let $search_input = d.fields_dict.search_term.$input;
+    let searchTimeout;
 
-    $search_input.on('input', frappe.utils.debounce(function() {
+    $search_input.on('input', function() {
+        clearTimeout(searchTimeout);
         let search_term = $search_input.val();
+        
         if (search_term.length < 2) {
             $results.empty();
             return;
         }
 
-        frappe.call({
-            method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_users',
-            args: {
-                search_term: search_term
-            },
-            callback: function(r) {
-                if (r.message && r.message.length > 0) {
-                    let users = r.message;
-                    let html = users.map(user => `
-                        <div class="user-item" style="cursor: pointer; padding: 5px; border-bottom: 1px solid #ccc;">
-                            <strong>${frappe.utils.escape_html(user.displayName)}</strong>
-                            <br>
-                            <small>${frappe.utils.escape_html(user.username)}</small>
-                        </div>
-                    `).join('');
-                    $results.html(html);
+        $results.html('<p>Searching...</p>');
 
-                    $results.find('.user-item').on('click', function() {
-                        let index = $(this).index();
-                        let user = users[index];
-                        add_team_member(frm, user);
-                        d.hide();
-                    });
-                } else {
-                    $results.html('<p>No results found or unable to connect to the API. Please try again later.</p>');
+        searchTimeout = setTimeout(() => {
+            frappe.call({
+                method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_users',
+                args: {
+                    search_term: search_term
+                },
+                callback: function(r) {
+                    if (r.message && r.message.length > 0) {
+                        let users = r.message;
+                        let html = users.map(user => `
+                            <div class="user-item" style="cursor: pointer; padding: 5px; border-bottom: 1px solid #ccc;">
+                                <strong>${frappe.utils.escape_html(user.displayName)}</strong>
+                                <br>
+                                <small>${frappe.utils.escape_html(user.username)}</small>
+                            </div>
+                        `).join('');
+                        $results.html(html);
+
+                        $results.find('.user-item').on('click', function() {
+                            let index = $(this).index();
+                            let user = users[index];
+                            add_team_member(frm, user);
+                            d.hide();
+                        });
+                    } else {
+                        $results.html('<p>No results found or unable to connect to the API. Please try again later.</p>');
+                    }
                 }
-            }
-        });
-    }, 300));
+            });
+        }, 500); // Wait for 500ms after the user stops typing
+    });
 
     d.show();
 }
