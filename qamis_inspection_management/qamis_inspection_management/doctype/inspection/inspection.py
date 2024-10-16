@@ -55,3 +55,24 @@ def search_users(search_term):
         frappe.msgprint("Unable to connect to the external API. Please check if the server is running and try again.")
         frappe.log_error(f"API Connection Error: {str(e)}")
         return []
+
+@frappe.whitelist()
+def search_checklists(search_term):
+    logger.info(f"Searching checklists with term: {search_term}")
+    url = f"http://192.168.0.100:8081/api/dhis2datasets/search/name?name={search_term}&page=0&size=20&sort=name,asc"
+    try:
+        logger.info(f"Sending request to: {url}")
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            logger.info(f"Received {len(data['content'])} checklists from API")
+            return data['content']
+        else:
+            logger.error(f"Error fetching checklists from API. Status code: {response.status_code}")
+            frappe.msgprint("Error fetching checklists from external API. Please try again later.")
+            return []
+    except requests.exceptions.RequestException as e:
+        logger.error(f"API Connection Error: {str(e)}")
+        frappe.msgprint("Unable to connect to the external API. Please check if the server is running and try again.")
+        frappe.log_error(f"API Connection Error: {str(e)}")
+        return []
