@@ -7,8 +7,8 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "inspection_name",
   "basic_information_section",
+  "inspection_name",
   "start_date",
   "end_date",
   "column_break_5",
