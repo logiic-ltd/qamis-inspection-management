@@ -8,7 +8,10 @@
  "field_order": [
   "id",
   "name",
-  "description"
+  "short_name",
+  "period_type",
+  "last_updated",
+  "organization_units"
  ],
  "fields": [
   {
@@ -26,9 +29,27 @@
    "in_list_view": 1
   },
   {
-   "fieldname": "description",
-   "fieldtype": "Text",
-   "label": "Description",
+   "fieldname": "short_name",
+   "fieldtype": "Data",
+   "label": "Short Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "period_type",
+   "fieldtype": "Data",
+   "label": "Period Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_updated",
+   "fieldtype": "Datetime",
+   "label": "Last Updated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "organization_units",
+   "fieldtype": "Small Text",
+   "label": "Organization Units",
    "read_only": 1
   }
  ],

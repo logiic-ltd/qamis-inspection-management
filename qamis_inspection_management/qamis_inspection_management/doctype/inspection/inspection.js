@@ -166,7 +166,10 @@ function add_checklist(frm, checklist) {
     frm.add_child('checklists', {
         id: checklist.id,
         name: checklist.name,
-        description: checklist.description || ''
+        short_name: checklist.shortName,
+        period_type: checklist.periodType,
+        last_updated: checklist.lastUpdated,
+        organization_units: JSON.stringify(checklist.organisationUnitIds)
     });
     frm.refresh_field('checklists');
     frm.save();
