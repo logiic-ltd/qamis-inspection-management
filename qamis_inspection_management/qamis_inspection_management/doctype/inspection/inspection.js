@@ -79,9 +79,9 @@ function show_user_search_dialog(frm) {
 
 function add_team_member(frm, user) {
     frm.add_child('team_members', {
-        user_id: user.id,
+        id: user.id,
         username: user.username,
-        display_name: user.displayName
+        displayName: user.displayName
     });
     frm.refresh_field('team_members');
     frm.save();

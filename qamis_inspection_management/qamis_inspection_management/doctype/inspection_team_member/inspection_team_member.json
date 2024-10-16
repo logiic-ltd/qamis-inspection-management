@@ -6,15 +6,15 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "user_id",
+  "id",
   "username",
-  "display_name"
+  "displayName"
  ],
  "fields": [
   {
-   "fieldname": "user_id",
+   "fieldname": "id",
    "fieldtype": "Data",
-   "label": "User ID",
+   "label": "ID",
    "read_only": 1
   },
   {
@@ -24,7 +24,7 @@
    "read_only": 1
   },
   {
-   "fieldname": "display_name",
+   "fieldname": "displayName",
    "fieldtype": "Data",
    "label": "Display Name",
    "read_only": 1
