@@ -43,7 +43,7 @@ function show_user_search_dialog(frm) {
                 search_term: search_term
             },
             callback: function(r) {
-                if (r.message) {
+                if (r.message && r.message.length > 0) {
                     let users = r.message;
                     let html = users.map(user => `
                         <div class="user-item" style="cursor: pointer; padding: 5px; border-bottom: 1px solid #ccc;">
@@ -55,12 +55,13 @@ function show_user_search_dialog(frm) {
                     $results.html(html);
 
                     $results.find('.user-item').on('click', function() {
-                        let user = $(this).data('user');
+                        let index = $(this).index();
+                        let user = users[index];
                         add_team_member(frm, user);
                         d.hide();
                     });
                 } else {
-                    $results.html('<p>No results found</p>');
+                    $results.html('<p>No results found or unable to connect to the API. Please try again later.</p>');
                 }
             }
         });

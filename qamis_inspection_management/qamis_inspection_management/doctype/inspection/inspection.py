@@ -28,9 +28,15 @@ class Inspection(Document):
 @frappe.whitelist()
 def search_users(search_term):
     url = f"http://localhost:8081/api/dhis2users/search/name?name={search_term}&page=0&size=20&sort=username,asc"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        return data['content']
-    else:
-        frappe.throw("Error fetching users from external API")
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            return data['content']
+        else:
+            frappe.msgprint("Error fetching users from external API. Please try again later.")
+            return []
+    except requests.exceptions.RequestException as e:
+        frappe.msgprint("Unable to connect to the external API. Please check if the server is running and try again.")
+        frappe.log_error(f"API Connection Error: {str(e)}")
+        return []
