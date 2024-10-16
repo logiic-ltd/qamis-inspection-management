@@ -141,6 +141,16 @@ override_doctype_class = {
 
 doc_events = {
 	"Inspection": {
+		"before_save": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.before_save"
+	}
+}
+
+# Document Events
+# ---------------
+# Hook on document methods and events
+
+doc_events = {
+	"Inspection": {
 		"on_update": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.Inspection.on_update",
 		"on_submit": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.Inspection.on_submit",
 		"before_save": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.Inspection.before_save"
