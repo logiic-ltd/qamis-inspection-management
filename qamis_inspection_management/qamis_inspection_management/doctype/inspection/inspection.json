@@ -68,15 +68,15 @@
   },
   {
    "fieldname": "team_members",
-   "fieldtype": "Table MultiSelect",
+   "fieldtype": "Long Text",
    "label": "Team Members",
-   "options": "User"
+   "description": "JSON data of team members from external API"
   },
   {
    "fieldname": "schools",
-   "fieldtype": "Table MultiSelect",
+   "fieldtype": "Long Text",
    "label": "Schools",
-   "options": "DHIS2 Organization Unit"
+   "description": "JSON data of schools (DHIS2 Organization Units) from external API"
   },
   {
    "fieldname": "checklists_section",
@@ -85,9 +85,9 @@
   },
   {
    "fieldname": "checklists",
-   "fieldtype": "Table MultiSelect",
+   "fieldtype": "Long Text",
    "label": "Checklists",
-   "options": "DHIS2 Dataset"
+   "description": "JSON data of checklists (DHIS2 Datasets) from external API"
   },
   {
    "fieldname": "inspection_details_section",
