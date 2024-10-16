@@ -165,13 +165,12 @@ function show_checklist_search_dialog(frm) {
 function add_checklist(frm, checklist) {
     frm.add_child('checklists', {
         id: checklist.id,
-        name: checklist.name,  // Changed back to checklist.name
+        name: checklist.name,
         short_name: checklist.shortName,
         period_type: checklist.periodType,
         last_updated: checklist.lastUpdated
-        // Removed organization_units field
     });
     frm.refresh_field('checklists');
     frm.save();
-    frappe.show_alert(`Added ${checklist.name} to the checklists`, 5);
+    frappe.show_alert(`Added ${checklist.name} (${checklist.shortName}) to the checklists`, 5);
 }

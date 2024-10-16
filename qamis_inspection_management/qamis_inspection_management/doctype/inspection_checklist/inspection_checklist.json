@@ -31,7 +31,8 @@
    "fieldname": "short_name",
    "fieldtype": "Data",
    "label": "Short Name",
-   "read_only": 1
+   "read_only": 1,
+   "in_list_view": 1
   },
   {
    "fieldname": "period_type",
