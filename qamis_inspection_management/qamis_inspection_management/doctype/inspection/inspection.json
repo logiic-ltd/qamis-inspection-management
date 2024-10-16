@@ -114,7 +114,7 @@
    "fieldname": "executive_summary",
    "fieldtype": "Text Editor",
    "label": "Executive Summary"
-  },
+  }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
