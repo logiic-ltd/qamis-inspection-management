@@ -66,7 +66,21 @@
    "fieldname": "team_members",
    "fieldtype": "Table",
    "label": "Team Members",
-   "options": "Inspection Team Member"
+   "options": "Inspection Team Member",
+   "columns": [
+    {
+     "fieldname": "id",
+     "width": 120
+    },
+    {
+     "fieldname": "username",
+     "width": 120
+    },
+    {
+     "fieldname": "displayName",
+     "width": 200
+    }
+   ]
   },
   {
    "fieldname": "schools",
