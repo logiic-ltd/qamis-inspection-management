@@ -10,8 +10,7 @@
   "name",
   "short_name",
   "period_type",
-  "last_updated",
-  "organization_units"
+  "last_updated"
  ],
  "fields": [
   {
@@ -44,12 +43,6 @@
    "fieldname": "last_updated",
    "fieldtype": "Datetime",
    "label": "Last Updated",
-   "read_only": 1
-  },
-  {
-   "fieldname": "organization_units",
-   "fieldtype": "Small Text",
-   "label": "Organization Units",
    "read_only": 1
   }
  ],
