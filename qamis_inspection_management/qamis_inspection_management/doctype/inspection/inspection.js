@@ -1,6 +1,6 @@
 frappe.ui.form.on('Inspection', {
     refresh: function(frm) {
-        frm.add_custom_button(__('Search Team Members'), function() {
+        frm.add_custom_button(__('Add Team Member'), function() {
             show_user_search_dialog(frm);
         });
     }
@@ -8,7 +8,7 @@ frappe.ui.form.on('Inspection', {
 
 function show_user_search_dialog(frm) {
     let d = new frappe.ui.Dialog({
-        title: 'Search Team Members',
+        title: 'Search and Add Team Member',
         fields: [
             {
                 label: 'Search',
@@ -32,7 +32,10 @@ function show_user_search_dialog(frm) {
 
     $search_input.on('input', frappe.utils.debounce(function() {
         let search_term = $search_input.val();
-        if (search_term.length < 2) return;
+        if (search_term.length < 2) {
+            $results.empty();
+            return;
+        }
 
         frappe.call({
             method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_users',
@@ -43,7 +46,7 @@ function show_user_search_dialog(frm) {
                 if (r.message) {
                     let users = r.message;
                     let html = users.map(user => `
-                        <div class="user-item" data-user='${JSON.stringify(user)}'>
+                        <div class="user-item" style="cursor: pointer; padding: 5px; border-bottom: 1px solid #ccc;">
                             <strong>${frappe.utils.escape_html(user.displayName)}</strong>
                             <br>
                             <small>${frappe.utils.escape_html(user.username)}</small>
@@ -56,6 +59,8 @@ function show_user_search_dialog(frm) {
                         add_team_member(frm, user);
                         d.hide();
                     });
+                } else {
+                    $results.html('<p>No results found</p>');
                 }
             }
         });
@@ -72,4 +77,5 @@ function add_team_member(frm, user) {
     });
     frm.refresh_field('team_members');
     frm.save();
+    frappe.show_alert(`Added ${user.displayName} to the team`, 5);
 }
