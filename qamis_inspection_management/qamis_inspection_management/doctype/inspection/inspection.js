@@ -163,9 +163,12 @@ function show_checklist_search_dialog(frm) {
 }
 
 function add_checklist(frm, checklist) {
-    let checklists = JSON.parse(frm.doc.checklists || '[]');
-    checklists.push(checklist);
-    frm.set_value('checklists', JSON.stringify(checklists));
+    frm.add_child('checklists', {
+        id: checklist.id,
+        name: checklist.name,
+        description: checklist.description || ''
+    });
+    frm.refresh_field('checklists');
     frm.save();
     frappe.show_alert(`Added ${checklist.name} to the checklists`, 5);
 }

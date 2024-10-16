@@ -81,9 +81,9 @@
   },
   {
    "fieldname": "checklists",
-   "fieldtype": "Long Text",
+   "fieldtype": "Table",
    "label": "Checklists",
-   "description": "JSON data of checklists (DHIS2 Datasets) from external API"
+   "options": "Inspection Checklist"
   },
   {
    "fieldname": "inspection_details_section",
