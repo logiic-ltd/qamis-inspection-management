@@ -3,6 +3,7 @@ from frappe.model.document import Document
 import json
 import requests
 import logging
+from ..inspection_checklist.inspection_checklist import InspectionChecklist
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
