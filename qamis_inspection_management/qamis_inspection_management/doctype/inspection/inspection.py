@@ -42,7 +42,7 @@ class Inspection(Document):
 @frappe.whitelist()
 def search_users(search_term):
     logger.info(f"Searching users with term: {search_term}")
-    url = f"http://localhost:8081/api/dhis2users/search/name?name={search_term}&page=0&size=20&sort=username,asc"
+    url = f"http://192.168.0.100:8081/api/dhis2users/search/name?name={search_term}&page=0&size=20&sort=username,asc"
     try:
         logger.info(f"Sending request to: {url}")
         response = requests.get(url, timeout=5)
