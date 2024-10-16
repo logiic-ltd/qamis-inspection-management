@@ -141,7 +141,7 @@ override_doctype_class = {
 
 doc_events = {
 	"Inspection": {
-		"on_update": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.on_update",
+		"on_update": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.Inspection.on_update",
 		"on_cancel": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.on_cancel",
 		"on_trash": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.on_trash"
 	}
