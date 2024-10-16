@@ -23,11 +23,7 @@
   "objectives",
   "methodology",
   "summary_section",
-  "executive_summary",
-  "comments_section",
-  "department_manager_comments",
-  "head_of_department_comments",
-  "director_general_comments"
+  "executive_summary"
  ],
  "fields": [
   {
@@ -119,26 +115,6 @@
    "fieldtype": "Text Editor",
    "label": "Executive Summary"
   },
-  {
-   "fieldname": "comments_section",
-   "fieldtype": "Section Break",
-   "label": "Comments"
-  },
-  {
-   "fieldname": "department_manager_comments",
-   "fieldtype": "Text Editor",
-   "label": "Department Manager Comments"
-  },
-  {
-   "fieldname": "head_of_department_comments",
-   "fieldtype": "Text Editor",
-   "label": "Head of Department Comments"
-  },
-  {
-   "fieldname": "director_general_comments",
-   "fieldtype": "Text Editor",
-   "label": "Director-General Comments"
-  }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
