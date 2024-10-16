@@ -39,7 +39,7 @@ def get_schools_from_external_service():
 @frappe.whitelist()
 def search_users(search_term):
     logger.info(f"Searching users with term: {search_term}")
-    url = f"http://192.168.0.100:8081/api/dhis2users/search/name?name={search_term}&page=0&size=20&sort=username,asc"
+    url = f"http://192.168.8.107:8081/api/dhis2users/search/name?name={search_term}&page=0&size=20&sort=username,asc"
     try:
         logger.info(f"Sending request to: {url}")
         response = requests.get(url, timeout=5)
@@ -60,7 +60,7 @@ def search_users(search_term):
 @frappe.whitelist()
 def search_checklists(search_term):
     logger.info(f"Searching checklists with term: {search_term}")
-    url = f"http://192.168.0.100:8081/api/dhis2datasets/search/name?name={search_term}&page=0&size=20&sort=name,asc"
+    url = f"http://192.168.8.107:8081/api/dhis2datasets/search/name?name={search_term}&page=0&size=20&sort=name,asc"
     try:
         logger.info(f"Sending request to: {url}")
         response = requests.get(url, timeout=5)
