@@ -165,7 +165,7 @@ function show_checklist_search_dialog(frm) {
 function add_checklist(frm, checklist) {
     frm.add_child('checklists', {
         id: checklist.id,
-        name: checklist.displayName,  // Changed from checklist.name to checklist.displayName
+        name: checklist.name,  // Changed back to checklist.name
         short_name: checklist.shortName,
         period_type: checklist.periodType,
         last_updated: checklist.lastUpdated
@@ -173,5 +173,5 @@ function add_checklist(frm, checklist) {
     });
     frm.refresh_field('checklists');
     frm.save();
-    frappe.show_alert(`Added ${checklist.displayName} to the checklists`, 5);
+    frappe.show_alert(`Added ${checklist.name} to the checklists`, 5);
 }
