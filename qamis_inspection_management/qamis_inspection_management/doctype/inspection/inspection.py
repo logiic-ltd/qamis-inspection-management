@@ -10,31 +10,29 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class Inspection(Document):
-    pass
+    def before_save(self):
+        logger.info(f"Saving Inspection: {self.name}")
+        self.fetch_external_data()
 
-def before_save(doc, method):
-    logger.info(f"Saving Inspection: {doc.name}")
-    fetch_external_data(doc)
+    def fetch_external_data(self):
+        logger.info(f"Fetching external data for Inspection: {self.name}")
+        self.checklists = json.dumps(self.get_checklists_from_external_service())
+        self.schools = json.dumps(self.get_schools_from_external_service())
+        logger.info(f"External data fetched for Inspection: {self.name}")
 
-def fetch_external_data(doc):
-    logger.info(f"Fetching external data for Inspection: {doc.name}")
-    doc.checklists = json.dumps(get_checklists_from_external_service())
-    doc.schools = json.dumps(get_schools_from_external_service())
-    logger.info(f"External data fetched for Inspection: {doc.name}")
+    def get_checklists_from_external_service(self):
+        logger.info("Fetching checklists from external service")
+        # TODO: Replace with actual API call to DHIS2
+        checklists = [{"id": "dataset1", "name": "Checklist A"}, {"id": "dataset2", "name": "Checklist B"}]
+        logger.info(f"Fetched {len(checklists)} checklists")
+        return checklists
 
-def get_checklists_from_external_service():
-    logger.info("Fetching checklists from external service")
-    # TODO: Replace with actual API call to DHIS2
-    checklists = [{"id": "dataset1", "name": "Checklist A"}, {"id": "dataset2", "name": "Checklist B"}]
-    logger.info(f"Fetched {len(checklists)} checklists")
-    return checklists
-
-def get_schools_from_external_service():
-    logger.info("Fetching schools from external service")
-    # TODO: Replace with actual API call to DHIS2
-    schools = [{"id": "ou1", "name": "School X"}, {"id": "ou2", "name": "School Y"}]
-    logger.info(f"Fetched {len(schools)} schools")
-    return schools
+    def get_schools_from_external_service(self):
+        logger.info("Fetching schools from external service")
+        # TODO: Replace with actual API call to DHIS2
+        schools = [{"id": "ou1", "name": "School X"}, {"id": "ou2", "name": "School Y"}]
+        logger.info(f"Fetched {len(schools)} schools")
+        return schools
 
 @frappe.whitelist()
 def search_users(search_term):
