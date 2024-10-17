@@ -8,9 +8,9 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class CustomInspection(Document):
+class Inspection(Document):
     def __init__(self, *args, **kwargs):
-        super(CustomInspection, self).__init__(*args, **kwargs)
+        super(Inspection, self).__init__(*args, **kwargs)
     def before_save(self):
         logger.info(f"Saving Inspection: {self.name}")
         self.fetch_external_data()
