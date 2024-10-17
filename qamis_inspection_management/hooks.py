@@ -132,7 +132,7 @@ app_license = "MIT"
 # Override standard doctype classes
 
 override_doctype_class = {
-	"Inspection": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.Inspection"
+	"Inspection": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.Inspection"
 }
 
 # Doctype Class
