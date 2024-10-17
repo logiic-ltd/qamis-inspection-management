@@ -9,8 +9,22 @@ frappe.ui.form.on('Inspection', {
         frm.add_custom_button(__('Add School'), function() {
             show_school_search_dialog(frm);
         });
+        frm.add_custom_button(__('Save Inspection'), function() {
+            save_inspection(frm);
+        });
     }
 });
+
+function save_inspection(frm) {
+    frm.save()
+        .then(() => {
+            frappe.show_alert(__('Inspection saved successfully'), 5);
+        })
+        .catch((err) => {
+            console.error("Error saving inspection:", err);
+            frappe.msgprint(__("Error saving inspection. Please try again."));
+        });
+}
 
 function show_school_search_dialog(frm) {
     show_search_dialog(frm, 'School', 'schools', 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_schools', add_school);
@@ -106,7 +120,6 @@ function add_school(frm, school) {
         village: school.village
     });
     frm.refresh_field('schools');
-    frm.save();
     frappe.show_alert(`Added ${school.schoolName} to the schools`, 5);
 }
 
@@ -188,14 +201,7 @@ function add_team_member(frm, user) {
         displayName: user.displayName
     });
     frm.refresh_field('team_members');
-    frm.save()
-        .then(() => {
-            frappe.show_alert(`Added ${user.displayName} to the team`, 5);
-        })
-        .catch((err) => {
-            console.error("Error saving team member:", err);
-            frappe.msgprint(__("Error adding team member. Please try again."));
-        });
+    frappe.show_alert(`Added ${user.displayName} to the team`, 5);
 }
 
 function show_checklist_search_dialog(frm) {
@@ -278,6 +284,5 @@ function add_checklist(frm, checklist) {
         last_updated: checklist.lastUpdated
     });
     frm.refresh_field('checklists');
-    frm.save();
     frappe.show_alert(`Added ${checklist.name} (${checklist.shortName}) to the checklists`, 5);
 }
