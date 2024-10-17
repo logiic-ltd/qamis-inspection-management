@@ -135,6 +135,14 @@ override_doctype_class = {
 	"Inspection": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.Inspection"
 }
 
+# Doctype Class
+# ---------------
+# Override standard doctype classes
+
+doctype_js = {
+    "Inspection": "qamis_inspection_management/doctype/inspection/inspection.js"
+}
+
 # Document Events
 # ---------------
 # Hook on document methods and events
