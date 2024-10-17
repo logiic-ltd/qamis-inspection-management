@@ -19,6 +19,15 @@ class Inspection(Document):
         self.schools = json.dumps(self.get_schools_from_external_service())
         logger.info(f"External data fetched for Inspection: {self.name}")
 
+    def validate(self):
+        self.validate_team_members()
+
+    def validate_team_members(self):
+        logger.info(f"Validating team members for Inspection: {self.name}")
+        for member in self.team_members:
+            if not all([member.id, member.username, member.displayName]):
+                frappe.throw(_("All team member fields (ID, Username, Display Name) are required."))
+
     def get_checklists_from_external_service(self):
         logger.info("Fetching checklists from external service")
         # TODO: Replace with actual API call to DHIS2

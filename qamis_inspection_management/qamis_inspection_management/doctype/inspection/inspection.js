@@ -188,8 +188,14 @@ function add_team_member(frm, user) {
         displayName: user.displayName
     });
     frm.refresh_field('team_members');
-    frm.save();
-    frappe.show_alert(`Added ${user.displayName} to the team`, 5);
+    frm.save()
+        .then(() => {
+            frappe.show_alert(`Added ${user.displayName} to the team`, 5);
+        })
+        .catch((err) => {
+            console.error("Error saving team member:", err);
+            frappe.msgprint(__("Error adding team member. Please try again."));
+        });
 }
 
 function show_checklist_search_dialog(frm) {
