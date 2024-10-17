@@ -87,7 +87,6 @@ function add_school(frm, school) {
     frm.add_child('schools', {
         school_code: school.schoolCode,
         school_name: school.schoolName,
-        address: school.address || '',
         province: school.province,
         district: school.district,
         sector: school.sector,

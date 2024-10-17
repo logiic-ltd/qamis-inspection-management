@@ -8,7 +8,6 @@
  "field_order": [
   "school_code",
   "school_name",
-  "address",
   "province",
   "district",
   "sector",
@@ -29,20 +28,16 @@
    "in_list_view": 1
   },
   {
-   "fieldname": "address",
-   "fieldtype": "Data",
-   "label": "Address",
-   "in_list_view": 1
-  },
-  {
    "fieldname": "province",
    "fieldtype": "Data",
-   "label": "Province"
+   "label": "Province",
+   "in_list_view": 1
   },
   {
    "fieldname": "district",
    "fieldtype": "Data",
-   "label": "District"
+   "label": "District",
+   "in_list_view": 1
   },
   {
    "fieldname": "sector",
