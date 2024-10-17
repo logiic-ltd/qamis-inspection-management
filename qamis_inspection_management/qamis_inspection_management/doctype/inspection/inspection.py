@@ -39,58 +39,31 @@ class Inspection(Document):
 def search_users(search_term):
     logger.info(f"Searching users with term: {search_term}")
     url = f"http://192.168.8.107:8081/api/dhis2users/search/name?name={search_term}&page=0&size=20&sort=username,asc"
-    try:
-        logger.info(f"Sending request to: {url}")
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            data = response.json()
-            logger.info(f"Received {len(data['content'])} users from API")
-            return data['content']
-        else:
-            logger.error(f"Error fetching users from API. Status code: {response.status_code}")
-            frappe.msgprint("Error fetching users from external API. Please try again later.")
-            return []
-    except requests.exceptions.RequestException as e:
-        logger.error(f"API Connection Error: {str(e)}")
-        frappe.msgprint("Unable to connect to the external API. Please check if the server is running and try again.")
-        frappe.log_error(f"API Connection Error: {str(e)}")
-        return []
+    return _make_api_request(url, "users")
 
 @frappe.whitelist()
 def search_checklists(search_term):
     logger.info(f"Searching checklists with term: {search_term}")
     url = f"http://192.168.8.107:8081/api/dhis2datasets/search/name?name={search_term}&page=0&size=20&sort=name,asc"
-    try:
-        logger.info(f"Sending request to: {url}")
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            data = response.json()
-            logger.info(f"Received {len(data['content'])} checklists from API")
-            return data['content']
-        else:
-            logger.error(f"Error fetching checklists from API. Status code: {response.status_code}")
-            frappe.msgprint("Error fetching checklists from external API. Please try again later.")
-            return []
-    except requests.exceptions.RequestException as e:
-        logger.error(f"API Connection Error: {str(e)}")
-        frappe.msgprint("Unable to connect to the external API. Please check if the server is running and try again.")
-        frappe.log_error(f"API Connection Error: {str(e)}")
-        return []
+    return _make_api_request(url, "checklists")
 
 @frappe.whitelist()
 def search_schools(search_term):
     logger.info(f"Searching schools with term: {search_term}")
     url = f"http://192.168.8.107:8081/api/schools/search?name={search_term}&page=0&size=20&sort=schoolName,asc"
+    return _make_api_request(url, "schools")
+
+def _make_api_request(url, item_type):
     try:
         logger.info(f"Sending request to: {url}")
         response = requests.get(url, timeout=5)
         if response.status_code == 200:
             data = response.json()
-            logger.info(f"Received {len(data['content'])} schools from API")
+            logger.info(f"Received {len(data['content'])} {item_type} from API")
             return data['content']
         else:
-            logger.error(f"Error fetching schools from API. Status code: {response.status_code}")
-            frappe.msgprint("Error fetching schools from external API. Please try again later.")
+            logger.error(f"Error fetching {item_type} from API. Status code: {response.status_code}")
+            frappe.msgprint(f"Error fetching {item_type} from external API. Please try again later.")
             return []
     except requests.exceptions.RequestException as e:
         logger.error(f"API Connection Error: {str(e)}")

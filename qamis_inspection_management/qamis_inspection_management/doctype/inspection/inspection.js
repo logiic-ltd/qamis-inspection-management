@@ -13,8 +13,20 @@ frappe.ui.form.on('Inspection', {
 });
 
 function show_school_search_dialog(frm) {
+    show_search_dialog(frm, 'School', 'schools', 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_schools', add_school);
+}
+
+function show_user_search_dialog(frm) {
+    show_search_dialog(frm, 'Team Member', 'users', 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_users', add_team_member);
+}
+
+function show_checklist_search_dialog(frm) {
+    show_search_dialog(frm, 'Checklist', 'checklists', 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_checklists', add_checklist);
+}
+
+function show_search_dialog(frm, title, item_type, search_method, add_function) {
     let d = new frappe.ui.Dialog({
-        title: 'Search and Add School',
+        title: `Search and Add ${title}`,
         fields: [
             {
                 label: 'Search',
@@ -50,26 +62,26 @@ function show_school_search_dialog(frm) {
 
         searchTimeout = setTimeout(() => {
             frappe.call({
-                method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_schools',
+                method: search_method,
                 args: {
                     search_term: search_term
                 },
                 callback: function(r) {
                     if (r.message && r.message.length > 0) {
-                        let schools = r.message;
-                        let html = schools.map(school => `
-                            <div class="school-item" style="cursor: pointer; padding: 5px; border-bottom: 1px solid #ccc;">
-                                <strong>${frappe.utils.escape_html(school.schoolName)}</strong>
+                        let items = r.message;
+                        let html = items.map(item => `
+                            <div class="${item_type}-item" style="cursor: pointer; padding: 5px; border-bottom: 1px solid #ccc;">
+                                <strong>${frappe.utils.escape_html(item.name || item.displayName || item.schoolName)}</strong>
                                 <br>
-                                <small>${frappe.utils.escape_html(school.province)}, ${frappe.utils.escape_html(school.district)}</small>
+                                <small>${frappe.utils.escape_html(item.username || item.shortName || (item.province + ', ' + item.district))}</small>
                             </div>
                         `).join('');
                         $results.html(html);
 
-                        $results.find('.school-item').on('click', function() {
+                        $results.find(`.${item_type}-item`).on('click', function() {
                             let index = $(this).index();
-                            let school = schools[index];
-                            add_school(frm, school);
+                            let item = items[index];
+                            add_function(frm, item);
                             d.hide();
                         });
                     } else {
