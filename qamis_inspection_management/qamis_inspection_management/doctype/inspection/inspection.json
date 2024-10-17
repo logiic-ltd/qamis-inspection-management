@@ -70,9 +70,9 @@
   },
   {
    "fieldname": "schools",
-   "fieldtype": "Long Text",
+   "fieldtype": "Table",
    "label": "Schools",
-   "description": "JSON data of schools (DHIS2 Organization Units) from external API"
+   "options": "Inspection School"
   },
   {
    "fieldname": "checklists_section",

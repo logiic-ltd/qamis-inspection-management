@@ -74,3 +74,24 @@ def search_checklists(search_term):
         frappe.msgprint("Unable to connect to the external API. Please check if the server is running and try again.")
         frappe.log_error(f"API Connection Error: {str(e)}")
         return []
+
+@frappe.whitelist()
+def search_schools(search_term):
+    logger.info(f"Searching schools with term: {search_term}")
+    url = f"http://192.168.8.107:8081/api/schools/search?name={search_term}&page=0&size=20&sort=schoolName,asc"
+    try:
+        logger.info(f"Sending request to: {url}")
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            logger.info(f"Received {len(data['content'])} schools from API")
+            return data['content']
+        else:
+            logger.error(f"Error fetching schools from API. Status code: {response.status_code}")
+            frappe.msgprint("Error fetching schools from external API. Please try again later.")
+            return []
+    except requests.exceptions.RequestException as e:
+        logger.error(f"API Connection Error: {str(e)}")
+        frappe.msgprint("Unable to connect to the external API. Please check if the server is running and try again.")
+        frappe.log_error(f"API Connection Error: {str(e)}")
+        return []
