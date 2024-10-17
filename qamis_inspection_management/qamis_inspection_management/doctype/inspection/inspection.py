@@ -36,8 +36,15 @@ class Inspection(Document):
 @frappe.whitelist()
 def search_users(search_term):
     logger.info(f"Searching users with term: {search_term}")
-    url = f"http://192.168.8.107:8081/api/dhis2users/search/name?name={search_term}&page=0&size=20&sort=username,asc"
-    return _make_api_request(url, "users")
+    try:
+        url = f"http://192.168.8.107:8081/api/dhis2users/search/name?name={search_term}&page=0&size=20&sort=username,asc"
+        result = _make_api_request(url, "users")
+        logger.info(f"Search users result: {result}")
+        return result
+    except Exception as e:
+        logger.error(f"Error in search_users: {str(e)}")
+        frappe.log_error(f"Error in search_users: {str(e)}")
+        return []
 
 @frappe.whitelist()
 def search_checklists(search_term):
@@ -55,16 +62,22 @@ def _make_api_request(url, item_type):
     try:
         logger.info(f"Sending request to: {url}")
         response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            data = response.json()
-            logger.info(f"Received {len(data['content'])} {item_type} from API")
-            return data['content']
-        else:
-            logger.error(f"Error fetching {item_type} from API. Status code: {response.status_code}")
-            frappe.msgprint(f"Error fetching {item_type} from external API. Please try again later.")
-            return []
+        response.raise_for_status()  # This will raise an HTTPError for bad responses
+        data = response.json()
+        logger.info(f"Received {len(data['content'])} {item_type} from API")
+        return data['content']
     except requests.exceptions.RequestException as e:
-        logger.error(f"API Connection Error: {str(e)}")
-        frappe.msgprint("Unable to connect to the external API. Please check if the server is running and try again.")
-        frappe.log_error(f"API Connection Error: {str(e)}")
+        logger.error(f"API Connection Error for {item_type}: {str(e)}")
+        frappe.log_error(f"API Connection Error for {item_type}: {str(e)}")
+        frappe.msgprint(f"Unable to fetch {item_type} from the external API. Please try again later.")
+        return []
+    except ValueError as e:  # This will catch JSON decoding errors
+        logger.error(f"JSON Decoding Error for {item_type}: {str(e)}")
+        frappe.log_error(f"JSON Decoding Error for {item_type}: {str(e)}")
+        frappe.msgprint(f"Error processing {item_type} data from the external API. Please try again later.")
+        return []
+    except Exception as e:
+        logger.error(f"Unexpected Error in _make_api_request for {item_type}: {str(e)}")
+        frappe.log_error(f"Unexpected Error in _make_api_request for {item_type}: {str(e)}")
+        frappe.msgprint(f"An unexpected error occurred while fetching {item_type}. Please try again later.")
         return []
