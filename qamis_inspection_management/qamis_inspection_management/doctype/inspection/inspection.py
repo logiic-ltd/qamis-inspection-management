@@ -9,18 +9,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class Inspection(Document):
-    def before_save(self):
-        logger.info(f"Saving Inspection: {self.name}")
+    def validate(self):
+        logger.info(f"Validating Inspection: {self.name}")
         self.fetch_external_data()
+        self.validate_team_members()
 
     def fetch_external_data(self):
         logger.info(f"Fetching external data for Inspection: {self.name}")
         self.checklists = json.dumps(self.get_checklists_from_external_service())
         self.schools = json.dumps(self.get_schools_from_external_service())
         logger.info(f"External data fetched for Inspection: {self.name}")
-
-    def validate(self):
-        self.validate_team_members()
 
     def validate_team_members(self):
         logger.info(f"Validating team members for Inspection: {self.name}")
