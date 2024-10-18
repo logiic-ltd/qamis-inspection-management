@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 class Inspection(Document):
     def validate(self):
         logger.info(f"Validating Inspection: {self.name}")
+        if not self.name:
+            self.name = frappe.new_doc("Inspection").name
         self.fetch_external_data()
         self.validate_team_members()
         self.validate_dates()
