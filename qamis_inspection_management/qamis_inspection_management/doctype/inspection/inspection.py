@@ -36,7 +36,10 @@ class Inspection(Document):
                 "last_updated": checklist.get("lastUpdated")
             })
             checklist_doc.insert(ignore_permissions=True)
-            self.append("checklists", {"inspection_checklist": checklist_doc.name})
+            self.append("checklists", {
+                "doctype": "Inspection Checklist Link",
+                "inspection_checklist": checklist_doc.name
+            })
         
         # Add new schools
         for school in schools:
