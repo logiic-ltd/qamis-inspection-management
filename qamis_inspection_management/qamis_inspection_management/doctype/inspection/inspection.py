@@ -12,52 +12,69 @@ logger = logging.getLogger(__name__)
 class Inspection(Document):
     def validate(self):
         logger.info(f"Validating Inspection: {self.name}")
-        self.fetch_external_data()
         self.validate_team_members()
         self.validate_dates()
 
-    def fetch_external_data(self):
-        logger.info(f"Fetching external data for Inspection: {self.name}")
-        checklists = self.get_checklists_from_external_service()
-        schools = self.get_schools_from_external_service()
-        
-        # Clear existing checklists and schools
-        self.checklists = []
-        self.schools = []
-        
-        # Add new checklists
-        for checklist in checklists:
-            self.append("checklists", {
-                "id": checklist.get("id"),
-                "name": checklist.get("name"),
-                "short_name": checklist.get("shortName"),
-                "period_type": checklist.get("periodType"),
-                "last_updated": checklist.get("lastUpdated")
-            })
-        
-        # Add new schools
-        for school in schools:
-            self.append("schools", {
-                "school_code": school.get("schoolCode"),
-                "school_name": school.get("schoolName"),
-                "province": school.get("province"),
-                "district": school.get("district"),
-                "sector": school.get("sector"),
-                "cell": school.get("cell"),
-                "village": school.get("village")
-            })
-        
-        logger.info(f"External data fetched for Inspection: {self.name}")
+    def before_save(self):
+        logger.info(f"Before saving Inspection: {self.name}")
+        self.save_linked_documents()
+
+    def save_linked_documents(self):
+        logger.info(f"Saving linked documents for Inspection: {self.name}")
+        self.save_team_members()
+        self.save_schools()
+        self.save_checklists()
+
+    def save_team_members(self):
+        for member in self.team_members:
+            if not member.get("id"):  # Only save new members
+                team_member = frappe.get_doc({
+                    "doctype": "Inspection Team Member",
+                    "id": member.get("id"),
+                    "username": member.get("username"),
+                    "displayName": member.get("displayName")
+                })
+                team_member.insert(ignore_permissions=True)
+                logger.info(f"Saved team member: {team_member.name}")
+
+    def save_schools(self):
+        for school in self.schools:
+            if not school.get("school_code"):  # Only save new schools
+                school_doc = frappe.get_doc({
+                    "doctype": "Inspection School",
+                    "school_code": school.get("school_code"),
+                    "school_name": school.get("school_name"),
+                    "province": school.get("province"),
+                    "district": school.get("district"),
+                    "sector": school.get("sector"),
+                    "cell": school.get("cell"),
+                    "village": school.get("village")
+                })
+                school_doc.insert(ignore_permissions=True)
+                logger.info(f"Saved school: {school_doc.name}")
+
+    def save_checklists(self):
+        for checklist in self.checklists:
+            if not checklist.get("id"):  # Only save new checklists
+                checklist_doc = frappe.get_doc({
+                    "doctype": "Inspection Checklist",
+                    "id": checklist.get("id"),
+                    "name": checklist.get("name"),
+                    "short_name": checklist.get("short_name"),
+                    "period_type": checklist.get("period_type"),
+                    "last_updated": checklist.get("last_updated")
+                })
+                checklist_doc.insert(ignore_permissions=True)
+                logger.info(f"Saved checklist: {checklist_doc.name}")
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")
-        # No need to update checklists separately as they are now part of the Inspection document
         logger.info(f"Inspection {self.name} updated")
 
     def validate_team_members(self):
         logger.info(f"Validating team members for Inspection: {self.name}")
         for member in self.team_members:
-            if not all([member.id, member.username, member.displayName]):
+            if not all([member.get("id"), member.get("username"), member.get("displayName")]):
                 frappe.throw(_("All team member fields (ID, Username, Display Name) are required."))
 
     def validate_dates(self):
