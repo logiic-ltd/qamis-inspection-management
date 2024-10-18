@@ -1,11 +1,13 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "hash",
  "creation": "2023-05-11 12:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "inspection",
   "id",
   "name",
   "short_name",
@@ -13,6 +15,13 @@
   "last_updated"
  ],
  "fields": [
+  {
+   "fieldname": "inspection",
+   "fieldtype": "Link",
+   "label": "Inspection",
+   "options": "Inspection",
+   "reqd": 1
+  },
   {
    "fieldname": "id",
    "fieldtype": "Data",
