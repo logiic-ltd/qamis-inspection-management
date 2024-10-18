@@ -84,7 +84,7 @@
    "fieldname": "checklists",
    "fieldtype": "Table",
    "label": "Checklists",
-   "options": "Inspection Checklist Link"
+   "options": "Inspection Checklist"
   },
   {
    "fieldname": "inspection_details_section",

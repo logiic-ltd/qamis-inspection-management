@@ -27,18 +27,12 @@ class Inspection(Document):
         
         # Add new checklists
         for checklist in checklists:
-            checklist_doc = frappe.get_doc({
-                "doctype": "Inspection Checklist",
+            self.append("checklists", {
                 "id": checklist.get("id"),
                 "name": checklist.get("name"),
                 "short_name": checklist.get("shortName"),
                 "period_type": checklist.get("periodType"),
                 "last_updated": checklist.get("lastUpdated")
-            })
-            checklist_doc.insert(ignore_permissions=True)
-            self.append("checklists", {
-                "doctype": "Inspection Checklist Link",
-                "inspection_checklist": checklist_doc.name
             })
         
         # Add new schools
@@ -57,11 +51,7 @@ class Inspection(Document):
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")
-        for checklist in self.checklists:
-            if frappe.db.exists("Inspection Checklist", checklist.inspection_checklist):
-                doc = frappe.get_doc("Inspection Checklist", checklist.inspection_checklist)
-                doc.inspection = self.name
-                doc.save(ignore_permissions=True)
+        # No need to update checklists separately as they are now part of the Inspection document
         logger.info(f"Inspection {self.name} updated")
 
     def validate_team_members(self):

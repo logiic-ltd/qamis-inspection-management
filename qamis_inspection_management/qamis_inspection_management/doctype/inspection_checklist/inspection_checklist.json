@@ -7,7 +7,6 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "inspection",
   "id",
   "name",
   "short_name",
@@ -16,44 +15,32 @@
  ],
  "fields": [
   {
-   "fieldname": "inspection",
-   "fieldtype": "Link",
-   "label": "Inspection",
-   "options": "Inspection",
-   "reqd": 0
-  },
-  {
    "fieldname": "id",
    "fieldtype": "Data",
    "label": "ID",
-   "read_only": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "name",
    "fieldtype": "Data",
    "label": "Name",
-   "read_only": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "short_name",
    "fieldtype": "Data",
    "label": "Short Name",
-   "read_only": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "period_type",
    "fieldtype": "Data",
-   "label": "Period Type",
-   "read_only": 1
+   "label": "Period Type"
   },
   {
    "fieldname": "last_updated",
    "fieldtype": "Datetime",
-   "label": "Last Updated",
-   "read_only": 1
+   "label": "Last Updated"
   }
  ],
  "index_web_pages_for_search": 1,
