@@ -156,3 +156,8 @@ def _make_api_request(url, item_type):
         frappe.log_error(f"Unexpected Error in _make_api_request for {item_type}: {str(e)}")
         frappe.msgprint(f"An unexpected error occurred while fetching {item_type}. Please try again later.")
         return []
+
+def on_submit(doc, method):
+    logger.info(f"Inspection {doc.name} submitted")
+    # Add any logic you want to execute when the inspection is submitted
+    frappe.msgprint(_("Inspection submitted successfully"))
