@@ -14,6 +14,7 @@ class Inspection(Document):
         logger.info(f"Validating Inspection: {self.name}")
         self.fetch_external_data()
         self.validate_team_members()
+        self.validate_dates()
 
     def fetch_external_data(self):
         logger.info(f"Fetching external data for Inspection: {self.name}")
@@ -26,6 +27,11 @@ class Inspection(Document):
         for member in self.team_members:
             if not all([member.id, member.username, member.displayName]):
                 frappe.throw(_("All team member fields (ID, Username, Display Name) are required."))
+
+    def validate_dates(self):
+        logger.info(f"Validating dates for Inspection: {self.name}")
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            frappe.throw(_("End Date cannot be before Start Date"))
 
     def get_checklists_from_external_service(self):
         logger.info("Fetching checklists from external service")

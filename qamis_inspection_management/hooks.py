@@ -149,7 +149,6 @@ doctype_js = {
 
 doc_events = {
 	"Inspection": {
-		"before_save": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.before_save",
 		"on_update": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.on_update",
 		"on_submit": "qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.on_submit"
 	}
