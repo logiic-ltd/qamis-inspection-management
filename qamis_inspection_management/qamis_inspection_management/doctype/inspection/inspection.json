@@ -28,16 +28,10 @@
  ],
  "fields": [
   {
-   "fieldname": "inspection",
-   "fieldtype": "Link",
-   "label": "Inspection",
-   "options": "Inspection",
-   "reqd": 1
-  },
-  {
    "fieldname": "inspection_name",
    "fieldtype": "Data",
-   "label": "Inspection Name"
+   "label": "Inspection Name",
+   "reqd": 1
   },
   {
    "fieldname": "basic_information_section",
