@@ -20,7 +20,7 @@
    "fieldtype": "Link",
    "label": "Inspection",
    "options": "Inspection",
-   "reqd": 1
+   "reqd": 0
   },
   {
    "fieldname": "id",
