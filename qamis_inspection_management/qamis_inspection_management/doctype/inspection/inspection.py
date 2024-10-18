@@ -28,6 +28,7 @@ class Inspection(Document):
         # Add new checklists
         for checklist in checklists:
             self.append("checklists", {
+                "inspection": self.name,
                 "id": checklist.get("id"),
                 "name": checklist.get("name"),
                 "short_name": checklist.get("shortName"),
