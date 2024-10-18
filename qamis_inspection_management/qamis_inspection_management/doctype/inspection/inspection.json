@@ -142,7 +142,7 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "search_fields": "inspection_name,start_date,end_date",
+ "search_fields": "inspection_name,start_date,end_date,status",
  "list_view_fields": [
   {
    "fieldname": "inspection_name",
@@ -160,6 +160,24 @@
    "fieldname": "end_date",
    "fieldtype": "Date",
    "label": "End Date",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "schools_count",
+   "fieldtype": "Int",
+   "label": "Schools",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "team_members_count",
+   "fieldtype": "Int",
+   "label": "Team Members",
    "in_list_view": 1
   }
  ]

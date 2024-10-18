@@ -18,6 +18,12 @@ class Inspection(Document):
     def before_save(self):
         logger.info(f"Before saving Inspection: {self.name}")
         self.save_linked_documents()
+        self.update_count_fields()
+
+    def update_count_fields(self):
+        self.schools_count = len(self.schools)
+        self.team_members_count = len(self.team_members)
+        logger.info(f"Updated count fields for Inspection {self.name}: Schools: {self.schools_count}, Team Members: {self.team_members_count}")
 
     def save_linked_documents(self):
         logger.info(f"Saving linked documents for Inspection: {self.name}")
