@@ -18,8 +18,35 @@ class Inspection(Document):
 
     def fetch_external_data(self):
         logger.info(f"Fetching external data for Inspection: {self.name}")
-        self.checklists = json.dumps(self.get_checklists_from_external_service())
-        self.schools = json.dumps(self.get_schools_from_external_service())
+        checklists = self.get_checklists_from_external_service()
+        schools = self.get_schools_from_external_service()
+        
+        # Clear existing checklists and schools
+        self.checklists = []
+        self.schools = []
+        
+        # Add new checklists
+        for checklist in checklists:
+            self.append("checklists", {
+                "id": checklist.get("id"),
+                "name": checklist.get("name"),
+                "short_name": checklist.get("shortName"),
+                "period_type": checklist.get("periodType"),
+                "last_updated": checklist.get("lastUpdated")
+            })
+        
+        # Add new schools
+        for school in schools:
+            self.append("schools", {
+                "school_code": school.get("schoolCode"),
+                "school_name": school.get("schoolName"),
+                "province": school.get("province"),
+                "district": school.get("district"),
+                "sector": school.get("sector"),
+                "cell": school.get("cell"),
+                "village": school.get("village")
+            })
+        
         logger.info(f"External data fetched for Inspection: {self.name}")
 
     def validate_team_members(self):
@@ -36,14 +63,48 @@ class Inspection(Document):
     def get_checklists_from_external_service(self):
         logger.info("Fetching checklists from external service")
         # TODO: Replace with actual API call to DHIS2
-        checklists = [{"id": "dataset1", "name": "Checklist A"}, {"id": "dataset2", "name": "Checklist B"}]
+        checklists = [
+            {
+                "id": "dataset1",
+                "name": "Checklist A",
+                "shortName": "CA",
+                "periodType": "Monthly",
+                "lastUpdated": "2023-05-15 10:00:00"
+            },
+            {
+                "id": "dataset2",
+                "name": "Checklist B",
+                "shortName": "CB",
+                "periodType": "Quarterly",
+                "lastUpdated": "2023-05-14 14:30:00"
+            }
+        ]
         logger.info(f"Fetched {len(checklists)} checklists")
         return checklists
 
     def get_schools_from_external_service(self):
         logger.info("Fetching schools from external service")
         # TODO: Replace with actual API call to DHIS2
-        schools = [{"id": "ou1", "name": "School X"}, {"id": "ou2", "name": "School Y"}]
+        schools = [
+            {
+                "schoolCode": "SCH001",
+                "schoolName": "School X",
+                "province": "Province A",
+                "district": "District 1",
+                "sector": "Sector X",
+                "cell": "Cell 1",
+                "village": "Village A"
+            },
+            {
+                "schoolCode": "SCH002",
+                "schoolName": "School Y",
+                "province": "Province B",
+                "district": "District 2",
+                "sector": "Sector Y",
+                "cell": "Cell 2",
+                "village": "Village B"
+            }
+        ]
         logger.info(f"Fetched {len(schools)} schools")
         return schools
 
