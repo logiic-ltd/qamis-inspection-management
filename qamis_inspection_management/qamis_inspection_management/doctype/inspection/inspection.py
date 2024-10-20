@@ -14,6 +14,15 @@ class Inspection(Document):
         logger.info(f"Validating Inspection: {self.name}")
         self.validate_team_members()
         self.validate_dates()
+        self.validate_status_transition()
+
+    def validate_status_transition(self):
+        if not self.is_new():
+            old_status = self.get_doc_before_save().status
+            if old_status == "Draft" and self.status == "Approved":
+                frappe.throw(_("Inspection cannot be directly approved from Draft status. Please set to Pending Review first."))
+            elif old_status == "Approved" and self.status in ["Draft", "Pending Review"]:
+                frappe.throw(_("Approved inspections cannot be set back to Draft or Pending Review status."))
 
     def before_save(self):
         logger.info(f"Before saving Inspection: {self.name}")
@@ -187,5 +196,7 @@ def _make_api_request(url, item_type):
 
 def on_submit(doc, method):
     logger.info(f"Inspection {doc.name} submitted")
-    # Add any logic you want to execute when the inspection is submitted
-    frappe.msgprint(_("Inspection submitted successfully"))
+    if doc.status == "Draft":
+        doc.status = "Pending Review"
+        doc.save()
+    frappe.msgprint(_("Inspection submitted successfully and status updated to Pending Review"))
