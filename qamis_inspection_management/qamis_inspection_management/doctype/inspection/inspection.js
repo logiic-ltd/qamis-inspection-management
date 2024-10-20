@@ -9,22 +9,8 @@ frappe.ui.form.on('Inspection', {
         frm.add_custom_button(__('Add School'), function() {
             show_school_search_dialog(frm);
         });
-        frm.add_custom_button(__('Save Inspection'), function() {
-            save_inspection(frm);
-        });
     }
 });
-
-function save_inspection(frm) {
-    frm.save()
-        .then(() => {
-            frappe.show_alert(__('Inspection saved successfully'), 5);
-        })
-        .catch((err) => {
-            console.error("Error saving inspection:", err);
-            frappe.msgprint(__("Error saving inspection. Please try again."));
-        });
-}
 
 function show_school_search_dialog(frm) {
     show_search_dialog(frm, 'School', 'schools', 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_schools', add_school);
