@@ -19,7 +19,6 @@ frappe.ui.form.on('Inspection', {
 function show_team_management_dialog(frm) {
     let d = new frappe.ui.Dialog({
         title: 'Manage Teams and Schools',
-        size: 'extra-large', // Use Frappe's predefined large size
         fields: [
             {
                 fieldname: 'search_section',
@@ -57,102 +56,42 @@ function show_team_management_dialog(frm) {
                 label: 'Teams and Schools'
             },
             {
-                fieldname: 'teams_html',
-                fieldtype: 'HTML'
+                fieldname: 'teams',
+                fieldtype: 'Table',
+                label: 'Teams',
+                fields: [
+                    {
+                        fieldname: 'team_name',
+                        fieldtype: 'Data',
+                        in_list_view: 1,
+                        label: 'Team Name'
+                    },
+                    {
+                        fieldname: 'members',
+                        fieldtype: 'Table',
+                        label: 'Members',
+                        options: 'Inspection Team Member'
+                    },
+                    {
+                        fieldname: 'schools',
+                        fieldtype: 'Table',
+                        label: 'Schools',
+                        options: 'Team School Assignment'
+                    }
+                ]
             }
         ],
         primary_action_label: 'Save',
         primary_action(values) {
-            save_teams_and_schools(frm);
+            save_teams_and_schools(frm, values.teams);
             d.hide();
             frm.save();
         }
     });
 
-    d.fields_dict.teams_html.$wrapper.html(get_teams_html(frm));
+    // Populate existing teams data
+    d.set_value('teams', frm.doc.teams || []);
     d.show();
-    
-    // Apply custom CSS to make the dialog wider
-    d.$wrapper.css({
-        'max-width': '90%',
-        'width': '90%'
-    });
-}
-
-function get_teams_html(frm) {
-    let teams_data = frm.teams_data || [];
-    let html = `
-        <div id="teams-container">
-            ${teams_data.map((team, index) => `
-                <div class="team-section" data-team-index="${index}">
-                    <h3>${team.team_name} <button class="btn btn-xs btn-default remove-team">Remove Team</button></h3>
-                    <div class="team-members">
-                        <h4>Team Members</h4>
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Username</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${(team.members || []).map(member => `
-                                    <tr>
-                                        <td>${member.displayName}</td>
-                                        <td>${member.username}</td>
-                                        <td><button class="btn btn-xs btn-default remove-member" data-member-id="${member.id}">Remove</button></td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="team-schools">
-                        <h4>Assigned Schools</h4>
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>School Name</th>
-                                    <th>School Code</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${(team.schools || []).map(school => `
-                                    <tr>
-                                        <td>${school.school_name}</td>
-                                        <td>${school.school_code}</td>
-                                        <td><button class="btn btn-xs btn-default remove-school" data-school-id="${school.id}">Remove</button></td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `).join('')}
-        </div>
-        <button id="add-team" class="btn btn-sm btn-primary">Add New Team</button>
-    `;
-
-    setTimeout(() => {
-        $('#add-team').on('click', () => add_new_team(frm));
-        $('.remove-team').on('click', function() {
-            let teamIndex = $(this).closest('.team-section').data('team-index');
-            remove_team(frm, teamIndex);
-        });
-        $('.remove-member').on('click', function() {
-            let teamIndex = $(this).closest('.team-section').data('team-index');
-            let memberId = $(this).data('member-id');
-            remove_team_member(frm, teamIndex, memberId);
-        });
-        $('.remove-school').on('click', function() {
-            let teamIndex = $(this).closest('.team-section').data('team-index');
-            let schoolId = $(this).data('school-id');
-            remove_school(frm, teamIndex, schoolId);
-        });
-    }, 0);
-
-    return html;
 }
 
 function perform_search(dialog, type, frm) {
@@ -168,28 +107,21 @@ function perform_search(dialog, type, frm) {
         callback: function(r) {
             if (r.message && r.message.length > 0) {
                 let results = r.message;
-                let html = `
-                    <div class="search-results">
-                        ${results.map(item => `
-                            <div class="search-item" data-item='${JSON.stringify(item)}'>
-                                <strong>${type === 'member' ? item.displayName : item.schoolName}</strong>
-                                <br>
-                                <small>${type === 'member' ? item.username : item.schoolCode}</small>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                dialog.fields_dict.search_results.$wrapper.html(html);
-
-                dialog.$wrapper.find('.search-item').on('click', function() {
-                    let item = JSON.parse($(this).attr('data-item'));
-                    if (type === 'member') {
-                        add_team_member(frm, item, 0);  // Assuming adding to the first team for simplicity
-                    } else {
-                        add_school_to_team(frm, item, 0);  // Assuming adding to the first team for simplicity
+                let fields = results.map(item => ({
+                    fieldtype: 'Button',
+                    fieldname: `add_${item.id}`,
+                    label: type === 'member' ? `Add ${item.displayName}` : `Add ${item.schoolName}`,
+                    click: () => {
+                        if (type === 'member') {
+                            add_team_member(dialog, item);
+                        } else {
+                            add_school_to_team(dialog, item);
+                        }
                     }
-                    dialog.fields_dict.teams_html.$wrapper.html(get_teams_html(frm));
-                });
+                }));
+                
+                dialog.fields_dict.search_results.df.fields = fields;
+                dialog.fields_dict.search_results.refresh();
             } else {
                 dialog.fields_dict.search_results.$wrapper.html('<p>No results found</p>');
             }
