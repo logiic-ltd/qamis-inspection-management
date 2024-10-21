@@ -247,6 +247,8 @@ function init_school_search(dialog) {
                             let index = $(this).index();
                             let item = results[index];
                             add_school_to_selection(dialog, item);
+                            $results.empty();  // Clear the results after selection
+                            $search_input.val('');  // Clear the search input
                         });
                     } else {
                         $results.html('<p>No results found</p>');
