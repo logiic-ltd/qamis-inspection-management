@@ -1,43 +1,28 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2023-05-11 12:00:00.000000",
+ "autoname": "hash",
+ "creation": "2023-05-20 12:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "id",
-  "username",
-  "displayName",
-  "team"
+  "team",
+  "school"
  ],
  "fields": [
-  {
-   "fieldname": "id",
-   "fieldtype": "Data",
-   "label": "ID",
-   "read_only": 1,
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "username",
-   "fieldtype": "Data",
-   "label": "Username",
-   "read_only": 1,
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "displayName",
-   "fieldtype": "Data",
-   "label": "Display Name",
-   "read_only": 1,
-   "in_list_view": 1
-  },
   {
    "fieldname": "team",
    "fieldtype": "Link",
    "label": "Team",
    "options": "Inspection Team",
+   "reqd": 1
+  },
+  {
+   "fieldname": "school",
+   "fieldtype": "Link",
+   "label": "School",
+   "options": "Inspection School",
    "reqd": 1
   }
  ],
@@ -47,7 +32,7 @@
  "modified": "2023-05-20 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Qamis Inspection Management",
- "name": "Inspection Team Member",
+ "name": "Team School Assignment",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

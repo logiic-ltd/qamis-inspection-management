@@ -16,9 +16,10 @@
   "status",
   "checklists_section",
   "checklists",
-  "team_and_schools_section",
-  "team_members",
-  "schools",
+  "teams_section",
+  "teams",
+  "school_assignments_section",
+  "school_assignments",
   "inspection_details_section",
   "introduction",
   "objectives",
@@ -59,21 +60,15 @@
    "options": "Draft\nPending Review\nApproved"
   },
   {
-   "fieldname": "team_and_schools_section",
+   "fieldname": "teams_section",
    "fieldtype": "Section Break",
-   "label": "Team and Schools"
+   "label": "Teams"
   },
   {
-   "fieldname": "team_members",
+   "fieldname": "teams",
    "fieldtype": "Table",
-   "label": "Team Members",
-   "options": "Inspection Team Member"
-  },
-  {
-   "fieldname": "schools",
-   "fieldtype": "Table",
-   "label": "Schools",
-   "options": "Inspection School"
+   "label": "Teams",
+   "options": "Inspection Team"
   },
   {
    "fieldname": "checklists_section",
@@ -85,6 +80,17 @@
    "fieldtype": "Table",
    "label": "Checklists",
    "options": "Inspection Checklist"
+  },
+  {
+   "fieldname": "school_assignments_section",
+   "fieldtype": "Section Break",
+   "label": "School Assignments"
+  },
+  {
+   "fieldname": "school_assignments",
+   "fieldtype": "Table",
+   "label": "School Assignments",
+   "options": "Team School Assignment"
   },
   {
    "fieldname": "inspection_details_section",
@@ -119,7 +125,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-05-10 12:00:00.000000",
+ "modified": "2023-05-20 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Qamis Inspection Management",
  "name": "Inspection",
@@ -166,18 +172,6 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "schools_count",
-   "fieldtype": "Int",
-   "label": "Schools",
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "team_members_count",
-   "fieldtype": "Int",
-   "label": "Team Members",
    "in_list_view": 1
   }
  ]
