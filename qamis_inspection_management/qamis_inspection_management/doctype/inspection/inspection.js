@@ -19,7 +19,7 @@ frappe.ui.form.on('Inspection', {
 function show_team_management_dialog(frm) {
     let d = new frappe.ui.Dialog({
         title: 'Manage Teams and Schools',
-        width: 4000, // Increase the width of the dialog to approximately 4 times the current size
+        size: 'extra-large', // Use Frappe's predefined large size
         fields: [
             {
                 fieldname: 'search_section',
@@ -71,6 +71,12 @@ function show_team_management_dialog(frm) {
 
     d.fields_dict.teams_html.$wrapper.html(get_teams_html(frm));
     d.show();
+    
+    // Apply custom CSS to make the dialog wider
+    d.$wrapper.css({
+        'max-width': '90%',
+        'width': '90%'
+    });
 }
 
 function get_teams_html(frm) {
