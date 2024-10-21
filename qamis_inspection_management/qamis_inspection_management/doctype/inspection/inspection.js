@@ -1,10 +1,10 @@
 frappe.ui.form.on('Inspection', {
     refresh: function(frm) {
-        frm.add_custom_button(__('Add Team Member'), function() {
-            show_user_search_dialog(frm);
-        });
         frm.add_custom_button(__('Add Checklist'), function() {
             show_checklist_search_dialog(frm);
+        });
+        frm.add_custom_button(__('Add Team Member'), function() {
+            show_user_search_dialog(frm);
         });
         frm.add_custom_button(__('Add School'), function() {
             show_school_search_dialog(frm);
