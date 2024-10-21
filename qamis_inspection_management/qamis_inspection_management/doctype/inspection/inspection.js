@@ -28,8 +28,7 @@ function show_team_management_dialog(frm) {
             {
                 fieldname: 'member_search',
                 fieldtype: 'Data',
-                label: 'Search Team Members',
-                onchange: () => perform_search(d, 'member', frm)
+                label: 'Search Team Members'
             },
             {
                 fieldname: 'col_break',
@@ -38,8 +37,7 @@ function show_team_management_dialog(frm) {
             {
                 fieldname: 'school_search',
                 fieldtype: 'Data',
-                label: 'Search Schools',
-                onchange: () => perform_search(d, 'school', frm)
+                label: 'Search Schools'
             },
             {
                 fieldname: 'results_section',
@@ -91,41 +89,61 @@ function show_team_management_dialog(frm) {
 
     // Populate existing teams data
     d.set_value('teams', frm.doc.teams || []);
+    
+    // Initialize search functionality
+    perform_search(d, 'member', frm);
+    perform_search(d, 'school', frm);
+    
     d.show();
 }
 
 function perform_search(dialog, type, frm) {
-    let search_term = dialog.get_value(type === 'member' ? 'member_search' : 'school_search');
-    if (search_term.length < 2) {
-        dialog.fields_dict.search_results.$wrapper.empty();
-        return;
-    }
+    let $search_input = dialog.fields_dict[type === 'member' ? 'member_search' : 'school_search'].$input;
+    let $results = dialog.fields_dict.search_results.$wrapper;
+    let searchTimeout;
 
-    frappe.call({
-        method: type === 'member' ? 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_users' : 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_schools',
-        args: { search_term: search_term },
-        callback: function(r) {
-            if (r.message && r.message.length > 0) {
-                let results = r.message;
-                let fields = results.map(item => ({
-                    fieldtype: 'Button',
-                    fieldname: `add_${item.id}`,
-                    label: type === 'member' ? `Add ${item.displayName}` : `Add ${item.schoolName}`,
-                    click: () => {
-                        if (type === 'member') {
-                            add_team_member(dialog, item);
-                        } else {
-                            add_school_to_team(dialog, item);
-                        }
-                    }
-                }));
-                
-                dialog.fields_dict.search_results.df.fields = fields;
-                dialog.fields_dict.search_results.refresh();
-            } else {
-                dialog.fields_dict.search_results.$wrapper.html('<p>No results found</p>');
-            }
+    $search_input.on('input', function() {
+        clearTimeout(searchTimeout);
+        let search_term = $search_input.val();
+        
+        if (search_term.length < 2) {
+            $results.empty();
+            return;
         }
+
+        $results.html('<p>Searching...</p>');
+
+        searchTimeout = setTimeout(() => {
+            frappe.call({
+                method: type === 'member' ? 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_users' : 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_schools',
+                args: { search_term: search_term },
+                callback: function(r) {
+                    if (r.message && r.message.length > 0) {
+                        let results = r.message;
+                        let html = results.map(item => `
+                            <div class="${type}-item" style="cursor: pointer; padding: 5px; border-bottom: 1px solid #ccc;">
+                                <strong>${frappe.utils.escape_html(item.displayName || item.schoolName)}</strong>
+                                <br>
+                                <small>${frappe.utils.escape_html(item.username || (item.province + ', ' + item.district))}</small>
+                            </div>
+                        `).join('');
+                        $results.html(html);
+
+                        $results.find(`.${type}-item`).on('click', function() {
+                            let index = $(this).index();
+                            let item = results[index];
+                            if (type === 'member') {
+                                add_team_member(dialog, item);
+                            } else {
+                                add_school_to_team(dialog, item);
+                            }
+                        });
+                    } else {
+                        $results.html('<p>No results found</p>');
+                    }
+                }
+            });
+        }, 300);
     });
 }
 
