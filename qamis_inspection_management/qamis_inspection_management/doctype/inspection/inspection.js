@@ -169,28 +169,19 @@ function perform_search(dialog, type, frm) {
             if (r.message && r.message.length > 0) {
                 let results = r.message;
                 let html = `
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>${type === 'member' ? 'Name' : 'School Name'}</th>
-                                <th>${type === 'member' ? 'Username' : 'School Code'}</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${results.map(item => `
-                                <tr>
-                                    <td>${type === 'member' ? item.displayName : item.schoolName}</td>
-                                    <td>${type === 'member' ? item.username : item.schoolCode}</td>
-                                    <td><button class="btn btn-xs btn-primary add-${type}" data-item='${JSON.stringify(item)}'>Add</button></td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+                    <div class="search-results">
+                        ${results.map(item => `
+                            <div class="search-item" data-item='${JSON.stringify(item)}'>
+                                <strong>${type === 'member' ? item.displayName : item.schoolName}</strong>
+                                <br>
+                                <small>${type === 'member' ? item.username : item.schoolCode}</small>
+                            </div>
+                        `).join('')}
+                    </div>
                 `;
                 dialog.fields_dict.search_results.$wrapper.html(html);
 
-                dialog.$wrapper.find(`.add-${type}`).on('click', function() {
+                dialog.$wrapper.find('.search-item').on('click', function() {
                     let item = JSON.parse($(this).attr('data-item'));
                     if (type === 'member') {
                         add_team_member(frm, item, 0);  // Assuming adding to the first team for simplicity
