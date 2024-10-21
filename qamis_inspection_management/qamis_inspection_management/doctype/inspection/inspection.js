@@ -284,13 +284,8 @@ function add_school_to_selection(dialog, school) {
         
         // Update the grid
         let grid = dialog.fields_dict.selected_schools.grid;
-        grid.remove_all_rows();
-        selected_schools.forEach(s => {
-            let row = grid.add_new_row();
-            row.doc.id = s.id;
-            row.doc.schoolName = s.schoolName;
-            row.refresh();
-        });
+        grid.df.data = selected_schools;
+        grid.refresh();
     }
     console.log("Selected schools:", selected_schools);  // Keep this line for debugging
 }
