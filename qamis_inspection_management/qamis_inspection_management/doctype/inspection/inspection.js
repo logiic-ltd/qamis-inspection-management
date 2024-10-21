@@ -270,14 +270,15 @@ function add_member_to_selection(dialog, member) {
 
 function add_school_to_selection(dialog, school) {
     let selected_schools = dialog.fields_dict.selected_schools.get_data() || [];
-    if (!selected_schools.some(s => s.id === school.id)) {
+    if (!selected_schools.some(s => s.school_code === school.id)) {
         selected_schools.push({
-            id: school.id,
-            schoolName: school.schoolName
+            school_code: school.id,
+            school_name: school.schoolName
         });
         dialog.fields_dict.selected_schools.df.data = selected_schools;
         dialog.fields_dict.selected_schools.refresh();
     }
+    console.log("Selected schools:", selected_schools);  // Add this line for debugging
 }
 
 function adjust_table_columns(dialog) {

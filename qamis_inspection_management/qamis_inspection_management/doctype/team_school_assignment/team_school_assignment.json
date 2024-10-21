@@ -19,10 +19,15 @@
    "reqd": 1
   },
   {
-   "fieldname": "school",
-   "fieldtype": "Link",
-   "label": "School",
-   "options": "Inspection School",
+   "fieldname": "school_code",
+   "fieldtype": "Data",
+   "label": "School Code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "school_name",
+   "fieldtype": "Data",
+   "label": "School Name",
    "reqd": 1
   }
  ],
