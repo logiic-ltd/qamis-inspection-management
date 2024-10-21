@@ -134,13 +134,28 @@ function show_team_management_dialog(frm) {
         }
     });
 
-    // Adjust the dialog width
+    // Adjust the dialog width and content
     d.$wrapper.find('.modal-dialog').css('max-width', '90%');
     d.$wrapper.find('.modal-content').css('width', '100%');
+    
+    // Set the width of the tables to 100%
+    d.$wrapper.find('.form-column').css('width', '100%');
+    d.$wrapper.find('.form-section').css('width', '100%');
+    d.$wrapper.find('.frappe-control[data-fieldtype="Table"]').css('width', '100%');
+    
+    // Adjust the width of specific fields
+    d.$wrapper.find('[data-fieldname="selected_members"]').css('width', '100%');
+    d.$wrapper.find('[data-fieldname="selected_schools"]').css('width', '100%');
+    d.$wrapper.find('[data-fieldname="teams"]').css('width', '100%');
 
     // Initialize search functionality
     init_member_search(d);
     init_school_search(d);
+
+    // Adjust table columns after dialog is shown
+    d.onshow = () => {
+        adjust_table_columns(d);
+    };
 
     // Add team button
     d.add_custom_action('Add Team', () => {
@@ -262,6 +277,24 @@ function add_school_to_selection(dialog, school) {
         });
         dialog.set_value('selected_schools', selected_schools);
     }
+}
+
+function adjust_table_columns(dialog) {
+    const tables = ['selected_members', 'selected_schools', 'teams'];
+    tables.forEach(table => {
+        const grid = dialog.fields_dict[table].grid;
+        if (grid) {
+            grid.columns.forEach(column => {
+                if (column.df.fieldname === 'id') {
+                    column.df.width = 100;
+                } else {
+                    column.df.width = 300;
+                }
+            });
+            grid.setup_columns();
+            grid.refresh();
+        }
+    });
 }
 
 function add_team_to_list(dialog) {
