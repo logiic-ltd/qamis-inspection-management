@@ -12,9 +12,6 @@ frappe.ui.form.on('Inspection', {
     },
     before_save: function(frm) {
         if (frm.doc.__islocal) {
-            if (frm.temp_checklists && frm.temp_checklists.length) {
-                frm.doc.checklists = frm.temp_checklists;
-            }
             if (frm.temp_teams && frm.temp_teams.length) {
                 frm.doc.teams = frm.temp_teams;
             }
@@ -216,7 +213,7 @@ function add_checklist(checklist) {
         period_type: checklist.periodType,
         last_updated: checklist.lastUpdated
     };
-    cur_frm.temp_checklists.push(new_checklist);
+    cur_frm.add_child('checklists', new_checklist);
     cur_frm.refresh_field('checklists');
     frappe.show_alert(`Added ${checklist.name} (${checklist.shortName}) to the checklists`, 5);
 }
