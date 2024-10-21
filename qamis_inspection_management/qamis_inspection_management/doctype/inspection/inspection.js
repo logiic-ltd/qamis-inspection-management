@@ -167,54 +167,45 @@ function show_user_search_dialog(frm, teamIndex) {
     });
 }
 
-function add_team_member(frm, user, teamIndex) {
-    let team_member = {
-        id: user.id,
-        username: user.username,
-        displayName: user.displayName
-    };
-    
-    frm.teams_data[teamIndex].members = frm.teams_data[teamIndex].members || [];
-    frm.teams_data[teamIndex].members.push(team_member);
-    show_team_management_dialog(frm);
+function add_team_member(dialog, user) {
+    let teams = dialog.get_value('teams');
+    if (teams && teams.length > 0) {
+        let team = teams[0];  // Add to the first team for simplicity
+        team.members = team.members || [];
+        team.members.push({
+            id: user.id,
+            username: user.username,
+            displayName: user.displayName
+        });
+        dialog.refresh_field('teams');
+    } else {
+        frappe.msgprint(__('Please add a team first.'));
+    }
 }
 
-function remove_team_member(frm, teamIndex, memberId) {
-    frm.teams_data[teamIndex].members = frm.teams_data[teamIndex].members.filter(member => member.id !== memberId);
-    show_team_management_dialog(frm);
+function add_school_to_team(dialog, school) {
+    let teams = dialog.get_value('teams');
+    if (teams && teams.length > 0) {
+        let team = teams[0];  // Add to the first team for simplicity
+        team.schools = team.schools || [];
+        team.schools.push({
+            id: school.id,
+            school_code: school.schoolCode,
+            school_name: school.schoolName
+        });
+        dialog.refresh_field('teams');
+    } else {
+        frappe.msgprint(__('Please add a team first.'));
+    }
 }
 
-function show_school_search_dialog(frm, teamIndex) {
-    show_search_dialog(frm, 'School', 'schools', 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_schools', function(school) {
-        add_school_to_team(frm, school, teamIndex);
-    });
-}
+function save_teams_and_schools(frm, teams) {
+    frm.doc.teams = teams;
+    frm.doc.school_assignments = [];
 
-function add_school_to_team(frm, school, teamIndex) {
-    let school_assignment = {
-        id: school.id,
-        school_code: school.schoolCode,
-        school_name: school.schoolName
-    };
-    
-    frm.teams_data[teamIndex].schools = frm.teams_data[teamIndex].schools || [];
-    frm.teams_data[teamIndex].schools.push(school_assignment);
-    show_team_management_dialog(frm);
-}
-
-function remove_school(frm, teamIndex, schoolId) {
-    frm.teams_data[teamIndex].schools = frm.teams_data[teamIndex].schools.filter(school => school.id !== schoolId);
-    show_team_management_dialog(frm);
-}
-
-function save_teams_and_schools(frm) {
-    frm.teams_data = frm.teams_data || [];
-    frm.school_assignments_data = [];
-
-    frm.teams_data.forEach(team => {
-        team.schools.forEach(school => {
-            frm.school_assignments_data.push({
-                doctype: 'Team School Assignment',
+    teams.forEach(team => {
+        (team.schools || []).forEach(school => {
+            frm.doc.school_assignments.push({
                 team: team.team_name,
                 school: school.school_code
             });
