@@ -223,7 +223,10 @@ function add_checklist(checklist) {
                 name: checklist.name,
                 short_name: checklist.shortName,
                 period_type: checklist.periodType,
-                last_updated: checklist.lastUpdated
+                last_updated: checklist.lastUpdated,
+                parent: cur_frm.doc.name,
+                parenttype: 'Inspection',
+                parentfield: 'checklists'
             }
         },
         callback: function(r) {
