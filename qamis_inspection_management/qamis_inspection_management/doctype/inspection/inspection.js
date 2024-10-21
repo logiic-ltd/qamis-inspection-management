@@ -21,9 +21,15 @@ function show_team_management_dialog(frm) {
         title: 'Manage Teams and Schools',
         fields: [
             {
-                fieldname: 'search_section',
+                fieldname: 'team_section',
                 fieldtype: 'Section Break',
-                label: 'Search'
+                label: 'Create Team'
+            },
+            {
+                fieldname: 'team_name',
+                fieldtype: 'Data',
+                label: 'Team Name',
+                reqd: 1
             },
             {
                 fieldname: 'member_search',
@@ -31,8 +37,32 @@ function show_team_management_dialog(frm) {
                 label: 'Search Team Members'
             },
             {
-                fieldname: 'col_break',
-                fieldtype: 'Column Break'
+                fieldname: 'member_results',
+                fieldtype: 'HTML'
+            },
+            {
+                fieldname: 'selected_members',
+                fieldtype: 'Table',
+                label: 'Selected Members',
+                fields: [
+                    {
+                        fieldname: 'id',
+                        fieldtype: 'Data',
+                        label: 'ID',
+                        in_list_view: 1
+                    },
+                    {
+                        fieldname: 'displayName',
+                        fieldtype: 'Data',
+                        label: 'Name',
+                        in_list_view: 1
+                    }
+                ]
+            },
+            {
+                fieldname: 'school_section',
+                fieldtype: 'Section Break',
+                label: 'Assign Schools'
             },
             {
                 fieldname: 'school_search',
@@ -40,18 +70,32 @@ function show_team_management_dialog(frm) {
                 label: 'Search Schools'
             },
             {
-                fieldname: 'results_section',
-                fieldtype: 'Section Break',
-                label: 'Search Results'
+                fieldname: 'school_results',
+                fieldtype: 'HTML'
             },
             {
-                fieldname: 'search_results',
-                fieldtype: 'HTML'
+                fieldname: 'selected_schools',
+                fieldtype: 'Table',
+                label: 'Selected Schools',
+                fields: [
+                    {
+                        fieldname: 'id',
+                        fieldtype: 'Data',
+                        label: 'ID',
+                        in_list_view: 1
+                    },
+                    {
+                        fieldname: 'schoolName',
+                        fieldtype: 'Data',
+                        label: 'School Name',
+                        in_list_view: 1
+                    }
+                ]
             },
             {
                 fieldname: 'teams_section',
                 fieldtype: 'Section Break',
-                label: 'Teams and Schools'
+                label: 'Created Teams'
             },
             {
                 fieldname: 'teams',
@@ -66,15 +110,13 @@ function show_team_management_dialog(frm) {
                     },
                     {
                         fieldname: 'members',
-                        fieldtype: 'Table',
-                        label: 'Members',
-                        options: 'Inspection Team Member'
+                        fieldtype: 'Small Text',
+                        label: 'Members'
                     },
                     {
                         fieldname: 'schools',
-                        fieldtype: 'Table',
-                        label: 'Schools',
-                        options: 'Team School Assignment'
+                        fieldtype: 'Small Text',
+                        label: 'Schools'
                     }
                 ]
             }
@@ -87,19 +129,21 @@ function show_team_management_dialog(frm) {
         }
     });
 
-    // Populate existing teams data
-    d.set_value('teams', frm.doc.teams || []);
-    
     // Initialize search functionality
-    perform_search(d, 'member', frm);
-    perform_search(d, 'school', frm);
+    init_member_search(d);
+    init_school_search(d);
+
+    // Add team button
+    d.add_custom_action('Add Team', () => {
+        add_team_to_list(d);
+    }, 'btn-primary');
     
     d.show();
 }
 
-function perform_search(dialog, type, frm) {
-    let $search_input = dialog.fields_dict[type === 'member' ? 'member_search' : 'school_search'].$input;
-    let $results = dialog.fields_dict.search_results.$wrapper;
+function init_member_search(dialog) {
+    let $search_input = dialog.fields_dict.member_search.$input;
+    let $results = dialog.fields_dict.member_results.$wrapper;
     let searchTimeout;
 
     $search_input.on('input', function() {
@@ -115,28 +159,24 @@ function perform_search(dialog, type, frm) {
 
         searchTimeout = setTimeout(() => {
             frappe.call({
-                method: type === 'member' ? 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_users' : 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_schools',
+                method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_users',
                 args: { search_term: search_term },
                 callback: function(r) {
                     if (r.message && r.message.length > 0) {
                         let results = r.message;
                         let html = results.map(item => `
-                            <div class="${type}-item" style="cursor: pointer; padding: 5px; border-bottom: 1px solid #ccc;">
-                                <strong>${frappe.utils.escape_html(item.displayName || item.schoolName)}</strong>
+                            <div class="member-item" style="cursor: pointer; padding: 5px; border-bottom: 1px solid #ccc;">
+                                <strong>${frappe.utils.escape_html(item.displayName)}</strong>
                                 <br>
-                                <small>${frappe.utils.escape_html(item.username || (item.province + ', ' + item.district))}</small>
+                                <small>${frappe.utils.escape_html(item.username)}</small>
                             </div>
                         `).join('');
                         $results.html(html);
 
-                        $results.find(`.${type}-item`).on('click', function() {
+                        $results.find('.member-item').on('click', function() {
                             let index = $(this).index();
                             let item = results[index];
-                            if (type === 'member') {
-                                add_team_member(dialog, item);
-                            } else {
-                                add_school_to_team(dialog, item);
-                            }
+                            add_member_to_selection(dialog, item);
                         });
                     } else {
                         $results.html('<p>No results found</p>');
@@ -145,6 +185,97 @@ function perform_search(dialog, type, frm) {
             });
         }, 300);
     });
+}
+
+function init_school_search(dialog) {
+    let $search_input = dialog.fields_dict.school_search.$input;
+    let $results = dialog.fields_dict.school_results.$wrapper;
+    let searchTimeout;
+
+    $search_input.on('input', function() {
+        clearTimeout(searchTimeout);
+        let search_term = $search_input.val();
+        
+        if (search_term.length < 2) {
+            $results.empty();
+            return;
+        }
+
+        $results.html('<p>Searching...</p>');
+
+        searchTimeout = setTimeout(() => {
+            frappe.call({
+                method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_schools',
+                args: { search_term: search_term },
+                callback: function(r) {
+                    if (r.message && r.message.length > 0) {
+                        let results = r.message;
+                        let html = results.map(item => `
+                            <div class="school-item" style="cursor: pointer; padding: 5px; border-bottom: 1px solid #ccc;">
+                                <strong>${frappe.utils.escape_html(item.schoolName)}</strong>
+                                <br>
+                                <small>${frappe.utils.escape_html(item.province + ', ' + item.district)}</small>
+                            </div>
+                        `).join('');
+                        $results.html(html);
+
+                        $results.find('.school-item').on('click', function() {
+                            let index = $(this).index();
+                            let item = results[index];
+                            add_school_to_selection(dialog, item);
+                        });
+                    } else {
+                        $results.html('<p>No results found</p>');
+                    }
+                }
+            });
+        }, 300);
+    });
+}
+
+function add_member_to_selection(dialog, member) {
+    let selected_members = dialog.get_value('selected_members') || [];
+    if (!selected_members.some(m => m.id === member.id)) {
+        selected_members.push({
+            id: member.id,
+            displayName: member.displayName
+        });
+        dialog.set_value('selected_members', selected_members);
+    }
+}
+
+function add_school_to_selection(dialog, school) {
+    let selected_schools = dialog.get_value('selected_schools') || [];
+    if (!selected_schools.some(s => s.id === school.id)) {
+        selected_schools.push({
+            id: school.id,
+            schoolName: school.schoolName
+        });
+        dialog.set_value('selected_schools', selected_schools);
+    }
+}
+
+function add_team_to_list(dialog) {
+    let team_name = dialog.get_value('team_name');
+    let selected_members = dialog.get_value('selected_members') || [];
+    let selected_schools = dialog.get_value('selected_schools') || [];
+
+    if (!team_name || selected_members.length === 0 || selected_schools.length === 0) {
+        frappe.msgprint('Please enter a team name, select at least one member and one school.');
+        return;
+    }
+
+    let teams = dialog.get_value('teams') || [];
+    teams.push({
+        team_name: team_name,
+        members: selected_members.map(m => m.displayName).join(', '),
+        schools: selected_schools.map(s => s.schoolName).join(', ')
+    });
+
+    dialog.set_value('teams', teams);
+    dialog.set_value('team_name', '');
+    dialog.set_value('selected_members', []);
+    dialog.set_value('selected_schools', []);
 }
 
 function add_new_team(frm) {
