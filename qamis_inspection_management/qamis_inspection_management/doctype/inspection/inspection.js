@@ -280,12 +280,14 @@ function add_school_to_selection(dialog, school) {
             id: school.id,
             schoolName: school.schoolName
         });
-        dialog.set_value('selected_schools', selected_schools);
         
         // Update the grid
         let grid = dialog.fields_dict.selected_schools.grid;
         grid.df.data = selected_schools;
         grid.refresh();
+        
+        // Update the dialog value
+        dialog.set_value('selected_schools', selected_schools);
     }
     console.log("Selected schools:", selected_schools);  // Keep this line for debugging
 }
