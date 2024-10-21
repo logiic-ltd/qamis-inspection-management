@@ -19,6 +19,7 @@ frappe.ui.form.on('Inspection', {
 function show_team_management_dialog(frm) {
     let d = new frappe.ui.Dialog({
         title: 'Manage Teams and Schools',
+        width: 1200, // Set a wide width for the dialog
         fields: [
             {
                 fieldname: 'team_name',
