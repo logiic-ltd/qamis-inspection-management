@@ -21,6 +21,41 @@ function show_team_management_dialog(frm) {
         title: 'Manage Teams and Schools',
         fields: [
             {
+                fieldname: 'search_section',
+                fieldtype: 'Section Break',
+                label: 'Search'
+            },
+            {
+                fieldname: 'member_search',
+                fieldtype: 'Data',
+                label: 'Search Team Members',
+                onchange: () => perform_search(d, 'member', frm)
+            },
+            {
+                fieldname: 'col_break',
+                fieldtype: 'Column Break'
+            },
+            {
+                fieldname: 'school_search',
+                fieldtype: 'Data',
+                label: 'Search Schools',
+                onchange: () => perform_search(d, 'school', frm)
+            },
+            {
+                fieldname: 'results_section',
+                fieldtype: 'Section Break',
+                label: 'Search Results'
+            },
+            {
+                fieldname: 'search_results',
+                fieldtype: 'HTML'
+            },
+            {
+                fieldname: 'teams_section',
+                fieldtype: 'Section Break',
+                label: 'Teams and Schools'
+            },
+            {
                 fieldname: 'teams_html',
                 fieldtype: 'HTML'
             }
@@ -46,23 +81,45 @@ function get_teams_html(frm) {
                     <h3>${team.team_name} <button class="btn btn-xs btn-default remove-team">Remove Team</button></h3>
                     <div class="team-members">
                         <h4>Team Members</h4>
-                        ${(team.members || []).map(member => `
-                            <div class="team-member">
-                                ${member.displayName} (${member.username})
-                                <button class="btn btn-xs btn-default remove-member" data-member-id="${member.id}">Remove</button>
-                            </div>
-                        `).join('')}
-                        <button class="btn btn-xs btn-primary add-member">Add Member</button>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(team.members || []).map(member => `
+                                    <tr>
+                                        <td>${member.displayName}</td>
+                                        <td>${member.username}</td>
+                                        <td><button class="btn btn-xs btn-default remove-member" data-member-id="${member.id}">Remove</button></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
                     </div>
                     <div class="team-schools">
                         <h4>Assigned Schools</h4>
-                        ${(team.schools || []).map(school => `
-                            <div class="team-school">
-                                ${school.school_name} (${school.school_code})
-                                <button class="btn btn-xs btn-default remove-school" data-school-id="${school.id}">Remove</button>
-                            </div>
-                        `).join('')}
-                        <button class="btn btn-xs btn-primary add-school">Add School</button>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>School Name</th>
+                                    <th>School Code</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(team.schools || []).map(school => `
+                                    <tr>
+                                        <td>${school.school_name}</td>
+                                        <td>${school.school_code}</td>
+                                        <td><button class="btn btn-xs btn-default remove-school" data-school-id="${school.id}">Remove</button></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             `).join('')}
@@ -76,18 +133,10 @@ function get_teams_html(frm) {
             let teamIndex = $(this).closest('.team-section').data('team-index');
             remove_team(frm, teamIndex);
         });
-        $('.add-member').on('click', function() {
-            let teamIndex = $(this).closest('.team-section').data('team-index');
-            show_user_search_dialog(frm, teamIndex);
-        });
         $('.remove-member').on('click', function() {
             let teamIndex = $(this).closest('.team-section').data('team-index');
             let memberId = $(this).data('member-id');
             remove_team_member(frm, teamIndex, memberId);
-        });
-        $('.add-school').on('click', function() {
-            let teamIndex = $(this).closest('.team-section').data('team-index');
-            show_school_search_dialog(frm, teamIndex);
         });
         $('.remove-school').on('click', function() {
             let teamIndex = $(this).closest('.team-section').data('team-index');
@@ -97,6 +146,57 @@ function get_teams_html(frm) {
     }, 0);
 
     return html;
+}
+
+function perform_search(dialog, type, frm) {
+    let search_term = dialog.get_value(type === 'member' ? 'member_search' : 'school_search');
+    if (search_term.length < 2) {
+        dialog.fields_dict.search_results.$wrapper.empty();
+        return;
+    }
+
+    frappe.call({
+        method: type === 'member' ? 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_users' : 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_schools',
+        args: { search_term: search_term },
+        callback: function(r) {
+            if (r.message && r.message.length > 0) {
+                let results = r.message;
+                let html = `
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>${type === 'member' ? 'Name' : 'School Name'}</th>
+                                <th>${type === 'member' ? 'Username' : 'School Code'}</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${results.map(item => `
+                                <tr>
+                                    <td>${type === 'member' ? item.displayName : item.schoolName}</td>
+                                    <td>${type === 'member' ? item.username : item.schoolCode}</td>
+                                    <td><button class="btn btn-xs btn-primary add-${type}" data-item='${JSON.stringify(item)}'>Add</button></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                dialog.fields_dict.search_results.$wrapper.html(html);
+
+                dialog.$wrapper.find(`.add-${type}`).on('click', function() {
+                    let item = JSON.parse($(this).attr('data-item'));
+                    if (type === 'member') {
+                        add_team_member(frm, item, 0);  // Assuming adding to the first team for simplicity
+                    } else {
+                        add_school_to_team(frm, item, 0);  // Assuming adding to the first team for simplicity
+                    }
+                    dialog.fields_dict.teams_html.$wrapper.html(get_teams_html(frm));
+                });
+            } else {
+                dialog.fields_dict.search_results.$wrapper.html('<p>No results found</p>');
+            }
+        }
+    });
 }
 
 function add_new_team(frm) {
