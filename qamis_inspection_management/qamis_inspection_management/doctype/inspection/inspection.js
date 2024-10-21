@@ -82,18 +82,21 @@ function show_team_management_dialog(frm) {
                 fieldname: 'selected_schools',
                 fieldtype: 'Table',
                 label: 'Selected Schools',
+                cannot_add_rows: true,
                 fields: [
                     {
                         fieldname: 'id',
                         fieldtype: 'Data',
                         label: 'ID',
-                        in_list_view: 1
+                        in_list_view: 1,
+                        read_only: 1
                     },
                     {
                         fieldname: 'schoolName',
                         fieldtype: 'Data',
                         label: 'School Name',
-                        in_list_view: 1
+                        in_list_view: 1,
+                        read_only: 1
                     }
                 ]
             },
@@ -272,20 +275,22 @@ function add_member_to_selection(dialog, member) {
 
 function add_school_to_selection(dialog, school) {
     let selected_schools = dialog.get_value('selected_schools') || [];
-    if (!selected_schools.some(s => s.school_code === school.id)) {
+    if (!selected_schools.some(s => s.id === school.id)) {
         selected_schools.push({
-            school_code: school.id,
-            school_name: school.schoolName
+            id: school.id,
+            schoolName: school.schoolName
         });
         dialog.set_value('selected_schools', selected_schools);
         
         // Update the grid
         let grid = dialog.fields_dict.selected_schools.grid;
-        grid.add_new_row(null, null, false);
-        let row = grid.grid_rows[grid.grid_rows.length - 1];
-        row.doc.school_code = school.id;
-        row.doc.school_name = school.schoolName;
-        row.refresh();
+        grid.remove_all_rows();
+        selected_schools.forEach(s => {
+            let row = grid.add_new_row();
+            row.doc.id = s.id;
+            row.doc.schoolName = s.schoolName;
+            row.refresh();
+        });
     }
     console.log("Selected schools:", selected_schools);  // Keep this line for debugging
 }
