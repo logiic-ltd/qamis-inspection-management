@@ -239,26 +239,24 @@ function init_school_search(dialog) {
 }
 
 function add_member_to_selection(dialog, member) {
-    let selected_members = dialog.fields_dict.selected_members.get_data() || [];
+    let selected_members = dialog.fields_dict.selected_members.get_value() || [];
     if (!selected_members.some(m => m.id === member.id)) {
         selected_members.push({
             id: member.id,
             displayName: member.displayName
         });
-        dialog.fields_dict.selected_members.df.data = selected_members;
-        dialog.fields_dict.selected_members.refresh();
+        dialog.set_value('selected_members', selected_members);
     }
 }
 
 function add_school_to_selection(dialog, school) {
-    let selected_schools = dialog.fields_dict.selected_schools.get_data() || [];
+    let selected_schools = dialog.fields_dict.selected_schools.get_value() || [];
     if (!selected_schools.some(s => s.id === school.id)) {
         selected_schools.push({
             id: school.id,
             schoolName: school.schoolName
         });
-        dialog.fields_dict.selected_schools.df.data = selected_schools;
-        dialog.fields_dict.selected_schools.refresh();
+        dialog.set_value('selected_schools', selected_schools);
     }
 }
 
