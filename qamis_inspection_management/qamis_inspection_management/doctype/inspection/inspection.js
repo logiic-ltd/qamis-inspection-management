@@ -9,7 +9,27 @@ frappe.ui.form.on('Inspection', {
         frm.add_custom_button(__('Assign Schools'), function() {
             show_school_assignment_dialog(frm);
         });
+    },
+    before_save: function(frm) {
+        if (frm.doc.__islocal) {
+            if (frm.temp_checklists && frm.temp_checklists.length) {
+                frm.doc.checklists = frm.temp_checklists;
+            }
+            if (frm.temp_teams && frm.temp_teams.length) {
+                frm.doc.teams = frm.temp_teams;
+            }
+            if (frm.temp_school_assignments && frm.temp_school_assignments.length) {
+                frm.doc.school_assignments = frm.temp_school_assignments;
+            }
+        }
     }
+});
+
+// Initialize temporary arrays
+frappe.ui.form.on('Inspection', 'onload', function(frm) {
+    frm.temp_checklists = frm.temp_checklists || [];
+    frm.temp_teams = frm.temp_teams || [];
+    frm.temp_school_assignments = frm.temp_school_assignments || [];
 });
 
 function show_checklist_search_dialog(frm) {
@@ -29,23 +49,14 @@ function show_team_dialog(frm) {
         ],
         primary_action_label: 'Add',
         primary_action(values) {
-            frappe.call({
-                method: 'frappe.client.insert',
-                args: {
-                    doc: {
-                        doctype: 'Inspection Team',
-                        team_name: values.team_name,
-                        inspection: frm.doc.name
-                    }
-                },
-                callback: function(r) {
-                    if (!r.exc) {
-                        frm.reload_doc();
-                        frappe.show_alert(`Team ${values.team_name} added`, 5);
-                        show_user_search_dialog(frm, r.message.name);
-                    }
-                }
-            });
+            let team = {
+                doctype: 'Inspection Team',
+                team_name: values.team_name
+            };
+            frm.temp_teams.push(team);
+            frm.refresh_field('teams');
+            frappe.show_alert(`Team ${values.team_name} added`, 5);
+            show_user_search_dialog(frm, values.team_name);
             d.hide();
         }
     });
@@ -65,15 +76,8 @@ function show_school_assignment_dialog(frm) {
             {
                 label: 'Team',
                 fieldname: 'team',
-                fieldtype: 'Link',
-                options: 'Inspection Team',
-                get_query: function() {
-                    return {
-                        filters: {
-                            'inspection': frm.doc.name
-                        }
-                    };
-                },
+                fieldtype: 'Select',
+                options: frm.temp_teams.map(team => team.team_name),
                 reqd: 1
             },
             {
@@ -99,21 +103,14 @@ function show_school_assignment_dialog(frm) {
         primary_action_label: 'Assign',
         primary_action(values) {
             values.schools.forEach(school => {
-                frappe.call({
-                    method: 'frappe.client.insert',
-                    args: {
-                        doc: {
-                            doctype: 'Team School Assignment',
-                            team: values.team,
-                            school: school.school,
-                            parent: frm.doc.name,
-                            parenttype: 'Inspection',
-                            parentfield: 'school_assignments'
-                        }
-                    }
-                });
+                let assignment = {
+                    doctype: 'Team School Assignment',
+                    team: values.team,
+                    school: school.school
+                };
+                frm.temp_school_assignments.push(assignment);
             });
-            frm.reload_doc();
+            frm.refresh_field('school_assignments');
             frappe.show_alert(`Schools assigned to team ${values.team}`, 5);
             d.hide();
         }
@@ -193,47 +190,33 @@ function show_search_dialog(frm, title, item_type, search_method, add_function) 
 }
 
 function add_team_member(frm, user, team_name) {
-    frappe.call({
-        method: 'frappe.client.insert',
-        args: {
-            doc: {
-                doctype: 'Inspection Team Member',
-                id: user.id,
-                username: user.username,
-                displayName: user.displayName,
-                team: team_name
-            }
-        },
-        callback: function(r) {
-            if (!r.exc) {
-                frm.reload_doc();
-                frappe.show_alert(`Added ${user.displayName} to the team`, 5);
-            }
-        }
-    });
+    let team_member = {
+        doctype: 'Inspection Team Member',
+        id: user.id,
+        username: user.username,
+        displayName: user.displayName,
+        team: team_name
+    };
+    
+    let team = frm.temp_teams.find(t => t.team_name === team_name);
+    if (team) {
+        team.members = team.members || [];
+        team.members.push(team_member);
+        frm.refresh_field('teams');
+        frappe.show_alert(`Added ${user.displayName} to the team`, 5);
+    }
 }
 
 function add_checklist(checklist) {
-    frappe.call({
-        method: 'frappe.client.insert',
-        args: {
-            doc: {
-                doctype: 'Inspection Checklist',
-                id: checklist.id,
-                name: checklist.name,
-                short_name: checklist.shortName,
-                period_type: checklist.periodType,
-                last_updated: checklist.lastUpdated,
-                parent: cur_frm.doc.name,
-                parenttype: 'Inspection',
-                parentfield: 'checklists'
-            }
-        },
-        callback: function(r) {
-            if (!r.exc) {
-                cur_frm.reload_doc();
-                frappe.show_alert(`Added ${checklist.name} (${checklist.shortName}) to the checklists`, 5);
-            }
-        }
-    });
+    let new_checklist = {
+        doctype: 'Inspection Checklist',
+        id: checklist.id,
+        name: checklist.name,
+        short_name: checklist.shortName,
+        period_type: checklist.periodType,
+        last_updated: checklist.lastUpdated
+    };
+    cur_frm.temp_checklists.push(new_checklist);
+    cur_frm.refresh_field('checklists');
+    frappe.show_alert(`Added ${checklist.name} (${checklist.shortName}) to the checklists`, 5);
 }
