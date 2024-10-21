@@ -281,15 +281,12 @@ function add_school_to_selection(dialog, school) {
             schoolName: school.schoolName
         });
         
-        // Update the dialog value first
+        // Update the dialog value
         dialog.set_value('selected_schools', selected_schools);
         
-        // Then update the grid
+        // Refresh the grid
         let grid = dialog.fields_dict.selected_schools.grid;
         grid.refresh();
-        
-        // Force the grid to re-render
-        grid.render_rows();
     }
     console.log("Selected schools:", selected_schools);  // Keep this line for debugging
 }
