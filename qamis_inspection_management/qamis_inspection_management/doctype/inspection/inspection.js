@@ -274,21 +274,18 @@ function add_member_to_selection(dialog, member) {
 }
 
 function add_school_to_selection(dialog, school) {
-    let selected_schools = dialog.get_value('selected_schools') || [];
-    if (!selected_schools.some(s => s.id === school.id)) {
-        selected_schools.push({
-            id: school.id,
-            schoolName: school.schoolName
-        });
-        
-        // Update the dialog value
-        dialog.set_value('selected_schools', selected_schools);
-        
-        // Refresh the grid
-        let grid = dialog.fields_dict.selected_schools.grid;
+    let grid = dialog.fields_dict.selected_schools.grid;
+    let existing_school = grid.data.find(s => s.id === school.id);
+    
+    if (!existing_school) {
+        grid.add_new_row();
+        let new_row = grid.data[grid.data.length - 1];
+        new_row.id = school.id;
+        new_row.schoolName = school.schoolName;
         grid.refresh();
     }
-    console.log("Selected schools:", selected_schools);  // Keep this line for debugging
+    
+    console.log("Selected schools:", grid.data);  // Keep this line for debugging
 }
 
 function adjust_table_columns(dialog) {
