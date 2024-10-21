@@ -1,41 +1,107 @@
 frappe.ui.form.on('Inspection', {
     refresh: function(frm) {
+        frm.add_custom_button(__('Manage Teams and Schools'), function() {
+            show_team_management_dialog(frm);
+        });
         frm.add_custom_button(__('Add Checklist'), function() {
             show_checklist_search_dialog(frm);
         });
-        frm.add_custom_button(__('Add Team'), function() {
-            show_team_dialog(frm);
-        });
-        frm.add_custom_button(__('Assign Schools'), function() {
-            show_school_assignment_dialog(frm);
-        });
+        update_team_summary(frm);
     },
     before_save: function(frm) {
-        if (frm.doc.__islocal) {
-            if (frm.temp_teams && frm.temp_teams.length) {
-                frm.doc.teams = frm.temp_teams;
-            }
-            if (frm.temp_school_assignments && frm.temp_school_assignments.length) {
-                frm.doc.school_assignments = frm.temp_school_assignments;
-            }
+        if (frm.is_new()) {
+            frm.doc.teams = frm.teams_data || [];
+            frm.doc.school_assignments = frm.school_assignments_data || [];
         }
     }
 });
 
-// Initialize temporary arrays
-frappe.ui.form.on('Inspection', 'onload', function(frm) {
-    frm.temp_checklists = frm.temp_checklists || [];
-    frm.temp_teams = frm.temp_teams || [];
-    frm.temp_school_assignments = frm.temp_school_assignments || [];
-});
+function show_team_management_dialog(frm) {
+    let d = new frappe.ui.Dialog({
+        title: 'Manage Teams and Schools',
+        fields: [
+            {
+                fieldname: 'teams_html',
+                fieldtype: 'HTML'
+            }
+        ],
+        primary_action_label: 'Save',
+        primary_action(values) {
+            save_teams_and_schools(frm);
+            d.hide();
+            frm.save();
+        }
+    });
 
-function show_checklist_search_dialog(frm) {
-    show_search_dialog(frm, 'Checklist', 'checklists', 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_checklists', add_checklist);
+    d.fields_dict.teams_html.$wrapper.html(get_teams_html(frm));
+    d.show();
 }
 
-function show_team_dialog(frm) {
+function get_teams_html(frm) {
+    let teams_data = frm.teams_data || [];
+    let html = `
+        <div id="teams-container">
+            ${teams_data.map((team, index) => `
+                <div class="team-section" data-team-index="${index}">
+                    <h3>${team.team_name} <button class="btn btn-xs btn-default remove-team">Remove Team</button></h3>
+                    <div class="team-members">
+                        <h4>Team Members</h4>
+                        ${(team.members || []).map(member => `
+                            <div class="team-member">
+                                ${member.displayName} (${member.username})
+                                <button class="btn btn-xs btn-default remove-member" data-member-id="${member.id}">Remove</button>
+                            </div>
+                        `).join('')}
+                        <button class="btn btn-xs btn-primary add-member">Add Member</button>
+                    </div>
+                    <div class="team-schools">
+                        <h4>Assigned Schools</h4>
+                        ${(team.schools || []).map(school => `
+                            <div class="team-school">
+                                ${school.school_name} (${school.school_code})
+                                <button class="btn btn-xs btn-default remove-school" data-school-id="${school.id}">Remove</button>
+                            </div>
+                        `).join('')}
+                        <button class="btn btn-xs btn-primary add-school">Add School</button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        <button id="add-team" class="btn btn-sm btn-primary">Add New Team</button>
+    `;
+
+    setTimeout(() => {
+        $('#add-team').on('click', () => add_new_team(frm));
+        $('.remove-team').on('click', function() {
+            let teamIndex = $(this).closest('.team-section').data('team-index');
+            remove_team(frm, teamIndex);
+        });
+        $('.add-member').on('click', function() {
+            let teamIndex = $(this).closest('.team-section').data('team-index');
+            show_user_search_dialog(frm, teamIndex);
+        });
+        $('.remove-member').on('click', function() {
+            let teamIndex = $(this).closest('.team-section').data('team-index');
+            let memberId = $(this).data('member-id');
+            remove_team_member(frm, teamIndex, memberId);
+        });
+        $('.add-school').on('click', function() {
+            let teamIndex = $(this).closest('.team-section').data('team-index');
+            show_school_search_dialog(frm, teamIndex);
+        });
+        $('.remove-school').on('click', function() {
+            let teamIndex = $(this).closest('.team-section').data('team-index');
+            let schoolId = $(this).data('school-id');
+            remove_school(frm, teamIndex, schoolId);
+        });
+    }, 0);
+
+    return html;
+}
+
+function add_new_team(frm) {
     let d = new frappe.ui.Dialog({
-        title: 'Add Team',
+        title: 'Add New Team',
         fields: [
             {
                 label: 'Team Name',
@@ -46,73 +112,109 @@ function show_team_dialog(frm) {
         ],
         primary_action_label: 'Add',
         primary_action(values) {
-            let team = {
-                doctype: 'Inspection Team',
-                team_name: values.team_name
+            let new_team = {
+                team_name: values.team_name,
+                members: [],
+                schools: []
             };
-            frm.temp_teams.push(team);
-            frm.refresh_field('teams');
-            frappe.show_alert(`Team ${values.team_name} added`, 5);
-            show_user_search_dialog(frm, values.team_name);
+            frm.teams_data = frm.teams_data || [];
+            frm.teams_data.push(new_team);
             d.hide();
+            show_team_management_dialog(frm);
         }
     });
     d.show();
 }
 
-function show_user_search_dialog(frm, team_name) {
+function remove_team(frm, teamIndex) {
+    frm.teams_data.splice(teamIndex, 1);
+    show_team_management_dialog(frm);
+}
+
+function show_user_search_dialog(frm, teamIndex) {
     show_search_dialog(frm, 'Team Member', 'users', 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_users', function(user) {
-        add_team_member(frm, user, team_name);
+        add_team_member(frm, user, teamIndex);
     });
 }
 
-function show_school_assignment_dialog(frm) {
-    let d = new frappe.ui.Dialog({
-        title: 'Assign Schools to Teams',
-        fields: [
-            {
-                label: 'Team',
-                fieldname: 'team',
-                fieldtype: 'Select',
-                options: frm.temp_teams.map(team => team.team_name),
-                reqd: 1
-            },
-            {
-                label: 'Schools',
-                fieldname: 'schools_section',
-                fieldtype: 'Section Break'
-            },
-            {
-                fieldname: 'schools',
-                fieldtype: 'Table',
-                fields: [
-                    {
-                        label: 'School',
-                        fieldname: 'school',
-                        fieldtype: 'Link',
-                        options: 'Inspection School',
-                        in_list_view: 1,
-                        reqd: 1
-                    }
-                ]
-            }
-        ],
-        primary_action_label: 'Assign',
-        primary_action(values) {
-            values.schools.forEach(school => {
-                let assignment = {
-                    doctype: 'Team School Assignment',
-                    team: values.team,
-                    school: school.school
-                };
-                frm.temp_school_assignments.push(assignment);
-            });
-            frm.refresh_field('school_assignments');
-            frappe.show_alert(`Schools assigned to team ${values.team}`, 5);
-            d.hide();
-        }
+function add_team_member(frm, user, teamIndex) {
+    let team_member = {
+        id: user.id,
+        username: user.username,
+        displayName: user.displayName
+    };
+    
+    frm.teams_data[teamIndex].members = frm.teams_data[teamIndex].members || [];
+    frm.teams_data[teamIndex].members.push(team_member);
+    show_team_management_dialog(frm);
+}
+
+function remove_team_member(frm, teamIndex, memberId) {
+    frm.teams_data[teamIndex].members = frm.teams_data[teamIndex].members.filter(member => member.id !== memberId);
+    show_team_management_dialog(frm);
+}
+
+function show_school_search_dialog(frm, teamIndex) {
+    show_search_dialog(frm, 'School', 'schools', 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_schools', function(school) {
+        add_school_to_team(frm, school, teamIndex);
     });
-    d.show();
+}
+
+function add_school_to_team(frm, school, teamIndex) {
+    let school_assignment = {
+        id: school.id,
+        school_code: school.schoolCode,
+        school_name: school.schoolName
+    };
+    
+    frm.teams_data[teamIndex].schools = frm.teams_data[teamIndex].schools || [];
+    frm.teams_data[teamIndex].schools.push(school_assignment);
+    show_team_management_dialog(frm);
+}
+
+function remove_school(frm, teamIndex, schoolId) {
+    frm.teams_data[teamIndex].schools = frm.teams_data[teamIndex].schools.filter(school => school.id !== schoolId);
+    show_team_management_dialog(frm);
+}
+
+function save_teams_and_schools(frm) {
+    frm.teams_data = frm.teams_data || [];
+    frm.school_assignments_data = [];
+
+    frm.teams_data.forEach(team => {
+        team.schools.forEach(school => {
+            frm.school_assignments_data.push({
+                doctype: 'Team School Assignment',
+                team: team.team_name,
+                school: school.school_code
+            });
+        });
+    });
+
+    frm.refresh_field('teams');
+    frm.refresh_field('school_assignments');
+    update_team_summary(frm);
+}
+
+function update_team_summary(frm) {
+    if (!frm.teams_data) return;
+
+    let summary = frm.teams_data.map(team => `
+        <div class="team-summary">
+            <h4>${team.team_name}</h4>
+            <p>Members: ${team.members.length}, Schools: ${team.schools.length}</p>
+        </div>
+    `).join('');
+
+    $(frm.fields_dict.teams_section.wrapper).find('.frappe-control[data-fieldname="teams"]').before(`
+        <div class="team-summary-container">
+            ${summary}
+        </div>
+    `);
+}
+
+function show_checklist_search_dialog(frm) {
+    show_search_dialog(frm, 'Checklist', 'checklists', 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_checklists', add_checklist);
 }
 
 function show_search_dialog(frm, title, item_type, search_method, add_function) {
@@ -172,7 +274,7 @@ function show_search_dialog(frm, title, item_type, search_method, add_function) 
                         $results.find(`.${item_type}-item`).on('click', function() {
                             let index = $(this).index();
                             let item = items[index];
-                            add_function(item);
+                            add_function(frm, item);
                             d.hide();
                         });
                     } else {
@@ -180,31 +282,13 @@ function show_search_dialog(frm, title, item_type, search_method, add_function) 
                     }
                 }
             });
-        }, 500); // Wait for 500ms after the user stops typing
+        }, 500);
     });
 
     d.show();
 }
 
-function add_team_member(frm, user, team_name) {
-    let team_member = {
-        doctype: 'Inspection Team Member',
-        id: user.id,
-        username: user.username,
-        displayName: user.displayName,
-        team: team_name
-    };
-    
-    let team = frm.temp_teams.find(t => t.team_name === team_name);
-    if (team) {
-        team.members = team.members || [];
-        team.members.push(team_member);
-        frm.refresh_field('teams');
-        frappe.show_alert(`Added ${user.displayName} to the team`, 5);
-    }
-}
-
-function add_checklist(checklist) {
+function add_checklist(frm, checklist) {
     let new_checklist = {
         doctype: 'Inspection Checklist',
         id: checklist.id,
@@ -213,7 +297,7 @@ function add_checklist(checklist) {
         period_type: checklist.periodType,
         last_updated: checklist.lastUpdated
     };
-    cur_frm.add_child('checklists', new_checklist);
-    cur_frm.refresh_field('checklists');
+    frm.add_child('checklists', new_checklist);
+    frm.refresh_field('checklists');
     frappe.show_alert(`Added ${checklist.name} (${checklist.shortName}) to the checklists`, 5);
 }
