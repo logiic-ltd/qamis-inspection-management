@@ -21,15 +21,20 @@ function show_team_management_dialog(frm) {
         title: 'Manage Teams and Schools',
         fields: [
             {
-                fieldname: 'team_section',
-                fieldtype: 'Section Break',
-                label: 'Create Team'
-            },
-            {
                 fieldname: 'team_name',
                 fieldtype: 'Data',
                 label: 'Team Name',
                 reqd: 1
+            },
+            {
+                fieldname: 'team_members_schools_section',
+                fieldtype: 'Section Break',
+                label: 'Team Members and Schools'
+            },
+            {
+                fieldname: 'team_members_column',
+                fieldtype: 'Column Break',
+                label: 'Team Members'
             },
             {
                 fieldname: 'member_search',
@@ -60,9 +65,9 @@ function show_team_management_dialog(frm) {
                 ]
             },
             {
-                fieldname: 'school_section',
-                fieldtype: 'Section Break',
-                label: 'Assign Schools'
+                fieldname: 'schools_column',
+                fieldtype: 'Column Break',
+                label: 'Schools'
             },
             {
                 fieldname: 'school_search',
