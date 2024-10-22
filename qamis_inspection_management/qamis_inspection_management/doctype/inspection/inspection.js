@@ -302,7 +302,8 @@ function add_school_to_selection(dialog, school) {
             id: school.id,
             schoolName: school.schoolName
         };
-        grid.df.data.push(new_row);
+        grid.add_new_row();
+        Object.assign(grid.data[grid.data.length - 1], new_row);
         grid.refresh();
     }
     
