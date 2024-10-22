@@ -250,6 +250,13 @@ function init_member_search(dialog) {
             });
         }, 300);
     });
+
+    // Add this new event listener to clear results when the input is cleared
+    $search_input.on('change', function() {
+        if ($search_input.val() === '') {
+            $results.empty();
+        }
+    });
 }
 
 function init_school_search(dialog) {
@@ -357,6 +364,10 @@ function add_member_to_selection(dialog, member) {
     }
     
     console.log("Updated grid data:", grid.data);  // Debug log
+
+    // Clear the search results and input after adding a member
+    dialog.fields_dict.member_results.$wrapper.empty();
+    dialog.fields_dict.member_search.$input.val('');
 }
 
 function add_school_to_selection(dialog, school) {
