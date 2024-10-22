@@ -138,18 +138,44 @@ function show_team_management_dialog(frm) {
     });
 
     // Adjust the dialog width and content
-    d.$wrapper.find('.modal-dialog').css('max-width', '90%');
+    d.$wrapper.find('.modal-dialog').css('max-width', '95%');
     d.$wrapper.find('.modal-content').css('width', '100%');
     
-    // Set the width of the tables to 100%
+    // Set the width of the tables to 100% and adjust their layout
     d.$wrapper.find('.form-column').css('width', '100%');
     d.$wrapper.find('.form-section').css('width', '100%');
-    d.$wrapper.find('.frappe-control[data-fieldtype="Table"]').css('width', '100%');
+    d.$wrapper.find('.frappe-control[data-fieldtype="Table"]').css({
+        'width': '100%',
+        'overflow-x': 'auto'
+    });
     
-    // Adjust the width of specific fields
-    d.$wrapper.find('[data-fieldname="selected_members"]').css('width', '100%');
-    d.$wrapper.find('[data-fieldname="selected_schools"]').css('width', '100%');
-    d.$wrapper.find('[data-fieldname="teams"]').css('width', '100%');
+    // Adjust the width of specific fields and their containers
+    ['selected_members', 'selected_schools', 'teams'].forEach(fieldname => {
+        d.$wrapper.find(`[data-fieldname="${fieldname}"]`).css({
+            'width': '100%',
+            'max-width': 'none'
+        });
+        d.$wrapper.find(`[data-fieldname="${fieldname}"] .form-grid`).css({
+            'width': '100%',
+            'overflow-x': 'auto'
+        });
+    });
+
+    // Adjust the column widths in the grids
+    setTimeout(() => {
+        ['selected_members', 'selected_schools', 'teams'].forEach(fieldname => {
+            let grid = d.fields_dict[fieldname].grid;
+            grid.columns.forEach(column => {
+                if (column.df.fieldname === 'id') {
+                    $(column.header).css('width', '150px');
+                } else {
+                    $(column.header).css('width', '300px');
+                }
+            });
+            grid.setup_columns();
+            grid.refresh();
+        });
+    }, 0);
 
     // Initialize search functionality
     init_member_search(d);
