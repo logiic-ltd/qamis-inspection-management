@@ -334,6 +334,16 @@ function add_team_to_inspection(frm, values) {
     update_team_summary(frm);
 
     frappe.show_alert(`Team "${team_name}" added successfully`, 5);
+    update_team_summary(frm);
+}
+
+function update_team_summary(frm) {
+    let summary_html = "<h4>Team Summary</h4><ul>";
+    frm.doc.teams.forEach(team => {
+        summary_html += `<li><strong>${team.team_name}</strong>: ${team.members.length} members, ${team.schools.length} schools</li>`;
+    });
+    summary_html += "</ul>";
+    frm.fields_dict.team_summary.$wrapper.html(summary_html);
 }
 
 
