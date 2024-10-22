@@ -20,6 +20,7 @@
   "teams",
   "school_assignments_section",
   "school_assignments",
+  "team_summary",
   "inspection_details_section",
   "introduction",
   "objectives",
@@ -69,6 +70,11 @@
    "fieldtype": "Table",
    "label": "Teams",
    "options": "Inspection Team"
+  },
+  {
+   "fieldname": "team_summary",
+   "fieldtype": "HTML",
+   "label": "Team Summary"
   },
   {
    "fieldname": "checklists_section",

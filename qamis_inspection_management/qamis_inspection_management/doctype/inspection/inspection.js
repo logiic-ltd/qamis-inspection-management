@@ -1,6 +1,6 @@
 frappe.ui.form.on('Inspection', {
     refresh: function(frm) {
-        frm.add_custom_button(__('Manage Teams and Schools'), function() {
+        frm.add_custom_button(__('Add Team'), function() {
             show_team_management_dialog(frm);
         });
         frm.add_custom_button(__('Add Checklist'), function() {
@@ -18,7 +18,7 @@ frappe.ui.form.on('Inspection', {
 
 function show_team_management_dialog(frm) {
     let d = new frappe.ui.Dialog({
-        title: 'Manage Teams and Schools',
+        title: 'Add Team',
         fields: [
             {
                 fieldname: 'team_name',
@@ -94,114 +94,19 @@ function show_team_management_dialog(frm) {
                         read_only: 1
                     }
                 ]
-            },
-            {
-                fieldname: 'teams_section',
-                fieldtype: 'Section Break',
-                label: 'Created Teams'
-            },
-            {
-                fieldname: 'teams',
-                fieldtype: 'Table',
-                label: 'Teams',
-                cannot_add_rows: true,
-                cannot_delete_rows: true,
-                fields: [
-                    {
-                        fieldname: 'team_name',
-                        fieldtype: 'Data',
-                        in_list_view: 1,
-                        label: 'Team Name',
-                        read_only: 1
-                    },
-                    {
-                        fieldname: 'members',
-                        fieldtype: 'Small Text',
-                        in_list_view: 1,
-                        label: 'Members',
-                        read_only: 1
-                    },
-                    {
-                        fieldname: 'schools',
-                        fieldtype: 'Small Text',
-                        in_list_view: 1,
-                        label: 'Schools',
-                        read_only: 1
-                    }
-                ]
             }
         ],
-        primary_action_label: 'Save',
+        primary_action_label: 'Add Team',
         primary_action(values) {
-            save_teams_and_schools(frm, values.teams);
+            add_team_to_inspection(frm, values);
             d.hide();
-            frm.save();
+            frm.refresh();
         }
-    });
-
-    // Adjust the dialog width and content
-    d.$wrapper.find('.modal-dialog').css('max-width', '98%');
-    d.$wrapper.find('.modal-content').css('width', '100%');
-    
-    // Remove padding from the modal body to maximize space
-    d.$wrapper.find('.modal-body').css('padding', '10px');
-    
-    // Adjust the layout of the form sections
-    d.$wrapper.find('.form-section').css({
-        'width': '100%',
-        'margin-bottom': '20px'
-    });
-    
-    // Maximize the width of the grids and adjust their layout
-    ['selected_members', 'selected_schools', 'teams'].forEach(fieldname => {
-        d.$wrapper.find(`[data-fieldname="${fieldname}"]`).css({
-            'width': '100%',
-            'max-width': 'none',
-            'overflow-x': 'auto'
-        });
-        d.$wrapper.find(`[data-fieldname="${fieldname}"] .form-grid`).css({
-            'width': '100%',
-            'max-width': 'none'
-        });
-    });
-
-    // Adjust the column widths in the grids
-    setTimeout(() => {
-        ['selected_members', 'selected_schools', 'teams'].forEach(fieldname => {
-            let grid = d.fields_dict[fieldname].grid;
-            grid.columns.forEach(column => {
-                if (column.df.fieldname === 'id') {
-                    $(column.header).css('width', '20%');
-                } else {
-                    $(column.header).css('width', '40%');
-                }
-            });
-            grid.setup_columns();
-            grid.refresh();
-        });
-    }, 0);
-
-    // Adjust the search results container
-    d.$wrapper.find('.member-results, .school-results').css({
-        'max-height': '200px',
-        'overflow-y': 'auto',
-        'border': '1px solid #ddd',
-        'margin-top': '10px'
     });
 
     // Initialize search functionality
     init_member_search(d);
     init_school_search(d);
-
-    // Adjust table columns after dialog is shown
-    d.onshow = () => {
-        adjust_table_columns(d);
-    };
-
-    // Add team button
-    d.add_custom_action('Add Team', () => {
-        add_team_to_list(d);
-    }, 'btn-primary');
     
     d.show();
 }
@@ -404,137 +309,70 @@ function adjust_table_columns(dialog) {
     });
 }
 
-function add_team_to_list(dialog) {
-    let team_name = dialog.get_value('team_name');
-    let selected_members = dialog.get_value('selected_members') || [];
-    let selected_schools = dialog.get_value('selected_schools') || [];
+function add_team_to_inspection(frm, values) {
+    let team_name = values.team_name;
+    let selected_members = values.selected_members || [];
+    let selected_schools = values.selected_schools || [];
 
     if (!team_name || selected_members.length === 0 || selected_schools.length === 0) {
         frappe.msgprint('Please enter a team name, select at least one member and one school.');
         return;
     }
 
-    let teams = dialog.get_value('teams') || [];
-    teams.push({
+    let new_team = {
         team_name: team_name,
-        members: selected_members.map(m => m.displayName).join(', '),
-        schools: selected_schools.map(s => s.schoolName).join(', ')
-    });
+        members: selected_members,
+        schools: selected_schools
+    };
 
-    dialog.set_value('teams', teams);
-    dialog.fields_dict.teams.grid.refresh();
-    dialog.fields_dict.teams.grid.wrapper.find('.grid-add-row').hide();
+    frm.doc.teams = frm.doc.teams || [];
+    frm.doc.teams.push(new_team);
 
-    dialog.set_value('team_name', '');
-    dialog.set_value('selected_members', []);
-    dialog.set_value('selected_schools', []);
-
-    frappe.show_alert(`Team "${team_name}" added successfully`, 5);
-}
-
-function add_new_team(frm) {
-    let d = new frappe.ui.Dialog({
-        title: 'Add New Team',
-        fields: [
-            {
-                label: 'Team Name',
-                fieldname: 'team_name',
-                fieldtype: 'Data',
-                reqd: 1
-            }
-        ],
-        primary_action_label: 'Add',
-        primary_action(values) {
-            let new_team = {
-                team_name: values.team_name,
-                members: [],
-                schools: []
-            };
-            frm.teams_data = frm.teams_data || [];
-            frm.teams_data.push(new_team);
-            d.hide();
-            show_team_management_dialog(frm);
-        }
-    });
-    d.show();
-}
-
-function remove_team(frm, teamIndex) {
-    frm.teams_data.splice(teamIndex, 1);
-    show_team_management_dialog(frm);
-}
-
-function show_user_search_dialog(frm, teamIndex) {
-    show_search_dialog(frm, 'Team Member', 'users', 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_users', function(user) {
-        add_team_member(frm, user, teamIndex);
-    });
-}
-
-function add_team_member(dialog, user) {
-    let teams = dialog.get_value('teams');
-    if (teams && teams.length > 0) {
-        let team = teams[0];  // Add to the first team for simplicity
-        team.members = team.members || [];
-        team.members.push({
-            id: user.id,
-            username: user.username,
-            displayName: user.displayName
-        });
-        dialog.refresh_field('teams');
-    } else {
-        frappe.msgprint(__('Please add a team first.'));
-    }
-}
-
-function add_school_to_team(dialog, school) {
-    let teams = dialog.get_value('teams');
-    if (teams && teams.length > 0) {
-        let team = teams[0];  // Add to the first team for simplicity
-        team.schools = team.schools || [];
-        team.schools.push({
-            id: school.id,
-            school_code: school.schoolCode,
-            school_name: school.schoolName
-        });
-        dialog.refresh_field('teams');
-    } else {
-        frappe.msgprint(__('Please add a team first.'));
-    }
-}
-
-function save_teams_and_schools(frm, teams) {
-    frm.doc.teams = teams || [];
-    frm.doc.school_assignments = [];
-
-    (teams || []).forEach(team => {
-        (team.schools || []).forEach(school => {
-            frm.doc.school_assignments.push({
-                team: team.team_name,
-                school: school.id // Changed from school_code to id
-            });
+    frm.doc.school_assignments = frm.doc.school_assignments || [];
+    selected_schools.forEach(school => {
+        frm.doc.school_assignments.push({
+            team: team_name,
+            school: school.id
         });
     });
 
     frm.refresh_field('teams');
     frm.refresh_field('school_assignments');
     update_team_summary(frm);
+
+    frappe.show_alert(`Team "${team_name}" added successfully`, 5);
 }
 
 function update_team_summary(frm) {
-    if (!frm.teams_data) return;
+    let teams_html = "";
+    if (frm.doc.teams && frm.doc.teams.length > 0) {
+        teams_html = frm.doc.teams.map(team => `
+            <div class="team-summary">
+                <h4>${team.team_name}</h4>
+                <p>Members: ${team.members.length}, Schools: ${team.schools.length}</p>
+                <button class="btn btn-xs btn-default" onclick="edit_team('${team.team_name}')">Edit</button>
+                <button class="btn btn-xs btn-danger" onclick="remove_team('${team.team_name}')">Remove</button>
+            </div>
+        `).join('');
+    } else {
+        teams_html = "<p>No teams added yet.</p>";
+    }
 
-    let summary = frm.teams_data.map(team => `
-        <div class="team-summary">
-            <h4>${team.team_name}</h4>
-            <p>Members: ${team.members.length}, Schools: ${team.schools.length}</p>
-        </div>
-    `).join('');
-
-    $(frm.fields_dict.teams_section.wrapper).find('.frappe-control[data-fieldname="teams"]').before(`
+    $(frm.fields_dict.teams_section.wrapper).html(`
         <div class="team-summary-container">
-            ${summary}
+            ${teams_html}
         </div>
     `);
+}
+
+function edit_team(team_name) {
+    // Implement edit functionality
+    console.log("Edit team:", team_name);
+}
+
+function remove_team(team_name) {
+    // Implement remove functionality
+    console.log("Remove team:", team_name);
 }
 
 function show_checklist_search_dialog(frm) {
