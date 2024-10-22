@@ -27,13 +27,8 @@ function show_team_management_dialog(frm) {
                 reqd: 1
             },
             {
-                fieldname: 'team_members_schools_section',
+                fieldname: 'team_members_section',
                 fieldtype: 'Section Break',
-                label: 'Team Members and Schools'
-            },
-            {
-                fieldname: 'team_members_column',
-                fieldtype: 'Column Break',
                 label: 'Team Members'
             },
             {
@@ -65,8 +60,8 @@ function show_team_management_dialog(frm) {
                 ]
             },
             {
-                fieldname: 'schools_column',
-                fieldtype: 'Column Break',
+                fieldname: 'schools_section',
+                fieldtype: 'Section Break',
                 label: 'Schools'
             },
             {
@@ -144,12 +139,11 @@ function show_team_management_dialog(frm) {
     // Remove padding from the modal body to maximize space
     d.$wrapper.find('.modal-body').css('padding', '10px');
     
-    // Adjust the layout of the form columns
-    d.$wrapper.find('.form-column').css({
+    // Adjust the layout of the form sections
+    d.$wrapper.find('.form-section').css({
         'width': '100%',
-        'padding': '0 5px'
+        'margin-bottom': '20px'
     });
-    d.$wrapper.find('.form-section').css('width', '100%');
     
     // Maximize the width of the grids and adjust their layout
     ['selected_members', 'selected_schools', 'teams'].forEach(fieldname => {
