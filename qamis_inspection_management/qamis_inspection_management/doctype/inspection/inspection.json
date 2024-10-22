@@ -25,7 +25,11 @@
   "teams_section",
   "teams",
   "summary_section",
-  "executive_summary"
+  "executive_summary",
+  "inspection_details_section",
+  "introduction",
+  "objectives",
+  "methodology"
  ],
  "fields": [
   {
@@ -60,26 +64,6 @@
    "options": "Draft\nPending Review\nApproved"
   },
   {
-   "fieldname": "inspection_details_section",
-   "fieldtype": "Section Break",
-   "label": "Inspection Details"
-  },
-  {
-   "fieldname": "introduction",
-   "fieldtype": "Text Editor",
-   "label": "Introduction"
-  },
-  {
-   "fieldname": "objectives",
-   "fieldtype": "Text Editor",
-   "label": "Objectives"
-  },
-  {
-   "fieldname": "methodology",
-   "fieldtype": "Text Editor",
-   "label": "Methodology"
-  },
-  {
    "fieldname": "checklists_section",
    "fieldtype": "Section Break",
    "label": "Checklists"
@@ -110,6 +94,26 @@
    "fieldname": "executive_summary",
    "fieldtype": "Text Editor",
    "label": "Executive Summary"
+  },
+  {
+   "fieldname": "inspection_details_section",
+   "fieldtype": "Section Break",
+   "label": "Inspection Details"
+  },
+  {
+   "fieldname": "introduction",
+   "fieldtype": "Text Editor",
+   "label": "Introduction"
+  },
+  {
+   "fieldname": "objectives",
+   "fieldtype": "Text Editor",
+   "label": "Objectives"
+  },
+  {
+   "fieldname": "methodology",
+   "fieldtype": "Text Editor",
+   "label": "Methodology"
   }
  ],
  "index_web_pages_for_search": 1,
