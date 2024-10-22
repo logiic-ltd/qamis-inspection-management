@@ -4,6 +4,7 @@ from frappe.model.document import Document
 import json
 import requests
 import logging
+from qamis_inspection_management.config.api_config import API_BASE_URL
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -45,7 +46,7 @@ class Inspection(Document):
 def search_users(search_term):
     logger.info(f"Searching users with term: {search_term}")
     try:
-        url = f"http://192.168.8.107:8081/api/dhis2users/search/name?name={search_term}&page=0&size=20&sort=username,asc"
+        url = f"{API_BASE_URL}/api/dhis2users/search/name?name={search_term}&page=0&size=20&sort=username,asc"
         result = _make_api_request(url, "users")
         logger.info(f"Search users result: {result}")
         return result
@@ -57,13 +58,13 @@ def search_users(search_term):
 @frappe.whitelist()
 def search_checklists(search_term):
     logger.info(f"Searching checklists with term: {search_term}")
-    url = f"http://192.168.8.107:8081/api/dhis2datasets/search/name?name={search_term}&page=0&size=20&sort=name,asc"
+    url = f"{API_BASE_URL}/api/dhis2datasets/search/name?name={search_term}&page=0&size=20&sort=name,asc"
     return _make_api_request(url, "checklists")
 
 @frappe.whitelist()
 def search_schools(search_term):
     logger.info(f"Searching schools with term: {search_term}")
-    url = f"http://192.168.8.107:8081/api/schools/search?name={search_term}&page=0&size=20&sort=schoolName,asc"
+    url = f"{API_BASE_URL}/api/schools/search?name={search_term}&page=0&size=20&sort=schoolName,asc"
     return _make_api_request(url, "schools")
 
 def _make_api_request(url, item_type):
