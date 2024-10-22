@@ -294,14 +294,18 @@ function init_school_search(dialog) {
 }
 
 function add_member_to_selection(dialog, member) {
-    let selected_members = dialog.fields_dict.selected_members.get_value() || [];
-    if (!selected_members.some(m => m.id === member.id)) {
-        selected_members.push({
-            id: member.id,
-            displayName: member.displayName
-        });
-        dialog.set_value('selected_members', selected_members);
+    let grid = dialog.fields_dict.selected_members.grid;
+    let existing_member = grid.data.find(m => m.id === member.id);
+    
+    if (!existing_member) {
+        grid.add_new_row();
+        let new_row = grid.data[grid.data.length - 1];
+        new_row.id = member.id;
+        new_row.displayName = member.displayName;
+        grid.refresh();
     }
+    
+    console.log("Selected members:", grid.data);  // Keep this line for debugging
 }
 
 function add_school_to_selection(dialog, school) {
