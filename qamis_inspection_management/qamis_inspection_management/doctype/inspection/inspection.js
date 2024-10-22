@@ -6,19 +6,6 @@ frappe.ui.form.on('Inspection', {
         frm.add_custom_button(__('Add Checklist'), function() {
             show_checklist_search_dialog(frm);
         });
-        frm.add_custom_button(__('View Teams'), function() {
-            frm.toggle_display('teams', true);
-        });
-        frm.toggle_display('teams', false);
-    },
-    teams: function(frm) {
-        frm.fields_dict['teams'].grid.get_field('team_name').get_query = function() {
-            return {
-                filters: {
-                    'docstatus': 1
-                }
-            };
-        };
     }
 });
 
@@ -340,85 +327,6 @@ function add_team_to_inspection(frm, values) {
     frappe.show_alert(`Team "${team_name}" added successfully`, 5);
 }
 
-function update_team_summary(frm) {
-    let teams_html = "";
-    if (frm.doc.teams && frm.doc.teams.length > 0) {
-        teams_html = frm.doc.teams.map(team => `
-            <div class="team-summary">
-                <h4>${team.team_name}</h4>
-                <p>Members: ${team.members.length}, Schools: ${team.schools.length}</p>
-                <button class="btn btn-xs btn-default" onclick="view_team_details('${team.team_name}')">View Details</button>
-                <button class="btn btn-xs btn-default" onclick="edit_team('${team.team_name}')">Edit</button>
-                <button class="btn btn-xs btn-danger" onclick="remove_team('${team.team_name}')">Remove</button>
-            </div>
-        `).join('');
-    } else {
-        teams_html = "<p>No teams added yet.</p>";
-    }
-
-    $(frm.fields_dict.team_summary.wrapper).html(`
-        <div class="team-summary-container">
-            ${teams_html}
-        </div>
-    `);
-}
-
-function view_team_details(team_name) {
-    let frm = cur_frm;
-    let team = frm.doc.teams.find(t => t.team_name === team_name);
-    if (!team) return;
-
-    let d = new frappe.ui.Dialog({
-        title: `Team Details: ${team_name}`,
-        fields: [
-            {
-                fieldname: 'members_section',
-                fieldtype: 'Section Break',
-                label: 'Team Members'
-            },
-            {
-                fieldname: 'members_html',
-                fieldtype: 'HTML'
-            },
-            {
-                fieldname: 'schools_section',
-                fieldtype: 'Section Break',
-                label: 'Assigned Schools'
-            },
-            {
-                fieldname: 'schools_html',
-                fieldtype: 'HTML'
-            }
-        ]
-    });
-
-    let members_html = team.members.map(member => `
-        <div>
-            <strong>${member.displayName}</strong> (${member.username})
-        </div>
-    `).join('');
-
-    let schools_html = team.schools.map(school => `
-        <div>
-            <strong>${school.schoolName}</strong> (ID: ${school.id})
-        </div>
-    `).join('');
-
-    d.fields_dict.members_html.$wrapper.html(members_html);
-    d.fields_dict.schools_html.$wrapper.html(schools_html);
-
-    d.show();
-}
-
-function edit_team(team_name) {
-    // Implement edit functionality
-    console.log("Edit team:", team_name);
-}
-
-function remove_team(team_name) {
-    // Implement remove functionality
-    console.log("Remove team:", team_name);
-}
 
 function show_checklist_search_dialog(frm) {
     show_search_dialog(frm, 'Checklist', 'checklists', 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.search_checklists', add_checklist);
