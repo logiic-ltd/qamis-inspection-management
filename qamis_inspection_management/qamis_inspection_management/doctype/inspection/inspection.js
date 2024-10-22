@@ -234,14 +234,13 @@ function init_member_search(dialog) {
                         $results.find('.member-item').on('click', function() {
                             let index = $(this).index();
                             let item = results[index];
-                            console.log("Selected member item:", item);  // Debug log
                             add_member_to_selection(dialog, {
                                 id: item.id,
                                 displayName: item.displayName,
                                 username: item.username
                             });
-                            $results.empty();  // Clear the results after selection
-                            $search_input.val('');  // Clear the search input
+                            $results.empty();
+                            $search_input.val('');
                         });
                     } else {
                         $results.html('<p>No results found</p>');
@@ -251,7 +250,6 @@ function init_member_search(dialog) {
         }, 300);
     });
 
-    // Add this new event listener to clear results when the input is cleared
     $search_input.on('change', function() {
         if ($search_input.val() === '') {
             $results.empty();
@@ -342,9 +340,6 @@ function add_member_to_selection(dialog, member) {
     let grid = dialog.fields_dict.selected_members.grid;
     let existing_member = grid.data.find(m => m.id === member.id);
     
-    console.log("Adding member:", member);  // Debug log
-    console.log("Existing grid data:", grid.data);  // Debug log
-
     if (!existing_member) {
         let new_row = {
             id: member.id,
@@ -355,19 +350,11 @@ function add_member_to_selection(dialog, member) {
         let added_row = grid.data[grid.data.length - 1];
         Object.assign(added_row, new_row);
         
-        console.log("New row added:", added_row);  // Debug log
-        
         grid.refresh();
         dialog.refresh_field('selected_members');
     } else {
-        console.log("Member already exists in the grid");  // Debug log
+        frappe.show_alert(`${member.displayName} is already in the team.`, 5);
     }
-    
-    console.log("Updated grid data:", grid.data);  // Debug log
-
-    // Clear the search results and input after adding a member
-    dialog.fields_dict.member_results.$wrapper.empty();
-    dialog.fields_dict.member_search.$input.val('');
 }
 
 function add_school_to_selection(dialog, school) {
