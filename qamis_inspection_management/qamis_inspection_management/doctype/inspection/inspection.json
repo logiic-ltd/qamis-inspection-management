@@ -16,12 +16,14 @@
   "status",
   "teams_section",
   "teams",
-  "checklists_section",
-  "checklists",
   "inspection_details_section",
   "introduction",
   "objectives",
   "methodology",
+  "checklists_section",
+  "checklists",
+  "teams_section",
+  "teams",
   "summary_section",
   "executive_summary"
  ],
@@ -58,28 +60,6 @@
    "options": "Draft\nPending Review\nApproved"
   },
   {
-   "fieldname": "teams_section",
-   "fieldtype": "Section Break",
-   "label": "Teams"
-  },
-  {
-   "fieldname": "teams",
-   "fieldtype": "Table",
-   "label": "Teams",
-   "options": "Inspection Team"
-  },
-  {
-   "fieldname": "checklists_section",
-   "fieldtype": "Section Break",
-   "label": "Checklists"
-  },
-  {
-   "fieldname": "checklists",
-   "fieldtype": "Table",
-   "label": "Checklists",
-   "options": "Inspection Checklist"
-  },
-  {
    "fieldname": "inspection_details_section",
    "fieldtype": "Section Break",
    "label": "Inspection Details"
@@ -98,6 +78,28 @@
    "fieldname": "methodology",
    "fieldtype": "Text Editor",
    "label": "Methodology"
+  },
+  {
+   "fieldname": "checklists_section",
+   "fieldtype": "Section Break",
+   "label": "Checklists"
+  },
+  {
+   "fieldname": "checklists",
+   "fieldtype": "Table",
+   "label": "Checklists",
+   "options": "Inspection Checklist"
+  },
+  {
+   "fieldname": "teams_section",
+   "fieldtype": "Section Break",
+   "label": "Teams"
+  },
+  {
+   "fieldname": "teams",
+   "fieldtype": "Table",
+   "label": "Teams",
+   "options": "Inspection Team"
   },
   {
    "fieldname": "summary_section",
