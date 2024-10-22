@@ -79,17 +79,6 @@
    "options": "Inspection Checklist"
   },
   {
-   "fieldname": "school_assignments_section",
-   "fieldtype": "Section Break",
-   "label": "School Assignments"
-  },
-  {
-   "fieldname": "school_assignments",
-   "fieldtype": "Table",
-   "label": "School Assignments",
-   "options": "Team School Assignment"
-  },
-  {
    "fieldname": "inspection_details_section",
    "fieldtype": "Section Break",
    "label": "Inspection Details"
