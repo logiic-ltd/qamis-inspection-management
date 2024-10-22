@@ -63,6 +63,12 @@
    "label": "Teams"
   },
   {
+   "fieldname": "teams",
+   "fieldtype": "Table",
+   "label": "Teams",
+   "options": "Inspection Team"
+  },
+  {
    "fieldname": "team_summary",
    "fieldtype": "HTML",
    "label": "Team Summary"
