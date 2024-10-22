@@ -67,11 +67,6 @@
    "options": "Inspection Team"
   },
   {
-   "fieldname": "team_summary",
-   "fieldtype": "HTML",
-   "label": "Team Summary"
-  },
-  {
    "fieldname": "checklists_section",
    "fieldtype": "Section Break",
    "label": "Checklists"
