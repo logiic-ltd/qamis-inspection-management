@@ -255,6 +255,12 @@ function init_member_search(dialog) {
             $results.empty();
         }
     });
+
+    $search_input.on('input', function() {
+        if ($search_input.val() === '') {
+            $results.empty();
+        }
+    });
 }
 
 function init_school_search(dialog) {
