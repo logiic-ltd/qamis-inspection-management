@@ -17,7 +17,6 @@
   "checklists_section",
   "checklists",
   "teams_section",
-  "teams",
   "team_summary",
   "inspection_details_section",
   "introduction",
@@ -62,12 +61,6 @@
    "fieldname": "teams_section",
    "fieldtype": "Section Break",
    "label": "Teams"
-  },
-  {
-   "fieldname": "teams",
-   "fieldtype": "Table",
-   "label": "Teams",
-   "options": "Inspection Team"
   },
   {
    "fieldname": "team_summary",
