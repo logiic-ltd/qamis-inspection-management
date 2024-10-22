@@ -29,8 +29,8 @@ class Inspection(Document):
         self.update_count_fields()
 
     def update_count_fields(self):
-        self.schools_count = len(self.school_assignments)
-        self.team_members_count = frappe.db.count('Inspection Team Member', {'team': ('in', [t.name for t in self.teams])})
+        self.schools_count = sum(len(team.schools) for team in self.teams)
+        self.team_members_count = sum(len(team.members) for team in self.teams)
         logger.info(f"Updated count fields for Inspection {self.name}: Schools: {self.schools_count}, Team Members: {self.team_members_count}")
 
     def on_update(self):
