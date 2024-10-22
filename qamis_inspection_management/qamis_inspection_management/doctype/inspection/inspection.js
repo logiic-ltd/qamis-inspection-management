@@ -313,10 +313,11 @@ function add_school_to_selection(dialog, school) {
     let existing_school = grid.data.find(s => s.id === school.id);
     
     if (!existing_school) {
-        grid.add_new_row();
-        let new_row = grid.data[grid.data.length - 1];
-        new_row.id = school.id;
-        new_row.schoolName = school.schoolName;
+        let new_row = {
+            id: school.id,
+            schoolName: school.schoolName
+        };
+        grid.df.data.push(new_row);
         grid.refresh();
     }
     
