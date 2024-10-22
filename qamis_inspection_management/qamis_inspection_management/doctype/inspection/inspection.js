@@ -293,6 +293,22 @@ function init_school_search(dialog) {
     });
 }
 
+function add_school_to_selection(dialog, school) {
+    let grid = dialog.fields_dict.selected_schools.grid;
+    let existing_school = grid.data.find(s => s.id === school.id);
+    
+    if (!existing_school) {
+        let new_row = {
+            id: school.id,
+            schoolName: school.schoolName
+        };
+        grid.df.data.push(new_row);
+        grid.refresh();
+    }
+    
+    console.log("Selected schools:", grid.data);  // Keep this line for debugging
+}
+
 function add_member_to_selection(dialog, member) {
     let grid = dialog.fields_dict.selected_members.grid;
     let existing_member = grid.data.find(m => m.id === member.id);
