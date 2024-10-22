@@ -138,26 +138,29 @@ function show_team_management_dialog(frm) {
     });
 
     // Adjust the dialog width and content
-    d.$wrapper.find('.modal-dialog').css('max-width', '95%');
+    d.$wrapper.find('.modal-dialog').css('max-width', '98%');
     d.$wrapper.find('.modal-content').css('width', '100%');
     
-    // Set the width of the tables to 100% and adjust their layout
-    d.$wrapper.find('.form-column').css('width', '100%');
-    d.$wrapper.find('.form-section').css('width', '100%');
-    d.$wrapper.find('.frappe-control[data-fieldtype="Table"]').css({
-        'width': '100%',
-        'overflow-x': 'auto'
-    });
+    // Remove padding from the modal body to maximize space
+    d.$wrapper.find('.modal-body').css('padding', '10px');
     
-    // Adjust the width of specific fields and their containers
+    // Adjust the layout of the form columns
+    d.$wrapper.find('.form-column').css({
+        'width': '100%',
+        'padding': '0 5px'
+    });
+    d.$wrapper.find('.form-section').css('width', '100%');
+    
+    // Maximize the width of the grids and adjust their layout
     ['selected_members', 'selected_schools', 'teams'].forEach(fieldname => {
         d.$wrapper.find(`[data-fieldname="${fieldname}"]`).css({
             'width': '100%',
-            'max-width': 'none'
+            'max-width': 'none',
+            'overflow-x': 'auto'
         });
         d.$wrapper.find(`[data-fieldname="${fieldname}"] .form-grid`).css({
             'width': '100%',
-            'overflow-x': 'auto'
+            'max-width': 'none'
         });
     });
 
@@ -167,15 +170,23 @@ function show_team_management_dialog(frm) {
             let grid = d.fields_dict[fieldname].grid;
             grid.columns.forEach(column => {
                 if (column.df.fieldname === 'id') {
-                    $(column.header).css('width', '150px');
+                    $(column.header).css('width', '20%');
                 } else {
-                    $(column.header).css('width', '300px');
+                    $(column.header).css('width', '40%');
                 }
             });
             grid.setup_columns();
             grid.refresh();
         });
     }, 0);
+
+    // Adjust the search results container
+    d.$wrapper.find('.member-results, .school-results').css({
+        'max-height': '200px',
+        'overflow-y': 'auto',
+        'border': '1px solid #ddd',
+        'margin-top': '10px'
+    });
 
     // Initialize search functionality
     init_member_search(d);
