@@ -6,6 +6,15 @@ frappe.ui.form.on('Inspection', {
         frm.add_custom_button(__('Add Checklist'), function() {
             show_checklist_search_dialog(frm);
         });
+    },
+    teams_add: function(frm) {
+        frm.fields_dict.teams.grid.get_field('team_name').get_query = function() {
+            return {
+                filters: {
+                    'docstatus': 1
+                }
+            };
+        };
     }
 });
 
