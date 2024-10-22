@@ -104,22 +104,29 @@ function show_team_management_dialog(frm) {
                 fieldname: 'teams',
                 fieldtype: 'Table',
                 label: 'Teams',
+                cannot_add_rows: true,
+                cannot_delete_rows: true,
                 fields: [
                     {
                         fieldname: 'team_name',
                         fieldtype: 'Data',
                         in_list_view: 1,
-                        label: 'Team Name'
+                        label: 'Team Name',
+                        read_only: 1
                     },
                     {
                         fieldname: 'members',
                         fieldtype: 'Small Text',
-                        label: 'Members'
+                        in_list_view: 1,
+                        label: 'Members',
+                        read_only: 1
                     },
                     {
                         fieldname: 'schools',
                         fieldtype: 'Small Text',
-                        label: 'Schools'
+                        in_list_view: 1,
+                        label: 'Schools',
+                        read_only: 1
                     }
                 ]
             }
@@ -415,9 +422,14 @@ function add_team_to_list(dialog) {
     });
 
     dialog.set_value('teams', teams);
+    dialog.fields_dict.teams.grid.refresh();
+    dialog.fields_dict.teams.grid.wrapper.find('.grid-add-row').hide();
+
     dialog.set_value('team_name', '');
     dialog.set_value('selected_members', []);
     dialog.set_value('selected_schools', []);
+
+    frappe.show_alert(`Team "${team_name}" added successfully`, 5);
 }
 
 function add_new_team(frm) {
