@@ -357,7 +357,6 @@ function add_member_to_selection(dialog, member) {
         Object.assign(added_row, new_row);
         
         grid.refresh();
-        dialog.refresh_field('selected_members');
     } else {
         frappe.show_alert(`${member.displayName} is already in the team.`, 5);
     }
