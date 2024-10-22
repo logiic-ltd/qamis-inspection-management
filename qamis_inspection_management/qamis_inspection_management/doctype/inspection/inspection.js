@@ -334,7 +334,8 @@ function add_school_to_selection(dialog, school) {
             id: school.id,
             schoolName: school.schoolName
         };
-        grid.df.data.push(new_row);
+        grid.add_new_row();
+        Object.assign(grid.data[grid.data.length - 1], new_row);
         grid.refresh();
     }
     
@@ -453,14 +454,14 @@ function add_school_to_team(dialog, school) {
 }
 
 function save_teams_and_schools(frm, teams) {
-    frm.doc.teams = teams;
+    frm.doc.teams = teams || [];
     frm.doc.school_assignments = [];
 
-    teams.forEach(team => {
+    (teams || []).forEach(team => {
         (team.schools || []).forEach(school => {
             frm.doc.school_assignments.push({
                 team: team.team_name,
-                school: school.school_code
+                school: school.id // Changed from school_code to id
             });
         });
     });
