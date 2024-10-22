@@ -6,13 +6,19 @@ frappe.ui.form.on('Inspection', {
         frm.add_custom_button(__('Add Checklist'), function() {
             show_checklist_search_dialog(frm);
         });
-        update_team_summary(frm);
+        frm.add_custom_button(__('View Teams'), function() {
+            frm.toggle_display('teams', true);
+        });
+        frm.toggle_display('teams', false);
     },
-    before_save: function(frm) {
-        if (frm.is_new()) {
-            frm.doc.teams = frm.teams_data || [];
-            frm.doc.school_assignments = frm.school_assignments_data || [];
-        }
+    teams: function(frm) {
+        frm.fields_dict['teams'].grid.get_field('team_name').get_query = function() {
+            return {
+                filters: {
+                    'docstatus': 1
+                }
+            };
+        };
     }
 });
 
