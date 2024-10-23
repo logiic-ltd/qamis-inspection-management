@@ -48,14 +48,12 @@ class Inspection(Document):
                 "doctype": "Inspection Team",
                 "team_name": team.team_name,
                 "schools_count": len(team.get("schools", [])),
-                "members_count": len(team.get("members", []))
+                "members_count": len(team.get("members", [])),
+                "inspection": self.name
             }
             
-            if self.name and not self.is_new():
-                team_data["inspection"] = self.name
-            
             existing_team = frappe.get_all("Inspection Team", 
-                filters={"team_name": team.team_name},
+                filters={"team_name": team.team_name, "inspection": self.name},
                 fields=["name"])
             
             if existing_team:
@@ -68,8 +66,69 @@ class Inspection(Document):
             
             # Update the team reference in the current document
             team.name = team_doc.name
+            
+            # Update or create team members
+            self.update_or_create_team_members(team_doc, team.get("members", []))
+            
+            # Update or create team schools
+            self.update_or_create_team_schools(team_doc, team.get("schools", []))
         
-        self.db_update()
+        frappe.db.commit()
+
+    def update_or_create_team_members(self, team_doc, members):
+        existing_members = frappe.get_all("Inspection Team Member", 
+            filters={"team": team_doc.name},
+            fields=["name", "id"])
+        
+        existing_member_ids = {m.id: m.name for m in existing_members}
+        
+        for member in members:
+            member_data = {
+                "doctype": "Inspection Team Member",
+                "team": team_doc.name,
+                "id": member.get("id"),
+                "username": member.get("username"),
+                "displayName": member.get("displayName")
+            }
+            
+            if member.get("id") in existing_member_ids:
+                member_doc = frappe.get_doc("Inspection Team Member", existing_member_ids[member.get("id")])
+                member_doc.update(member_data)
+                member_doc.save(ignore_permissions=True)
+            else:
+                frappe.get_doc(member_data).insert(ignore_permissions=True)
+        
+        # Remove members that are no longer in the team
+        for existing_id, existing_name in existing_member_ids.items():
+            if existing_id not in [m.get("id") for m in members]:
+                frappe.delete_doc("Inspection Team Member", existing_name, ignore_permissions=True)
+
+    def update_or_create_team_schools(self, team_doc, schools):
+        existing_schools = frappe.get_all("Team School Assignment", 
+            filters={"team": team_doc.name},
+            fields=["name", "school_code"])
+        
+        existing_school_codes = {s.school_code: s.name for s in existing_schools}
+        
+        for school in schools:
+            school_data = {
+                "doctype": "Team School Assignment",
+                "team": team_doc.name,
+                "school_code": school.get("id"),
+                "school_name": school.get("schoolName")
+            }
+            
+            if school.get("id") in existing_school_codes:
+                school_doc = frappe.get_doc("Team School Assignment", existing_school_codes[school.get("id")])
+                school_doc.update(school_data)
+                school_doc.save(ignore_permissions=True)
+            else:
+                frappe.get_doc(school_data).insert(ignore_permissions=True)
+        
+        # Remove schools that are no longer assigned to the team
+        for existing_code, existing_name in existing_school_codes.items():
+            if existing_code not in [s.get("id") for s in schools]:
+                frappe.delete_doc("Team School Assignment", existing_name, ignore_permissions=True)
 
     def after_insert(self):
         self.update_or_create_teams()
