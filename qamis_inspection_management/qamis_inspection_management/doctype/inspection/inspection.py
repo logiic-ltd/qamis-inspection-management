@@ -39,15 +39,28 @@ class Inspection(Document):
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")
-        self.update_team_counts()
+        self.update_or_create_teams()
         logger.info(f"Inspection {self.name} updated")
 
-    def update_team_counts(self):
+    def update_or_create_teams(self):
         for team in self.teams:
-            team_doc = frappe.get_doc("Inspection Team", team.name)
-            team_doc.schools_count = len(team.schools)
-            team_doc.members_count = len(team.members)
-            team_doc.save()
+            team_doc = frappe.get_doc({
+                "doctype": "Inspection Team",
+                "team_name": team.team_name,
+                "inspection": self.name,
+                "schools_count": len(team.schools),
+                "members_count": len(team.members)
+            })
+            
+            existing_team = frappe.get_all("Inspection Team", 
+                filters={"team_name": team.team_name, "inspection": self.name},
+                fields=["name"])
+            
+            if existing_team:
+                team_doc.name = existing_team[0].name
+                team_doc.save()
+            else:
+                team_doc.insert()
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")

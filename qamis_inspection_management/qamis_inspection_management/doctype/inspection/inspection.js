@@ -333,25 +333,7 @@ function add_team_to_inspection(frm, values) {
     frm.doc.teams.push(new_team);
 
     frm.refresh_field('teams');
-
-    // Update the Inspection Team doctype
-    frappe.call({
-        method: 'frappe.client.insert',
-        args: {
-            doc: {
-                doctype: 'Inspection Team',
-                team_name: team_name,
-                inspection: frm.doc.name,
-                schools_count: selected_schools.length,
-                members_count: selected_members.length
-            }
-        },
-        callback: function(r) {
-            if (!r.exc) {
-                frappe.show_alert(`Team "${team_name}" added successfully`, 5);
-            }
-        }
-    });
+    frappe.show_alert(`Team "${team_name}" added successfully`, 5);
 }
 
 
