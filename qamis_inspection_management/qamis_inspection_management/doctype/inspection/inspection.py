@@ -44,27 +44,30 @@ class Inspection(Document):
 
     def update_or_create_teams(self):
         for team in self.teams:
-            team_doc = frappe.get_doc({
+            team_data = {
                 "doctype": "Inspection Team",
                 "team_name": team.team_name,
-                "inspection": self.name,
-                "schools_count": len(team.schools),
-                "members_count": len(team.members)
-            })
+                "schools_count": len(team.get("schools", [])),
+                "members_count": len(team.get("members", []))
+            }
+            
+            if self.name and not self.is_new():
+                team_data["inspection"] = self.name
             
             existing_team = frappe.get_all("Inspection Team", 
                 filters={"team_name": team.team_name, "inspection": self.name},
                 fields=["name"])
             
             if existing_team:
-                team_doc.name = existing_team[0].name
+                team_doc = frappe.get_doc("Inspection Team", existing_team[0].name)
+                team_doc.update(team_data)
                 team_doc.save()
             else:
-                team_doc.insert()
+                team_doc = frappe.get_doc(team_data)
+                team_doc.insert(ignore_permissions=True)
 
-    def on_update(self):
-        logger.info(f"Updating Inspection: {self.name}")
-        logger.info(f"Inspection {self.name} updated")
+    def after_insert(self):
+        self.update_or_create_teams()
 
     def validate_dates(self):
         logger.info(f"Validating dates for Inspection: {self.name}")
