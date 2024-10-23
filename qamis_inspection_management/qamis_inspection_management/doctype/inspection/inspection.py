@@ -56,6 +56,7 @@ class Inspection(Document):
 
     def update_or_create_teams(self):
         try:
+            # Iterate through each team in the Inspection
             for team in self.teams:
                 team_data = {
                     "doctype": "Inspection Team",
@@ -63,20 +64,22 @@ class Inspection(Document):
                     "inspection": self.name
                 }
                 
+                # Check if the team already exists
                 existing_team = frappe.get_all("Inspection Team", 
                     filters={"team_name": team.team_name},
                     fields=["name"])
                 
                 if existing_team:
+                    # Update existing team
                     team_doc = frappe.get_doc("Inspection Team", existing_team[0].name)
                     team_doc.update(team_data)
                 else:
+                    # Create new team
                     team_doc = frappe.get_doc(team_data)
                     team_doc.insert(ignore_permissions=True)
                 
-                # Update the inspection field for the team
+                # Ensure the team is linked to this inspection
                 team_doc.inspection = self.name
-                team_doc.save(ignore_permissions=True)
                 
                 # Update team members
                 team_doc.members = []
@@ -95,8 +98,10 @@ class Inspection(Document):
                         "school_name": school.get("schoolName")
                     })
                 
+                # Save the team document
                 team_doc.save(ignore_permissions=True)
             
+            # Update the inspection's team counts
             self.update_team_counts()
             self.db_update()
             frappe.db.commit()
