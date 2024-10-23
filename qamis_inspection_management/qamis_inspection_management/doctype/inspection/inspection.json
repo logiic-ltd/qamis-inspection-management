@@ -83,7 +83,21 @@
    "fieldname": "teams",
    "fieldtype": "Table",
    "label": "Teams",
-   "options": "Inspection Team"
+   "options": "Inspection Team",
+   "columns": [
+    {
+     "fieldname": "team_name",
+     "width": 200
+    },
+    {
+     "fieldname": "schools_count",
+     "width": 100
+    },
+    {
+     "fieldname": "members_count",
+     "width": 100
+    }
+   ]
   },
   {
    "fieldname": "summary_section",
