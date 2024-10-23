@@ -9,6 +9,10 @@
  "field_order": [
   "team_name",
   "inspection",
+  "members_section",
+  "members",
+  "schools_section",
+  "schools",
   "schools_count",
   "members_count"
  ],
@@ -26,7 +30,29 @@
    "fieldtype": "Link",
    "label": "Inspection",
    "options": "Inspection",
-   "reqd": 0
+   "reqd": 1
+  },
+  {
+   "fieldname": "members_section",
+   "fieldtype": "Section Break",
+   "label": "Team Members"
+  },
+  {
+   "fieldname": "members",
+   "fieldtype": "Table",
+   "label": "Members",
+   "options": "Inspection Team Member"
+  },
+  {
+   "fieldname": "schools_section",
+   "fieldtype": "Section Break",
+   "label": "Schools"
+  },
+  {
+   "fieldname": "schools",
+   "fieldtype": "Table",
+   "label": "Schools",
+   "options": "Team School Assignment"
   },
   {
    "fieldname": "schools_count",

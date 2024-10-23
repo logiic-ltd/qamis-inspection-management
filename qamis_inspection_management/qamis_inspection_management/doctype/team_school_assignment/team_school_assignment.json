@@ -7,17 +7,10 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "team",
-  "school"
+  "school_code",
+  "school_name"
  ],
  "fields": [
-  {
-   "fieldname": "team",
-   "fieldtype": "Link",
-   "label": "Team",
-   "options": "Inspection Team",
-   "reqd": 1
-  },
   {
    "fieldname": "school_code",
    "fieldtype": "Data",
