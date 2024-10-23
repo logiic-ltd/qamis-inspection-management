@@ -29,9 +29,25 @@ class Inspection(Document):
         self.update_count_fields()
 
     def update_count_fields(self):
-        self.schools_count = sum(len(team.schools) for team in self.teams)
-        self.team_members_count = sum(len(team.members) for team in self.teams)
+        self.schools_count = 0
+        self.team_members_count = 0
+        for team in self.teams:
+            team_doc = frappe.get_doc("Inspection Team", team.name)
+            self.schools_count += team_doc.schools_count
+            self.team_members_count += team_doc.members_count
         logger.info(f"Updated count fields for Inspection {self.name}: Schools: {self.schools_count}, Team Members: {self.team_members_count}")
+
+    def on_update(self):
+        logger.info(f"Updating Inspection: {self.name}")
+        self.update_team_counts()
+        logger.info(f"Inspection {self.name} updated")
+
+    def update_team_counts(self):
+        for team in self.teams:
+            team_doc = frappe.get_doc("Inspection Team", team.name)
+            team_doc.schools_count = len(team.schools)
+            team_doc.members_count = len(team.members)
+            team_doc.save()
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")

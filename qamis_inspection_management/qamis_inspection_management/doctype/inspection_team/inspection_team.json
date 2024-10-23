@@ -8,7 +8,9 @@
  "engine": "InnoDB",
  "field_order": [
   "team_name",
-  "inspection"
+  "inspection",
+  "schools_count",
+  "members_count"
  ],
  "fields": [
   {
@@ -24,6 +26,18 @@
    "label": "Inspection",
    "options": "Inspection",
    "reqd": 1
+  },
+  {
+   "fieldname": "schools_count",
+   "fieldtype": "Int",
+   "label": "Schools Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "members_count",
+   "fieldtype": "Int",
+   "label": "Members Count",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,

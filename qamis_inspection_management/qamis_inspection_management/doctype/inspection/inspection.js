@@ -324,7 +324,9 @@ function add_team_to_inspection(frm, values) {
     let new_team = {
         team_name: team_name,
         members: selected_members,
-        schools: selected_schools
+        schools: selected_schools,
+        schools_count: selected_schools.length,
+        members_count: selected_members.length
     };
 
     frm.doc.teams = frm.doc.teams || [];
@@ -332,7 +334,24 @@ function add_team_to_inspection(frm, values) {
 
     frm.refresh_field('teams');
 
-    frappe.show_alert(`Team "${team_name}" added successfully`, 5);
+    // Update the Inspection Team doctype
+    frappe.call({
+        method: 'frappe.client.insert',
+        args: {
+            doc: {
+                doctype: 'Inspection Team',
+                team_name: team_name,
+                inspection: frm.doc.name,
+                schools_count: selected_schools.length,
+                members_count: selected_members.length
+            }
+        },
+        callback: function(r) {
+            if (!r.exc) {
+                frappe.show_alert(`Team "${team_name}" added successfully`, 5);
+            }
+        }
+    });
 }
 
 
