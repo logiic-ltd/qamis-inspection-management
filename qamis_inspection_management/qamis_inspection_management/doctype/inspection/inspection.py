@@ -55,16 +55,21 @@ class Inspection(Document):
                 team_data["inspection"] = self.name
             
             existing_team = frappe.get_all("Inspection Team", 
-                filters={"team_name": team.team_name, "inspection": self.name},
+                filters={"team_name": team.team_name},
                 fields=["name"])
             
             if existing_team:
                 team_doc = frappe.get_doc("Inspection Team", existing_team[0].name)
                 team_doc.update(team_data)
-                team_doc.save()
+                team_doc.save(ignore_permissions=True)
             else:
                 team_doc = frappe.get_doc(team_data)
                 team_doc.insert(ignore_permissions=True)
+            
+            # Update the team reference in the current document
+            team.name = team_doc.name
+        
+        self.db_update()
 
     def after_insert(self):
         self.update_or_create_teams()
