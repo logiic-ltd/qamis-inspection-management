@@ -15,6 +15,18 @@ class Inspection(Document):
         logger.info(f"Validating Inspection: {self.name}")
         self.validate_dates()
         self.validate_status_transition()
+        self.validate_teams()
+
+    def validate_teams(self):
+        if not self.teams:
+            frappe.throw(_("At least one team must be added to the inspection."))
+        for team in self.teams:
+            if not team.team_name:
+                frappe.throw(_("Team name is required for all teams."))
+            if not team.get("members"):
+                frappe.throw(_("Each team must have at least one member."))
+            if not team.get("schools"):
+                frappe.throw(_("Each team must have at least one school assigned."))
 
     def validate_status_transition(self):
         if not self.is_new():
@@ -39,48 +51,49 @@ class Inspection(Document):
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")
-        try:
-            self.update_or_create_teams()
-            logger.info(f"Inspection {self.name} updated successfully")
-        except Exception as e:
-            logger.error(f"Error updating Inspection {self.name}: {str(e)}")
-            frappe.log_error(f"Error updating Inspection {self.name}: {str(e)}")
-            frappe.throw(_("An error occurred while updating the inspection. Please check the error log for details."))
+        self.update_or_create_teams()
+        logger.info(f"Inspection {self.name} updated successfully")
 
     def update_or_create_teams(self):
-        for team in self.teams:
-            team_data = {
-                "doctype": "Inspection Team",
-                "team_name": team.team_name,
-                "schools_count": len(team.get("schools", [])),
-                "members_count": len(team.get("members", [])),
-                "inspection": self.name
-            }
+        try:
+            for team in self.teams:
+                team_data = {
+                    "doctype": "Inspection Team",
+                    "team_name": team.team_name,
+                    "schools_count": len(team.get("schools", [])),
+                    "members_count": len(team.get("members", [])),
+                    "inspection": self.name
+                }
+                
+                existing_team = frappe.get_all("Inspection Team", 
+                    filters={"team_name": team.team_name, "inspection": self.name},
+                    fields=["name"])
+                
+                if existing_team:
+                    team_doc = frappe.get_doc("Inspection Team", existing_team[0].name)
+                    team_doc.update(team_data)
+                    team_doc.save(ignore_permissions=True)
+                else:
+                    team_doc = frappe.get_doc(team_data)
+                    team_doc.insert(ignore_permissions=True)
+                
+                # Update the team reference in the current document
+                team.name = team_doc.name
+                
+                # Update or create team members
+                self.update_or_create_team_members(team_doc, team.get("members", []))
+                
+                # Update or create team schools
+                self.update_or_create_team_schools(team_doc, team.get("schools", []))
             
-            existing_team = frappe.get_all("Inspection Team", 
-                filters={"team_name": team.team_name, "inspection": self.name},
-                fields=["name"])
-            
-            if existing_team:
-                team_doc = frappe.get_doc("Inspection Team", existing_team[0].name)
-                team_doc.update(team_data)
-                team_doc.save(ignore_permissions=True)
-            else:
-                team_doc = frappe.get_doc(team_data)
-                team_doc.insert(ignore_permissions=True)
-            
-            # Update the team reference in the current document
-            team.name = team_doc.name
-            
-            # Update or create team members
-            self.update_or_create_team_members(team_doc, team.get("members", []))
-            
-            # Update or create team schools
-            self.update_or_create_team_schools(team_doc, team.get("schools", []))
-        
-        # Save the current document to ensure team references are updated
-        self.save(ignore_permissions=True)
-        frappe.db.commit()
+            # Save the current document to ensure team references are updated
+            self.db_update()
+            frappe.db.commit()
+            logger.info(f"Teams updated successfully for Inspection {self.name}")
+        except Exception as e:
+            logger.error(f"Error updating teams for Inspection {self.name}: {str(e)}")
+            frappe.log_error(f"Error updating teams for Inspection {self.name}: {str(e)}")
+            frappe.throw(_("An error occurred while updating the inspection teams. Please check the error log for details."))
 
     def update_or_create_team_members(self, team_doc, members):
         existing_members = frappe.get_all("Inspection Team Member", 
