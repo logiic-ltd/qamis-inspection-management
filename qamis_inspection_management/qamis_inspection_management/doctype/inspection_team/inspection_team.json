@@ -18,7 +18,8 @@
    "fieldtype": "Data",
    "label": "Team Name",
    "unique": 1,
-   "reqd": 1
+   "reqd": 1,
+   "in_list_view": 1
   },
   {
    "fieldname": "inspection",
@@ -31,13 +32,15 @@
    "fieldname": "schools_count",
    "fieldtype": "Int",
    "label": "Schools Count",
-   "read_only": 1
+   "read_only": 1,
+   "in_list_view": 1
   },
   {
    "fieldname": "members_count",
    "fieldtype": "Int",
    "label": "Members Count",
-   "read_only": 1
+   "read_only": 1,
+   "in_list_view": 1
   }
  ],
  "index_web_pages_for_search": 1,
