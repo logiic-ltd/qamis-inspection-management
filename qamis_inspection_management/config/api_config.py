@@ -1,3 +1,3 @@
 # API Configuration
 
-API_BASE_URL = "http://192.168.0.101:8081"
+API_BASE_URL = "http://172.16.3.185:8081"
