@@ -64,7 +64,7 @@ class Inspection(Document):
                 }
                 
                 existing_team = frappe.get_all("Inspection Team", 
-                    filters={"team_name": team.team_name, "inspection": self.name},
+                    filters={"team_name": team.team_name},
                     fields=["name"])
                 
                 if existing_team:
@@ -73,6 +73,10 @@ class Inspection(Document):
                 else:
                     team_doc = frappe.get_doc(team_data)
                     team_doc.insert(ignore_permissions=True)
+                
+                # Update the inspection field for the team
+                team_doc.inspection = self.name
+                team_doc.save(ignore_permissions=True)
                 
                 # Update team members
                 team_doc.members = []

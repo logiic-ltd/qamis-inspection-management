@@ -20,3 +20,7 @@ class InspectionTeam(Document):
             inspection = frappe.get_doc("Inspection", self.inspection)
             inspection.update_team_counts()
             inspection.save()
+        else:
+            # If inspection is not set, we're likely in the process of creating a new inspection
+            # We'll handle updating the inspection later in the process
+            pass
