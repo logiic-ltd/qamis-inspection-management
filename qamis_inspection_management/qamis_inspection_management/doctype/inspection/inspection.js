@@ -330,7 +330,7 @@ function add_team_to_inspection(frm, values) {
     };
 
     frm.doc.teams = frm.doc.teams || [];
-    frm.doc.teams.push(new_team);
+    frm.add_child('teams', new_team);
 
     frm.refresh_field('teams');
     frappe.show_alert(`Team "${team_name}" added successfully`, 5);
