@@ -29,8 +29,13 @@ function show_team_management_dialog(frm) {
                 reqd: 1
             },
             {
-                fieldname: 'team_members_section',
+                fieldname: 'team_members_and_schools_section',
                 fieldtype: 'Section Break',
+                label: 'Team Members and Schools'
+            },
+            {
+                fieldname: 'team_members_column',
+                fieldtype: 'Column Break',
                 label: 'Team Members'
             },
             {
@@ -62,8 +67,8 @@ function show_team_management_dialog(frm) {
                 ]
             },
             {
-                fieldname: 'schools_section',
-                fieldtype: 'Section Break',
+                fieldname: 'schools_column',
+                fieldtype: 'Column Break',
                 label: 'Schools'
             },
             {
@@ -105,6 +110,8 @@ function show_team_management_dialog(frm) {
             frm.refresh();
         }
     });
+
+    d.$wrapper.find('.modal-dialog').css("max-width", "80%");
 
     // Initialize search functionality
     init_member_search(d);
