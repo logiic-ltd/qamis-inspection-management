@@ -39,8 +39,13 @@ class Inspection(Document):
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")
-        self.update_or_create_teams()
-        logger.info(f"Inspection {self.name} updated")
+        try:
+            self.update_or_create_teams()
+            logger.info(f"Inspection {self.name} updated successfully")
+        except Exception as e:
+            logger.error(f"Error updating Inspection {self.name}: {str(e)}")
+            frappe.log_error(f"Error updating Inspection {self.name}: {str(e)}")
+            frappe.throw(_("An error occurred while updating the inspection. Please check the error log for details."))
 
     def update_or_create_teams(self):
         for team in self.teams:
@@ -73,6 +78,8 @@ class Inspection(Document):
             # Update or create team schools
             self.update_or_create_team_schools(team_doc, team.get("schools", []))
         
+        # Save the current document to ensure team references are updated
+        self.save(ignore_permissions=True)
         frappe.db.commit()
 
     def update_or_create_team_members(self, team_doc, members):
