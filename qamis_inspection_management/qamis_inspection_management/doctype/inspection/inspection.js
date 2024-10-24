@@ -339,7 +339,7 @@ function create_team_and_link_to_inspection(frm, values) {
     let selected_members = values.selected_members || [];
     let selected_schools = values.selected_schools || [];
 
-    console.log('Creating team and linking to inspection:', { team_name, selected_members, selected_schools });
+    console.log('Creating team:', { team_name, selected_members, selected_schools });
 
     if (!team_name || selected_members.length === 0 || selected_schools.length === 0) {
         frappe.msgprint('Please enter a team name, select at least one member and one school.');
@@ -358,18 +358,21 @@ function create_team_and_link_to_inspection(frm, values) {
         args: {
             team_name: team_name,
             members: JSON.stringify(selected_members),
-            schools: JSON.stringify(selected_schools),
-            inspection: frm.doc.name
+            schools: JSON.stringify(selected_schools)
         },
         callback: function(r) {
             if (r.message) {
                 let new_team = r.message;
-                console.log('Linking new team to inspection:', new_team);
+                console.log('Adding new team to inspection:', new_team);
 
                 frm.doc.teams = frm.doc.teams || [];
-                frm.add_child('teams', new_team);
+                frm.add_child('teams', {
+                    team_name: new_team.name,
+                    members_count: new_team.members_count,
+                    schools_count: new_team.schools_count
+                });
                 frm.refresh_field('teams');
-                frappe.show_alert(`Team "${team_name}" created and linked successfully`, 5);
+                frappe.show_alert(`Team "${team_name}" created and added to the inspection`, 5);
                 
                 frm.dirty();
             } else {

@@ -27,15 +27,14 @@ class InspectionTeam(Document):
         # If inspection is not set, we don't need to do anything
 
 @frappe.whitelist()
-def create_inspection_team(team_name, members, schools, inspection):
+def create_inspection_team(team_name, members, schools):
     try:
         members = json.loads(members)
         schools = json.loads(schools)
 
         team_doc = frappe.get_doc({
             "doctype": "Inspection Team",
-            "team_name": team_name,
-            "inspection": inspection
+            "team_name": team_name
         })
 
         for member in members:
@@ -60,8 +59,7 @@ def create_inspection_team(team_name, members, schools, inspection):
             "name": team_doc.name,
             "team_name": team_doc.team_name,
             "members_count": len(team_doc.members),
-            "schools_count": len(team_doc.schools),
-            "inspection": inspection
+            "schools_count": len(team_doc.schools)
         }
     except Exception as e:
         frappe.log_error(f"Error creating Inspection Team: {str(e)}")
