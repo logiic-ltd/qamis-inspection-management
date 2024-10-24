@@ -369,7 +369,8 @@ function add_team_to_inspection(frm, values) {
         args: {
             team_name: team_name,
             members: JSON.stringify(selected_members),
-            schools: JSON.stringify(selected_schools)
+            schools: JSON.stringify(selected_schools),
+            inspection: frm.doc.name
         },
         callback: function(r) {
             console.log('Server response:', r);

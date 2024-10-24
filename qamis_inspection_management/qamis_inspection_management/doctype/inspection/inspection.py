@@ -50,41 +50,7 @@ class Inspection(Document):
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")
-        self.link_teams()
         logger.info(f"Inspection {self.name} updated successfully")
-
-    def link_teams(self):
-        try:
-            logger.info(f"Linking teams for Inspection {self.name}")
-            
-            # Get current teams linked to this inspection
-            current_team_ids = [team.team_id for team in self.teams]
-            
-            # Update inspection reference for current teams
-            for team_id in current_team_ids:
-                team_doc = frappe.get_doc("Inspection Team", team_id)
-                if team_doc.inspection != self.name:
-                    team_doc.inspection = self.name
-                    team_doc.save(ignore_permissions=True)
-                    logger.info(f"Linked team {team_id} to inspection {self.name}")
-            
-            # Remove inspection reference from teams no longer in the inspection
-            existing_teams = frappe.get_all("Inspection Team", 
-                filters={"inspection": self.name},
-                fields=["name"])
-            
-            for team in existing_teams:
-                if team.name not in current_team_ids:
-                    team_doc = frappe.get_doc("Inspection Team", team.name)
-                    team_doc.inspection = None
-                    team_doc.save(ignore_permissions=True)
-                    logger.info(f"Removed link for team {team.name} from inspection {self.name}")
-
-            logger.info(f"Teams linked successfully for Inspection {self.name}")
-        except Exception as e:
-            logger.error(f"Error linking teams for Inspection {self.name}: {str(e)}")
-            frappe.log_error(f"Error linking teams for Inspection {self.name}: {str(e)}")
-            frappe.throw(_("An error occurred while linking the inspection teams. Please check the error log for details."))
 
     def update_or_create_team_members(self, team_doc, members):
         existing_members = frappe.get_all("Inspection Team Member", 
@@ -186,14 +152,16 @@ def search_schools(search_term):
     return _make_api_request(url, "schools")
 
 @frappe.whitelist()
-def create_inspection_team(team_name, members, schools):
+def create_inspection_team(team_name, members, schools, inspection):
     logger.info(f"Creating inspection team: {team_name}")
     logger.info(f"Members: {members}")
     logger.info(f"Schools: {schools}")
+    logger.info(f"Inspection: {inspection}")
     try:
         team_doc = frappe.get_doc({
             "doctype": "Inspection Team",
-            "team_name": team_name
+            "team_name": team_name,
+            "inspection": inspection
         })
 
         for member in json.loads(members):
