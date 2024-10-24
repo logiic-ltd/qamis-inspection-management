@@ -240,18 +240,23 @@ function init_school_search(dialog) {
                                 district: item.district
                             });
                             $results.empty();
-                            $search_input.val('');  // Clear the search input
-                            $search_input.trigger('input');  // Trigger input event separately
+                            $search_input.val('');
                         });
                     } else {
                         $results.html('<p>No results found or unable to connect to the API. Please try again later.</p>');
                     }
                 }
             });
-        }, 200);
+        }, 300);
     });
 
     $search_input.on('change', function() {
+        if ($search_input.val() === '') {
+            $results.empty();
+        }
+    });
+
+    $search_input.on('input', function() {
         if ($search_input.val() === '') {
             $results.empty();
         }
