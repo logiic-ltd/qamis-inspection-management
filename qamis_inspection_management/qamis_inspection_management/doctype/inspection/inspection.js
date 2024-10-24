@@ -249,6 +249,18 @@ function init_school_search(dialog) {
             });
         }, 300);
     });
+
+    $search_input.on('change', function() {
+        if ($search_input.val() === '') {
+            $results.empty();
+        }
+    });
+
+    $search_input.on('input', function() {
+        if ($search_input.val() === '') {
+            $results.empty();
+        }
+    });
 }
 
 function add_school_to_selection(dialog, school) {
