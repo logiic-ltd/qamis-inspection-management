@@ -38,7 +38,11 @@ def create_inspection_team(team_name, members, schools, inspection=None):
         })
         
         if inspection:
-            team_doc.inspection = inspection
+            # Check if the Inspection document exists
+            if frappe.db.exists("Inspection", inspection):
+                team_doc.inspection = inspection
+            else:
+                frappe.throw(f"Inspection {inspection} not found")
 
         for member in members:
             team_doc.append("members", {
@@ -66,4 +70,4 @@ def create_inspection_team(team_name, members, schools, inspection=None):
         }
     except Exception as e:
         frappe.log_error(f"Error creating Inspection Team: {str(e)}")
-        return None
+        frappe.throw(f"Error creating Inspection Team: {str(e)}")

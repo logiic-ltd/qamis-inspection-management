@@ -380,6 +380,10 @@ function create_team_and_link_to_inspection(frm, values) {
                 frappe.msgprint('Failed to create team. Please try again.');
                 console.error('Failed to create team:', r);
             }
+        },
+        error: function(r) {
+            console.error('Error creating team:', r);
+            frappe.msgprint('An error occurred while creating the team. Please check if the Inspection document exists and try again.');
         }
     });
 }
