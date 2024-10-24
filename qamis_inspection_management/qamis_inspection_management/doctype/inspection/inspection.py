@@ -88,16 +88,17 @@ class Inspection(Document):
             existing_teams = frappe.get_all("Inspection Team", 
                 filters={"inspection": self.name},
                 fields=["name", "team_name"])
-            existing_team_names = {team.team_name: team.name for team in existing_teams}
+            existing_team_ids = {team.name: team.team_name for team in existing_teams}
             
             # Iterate through each team in the Inspection
             for team_link in self.get("teams", []):
                 logger.info(f"Processing team: {team_link.team_name}")
                 
-                if team_link.team_name in existing_team_names:
+                if team_link.team_id in existing_team_ids:
                     # Team already linked, update if necessary
-                    team_doc = frappe.get_doc("Inspection Team", existing_team_names[team_link.team_name])
+                    team_doc = frappe.get_doc("Inspection Team", team_link.team_id)
                     logger.info(f"Updating existing team: {team_doc.name}")
+                    team_doc.team_name = team_link.team_name
                     team_doc.members_count = team_link.members_count
                     team_doc.schools_count = team_link.schools_count
                     team_doc.save(ignore_permissions=True)
@@ -105,6 +106,7 @@ class Inspection(Document):
                     # Create new team link
                     new_team = frappe.get_doc({
                         "doctype": "Inspection Team",
+                        "name": team_link.team_id,
                         "team_name": team_link.team_name,
                         "inspection": self.name,
                         "members_count": team_link.members_count,
@@ -113,11 +115,11 @@ class Inspection(Document):
                     new_team.insert(ignore_permissions=True)
                     logger.info(f"Created new team link: {new_team.name}")
                 
-                # Remove processed team from existing_team_names
-                existing_team_names.pop(team_link.team_name, None)
+                # Remove processed team from existing_team_ids
+                existing_team_ids.pop(team_link.team_id, None)
             
             # Remove teams that are no longer in the inspection
-            for team_name, team_id in existing_team_names.items():
+            for team_id in existing_team_ids:
                 frappe.delete_doc("Inspection Team", team_id, ignore_permissions=True)
                 logger.info(f"Removed team link: {team_id}")
 
@@ -132,7 +134,7 @@ class Inspection(Document):
         self.schools_count = 0
         self.team_members_count = 0
         for team_link in self.teams:
-            team_doc = frappe.get_doc("Inspection Team", team_link.team)
+            team_doc = frappe.get_doc("Inspection Team", team_link.team_id)
             self.schools_count += team_doc.schools_count
             self.team_members_count += team_doc.members_count
 
