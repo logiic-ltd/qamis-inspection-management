@@ -80,6 +80,7 @@ class Inspection(Document):
         try:
             # Iterate through each team in the Inspection
             for team in self.teams:
+                logger.info(f"Processing team: {team.team_name}")
                 team_data = {
                     "doctype": "Inspection Team",
                     "team_name": team.team_name,
@@ -89,10 +90,12 @@ class Inspection(Document):
                 try:
                     # Check if the team already exists
                     existing_team = frappe.get_doc("Inspection Team", {"team_name": team.team_name})
+                    logger.info(f"Updating existing team: {existing_team.name}")
                     # Update existing team
                     existing_team.update(team_data)
                     team_doc = existing_team
                 except frappe.DoesNotExistError:
+                    logger.info(f"Creating new team: {team.team_name}")
                     # Create new team
                     team_doc = frappe.get_doc(team_data)
                     team_doc.insert(ignore_permissions=True)
@@ -103,6 +106,7 @@ class Inspection(Document):
                 # Update team members
                 team_doc.members = []
                 for member in team.get("members", []):
+                    logger.info(f"Adding member to team: {member.get('displayName')}")
                     team_doc.append("members", {
                         "id": member.get("id"),
                         "username": member.get("username"),
@@ -112,14 +116,20 @@ class Inspection(Document):
                 # Update team schools
                 team_doc.schools = []
                 for school in team.get("schools", []):
+                    logger.info(f"Adding school to team: {school.get('schoolName') or school.get('school_name')}")
                     team_doc.append("schools", {
                         "school_code": school.get("id") or school.get("school_code"),
                         "school_name": school.get("schoolName") or school.get("school_name")
                     })
                 
                 # Save the team document
-                team_doc.save(ignore_permissions=True)
-                logger.info(f"Team {team.team_name} saved successfully for Inspection {self.name}")
+                try:
+                    team_doc.save(ignore_permissions=True)
+                    logger.info(f"Team {team.team_name} saved successfully for Inspection {self.name}")
+                except Exception as save_error:
+                    logger.error(f"Error saving team {team.team_name}: {str(save_error)}")
+                    frappe.log_error(f"Error saving team {team.team_name}: {str(save_error)}")
+                    raise
             
             # Update the inspection's team counts
             self.update_team_counts()
