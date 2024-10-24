@@ -81,64 +81,32 @@ class Inspection(Document):
 
     def update_or_create_teams(self):
         try:
-            frappe.db.begin()
-            
-            logger.info(f"Updating teams for Inspection {self.name}")
+            logger.info(f"Linking teams for Inspection {self.name}")
             logger.info(f"Current teams in the Inspection: {[team.team_name for team in self.teams]}")
-            
-            # Get existing teams
-            existing_teams = {team.team: team for team in self.teams}
             
             # Iterate through each team in the Inspection
             for team_data in self.get("teams", []):
                 logger.info(f"Processing team: {team_data.get('team_name')}")
                 
-                # Check if the team already exists
+                # Check if the team exists
                 if team_data.get('team') and frappe.db.exists("Inspection Team", team_data.get('team')):
                     team_doc = frappe.get_doc("Inspection Team", team_data.get('team'))
-                    logger.info(f"Existing team found: {team_doc.name}")
+                    logger.info(f"Linking existing team: {team_doc.name}")
+                    
+                    # Update the inspection field of the team
+                    if team_doc.inspection != self.name:
+                        team_doc.inspection = self.name
+                        team_doc.save(ignore_permissions=True)
+                        logger.info(f"Updated inspection link for team {team_doc.name}")
                 else:
-                    team_doc = frappe.get_doc({
-                        "doctype": "Inspection Team",
-                        "team_name": team_data.get("team_name"),
-                        "inspection": self.name
-                    })
-                    logger.info(f"Creating new team: {team_doc.team_name}")
-
-                # Update team members and schools
-                self.update_team_members_and_schools(team_doc, team_data)
-
-                # Save or update the team document
-                team_doc.save(ignore_permissions=True)
-                logger.info(f"Team {team_doc.name} saved successfully")
-
-                # Update or add the team link
-                if team_doc.name in existing_teams:
-                    logger.info(f"Updating existing team link: {team_doc.name}")
-                    existing_teams[team_doc.name].team_name = team_doc.team_name
-                    existing_teams[team_doc.name].members_count = len(team_doc.members)
-                    existing_teams[team_doc.name].schools_count = len(team_doc.schools)
-                else:
-                    logger.info(f"Adding new team link: {team_doc.name}")
-                    self.append("teams", {
-                        "team": team_doc.name,
-                        "team_name": team_doc.team_name,
-                        "members_count": len(team_doc.members),
-                        "schools_count": len(team_doc.schools)
-                    })
-
-            # Remove teams that are no longer in the inspection
-            self.teams = [team for team in self.teams if team.team in [t.get('team') for t in self.get("teams", [])]]
-            logger.info(f"Final teams in the Inspection: {[team.team_name for team in self.teams]}")
+                    logger.warning(f"Team {team_data.get('team_name')} not found in the database")
 
             self.update_team_counts()
-            frappe.db.commit()
-            logger.info(f"Teams updated successfully for Inspection {self.name}")
+            logger.info(f"Teams linked successfully for Inspection {self.name}")
         except Exception as e:
-            frappe.db.rollback()
-            logger.error(f"Error updating teams for Inspection {self.name}: {str(e)}")
-            frappe.log_error(f"Error updating teams for Inspection {self.name}: {str(e)}")
-            frappe.throw(_("An error occurred while updating the inspection teams. Please check the error log for details."))
+            logger.error(f"Error linking teams for Inspection {self.name}: {str(e)}")
+            frappe.log_error(f"Error linking teams for Inspection {self.name}: {str(e)}")
+            frappe.throw(_("An error occurred while linking the inspection teams. Please check the error log for details."))
 
     def update_team_counts(self):
         self.schools_count = 0
