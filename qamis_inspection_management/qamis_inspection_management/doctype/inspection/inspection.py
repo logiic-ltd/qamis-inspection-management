@@ -64,16 +64,13 @@ class Inspection(Document):
                     "inspection": self.name
                 }
                 
-                # Check if the team already exists
-                existing_team = frappe.get_all("Inspection Team", 
-                    filters={"team_name": team.team_name},
-                    fields=["name"])
-                
-                if existing_team:
+                try:
+                    # Check if the team already exists
+                    existing_team = frappe.get_doc("Inspection Team", {"team_name": team.team_name})
                     # Update existing team
-                    team_doc = frappe.get_doc("Inspection Team", existing_team[0].name)
-                    team_doc.update(team_data)
-                else:
+                    existing_team.update(team_data)
+                    team_doc = existing_team
+                except frappe.DoesNotExistError:
                     # Create new team
                     team_doc = frappe.get_doc(team_data)
                     team_doc.insert(ignore_permissions=True)
@@ -100,6 +97,7 @@ class Inspection(Document):
                 
                 # Save the team document
                 team_doc.save(ignore_permissions=True)
+                logger.info(f"Team {team.team_name} saved successfully for Inspection {self.name}")
             
             # Update the inspection's team counts
             self.update_team_counts()
