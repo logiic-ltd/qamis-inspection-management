@@ -360,8 +360,7 @@ function add_team_to_inspection(frm, values) {
         args: {
             team_name: team_name,
             members: selected_members,
-            schools: selected_schools,
-            inspection: frm.doc.name
+            schools: selected_schools
         },
         callback: function(r) {
             if (r.message) {
@@ -376,6 +375,9 @@ function add_team_to_inspection(frm, values) {
                 frm.add_child('teams', new_team);
                 frm.refresh_field('teams');
                 frappe.show_alert(`Team "${team_name}" added successfully`, 5);
+                
+                // Mark form as dirty to ensure changes are saved
+                frm.set_dirty();
             } else {
                 frappe.msgprint('Failed to create team. Please try again.');
             }

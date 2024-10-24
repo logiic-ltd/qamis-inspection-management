@@ -238,12 +238,11 @@ def search_schools(search_term):
     return _make_api_request(url, "schools")
 
 @frappe.whitelist()
-def create_inspection_team(team_name, members, schools, inspection):
+def create_inspection_team(team_name, members, schools):
     try:
         team_doc = frappe.get_doc({
             "doctype": "Inspection Team",
-            "team_name": team_name,
-            "inspection": inspection
+            "team_name": team_name
         })
 
         for member in json.loads(members):
