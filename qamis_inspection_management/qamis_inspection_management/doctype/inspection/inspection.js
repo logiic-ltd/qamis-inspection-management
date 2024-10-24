@@ -365,12 +365,11 @@ function add_team_to_inspection(frm, values) {
     }
 
     frappe.call({
-        method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.create_inspection_team',
+        method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection_team.inspection_team.create_inspection_team',
         args: {
             team_name: team_name,
             members: JSON.stringify(selected_members),
-            schools: JSON.stringify(selected_schools),
-            inspection: frm.doc.name
+            schools: JSON.stringify(selected_schools)
         },
         callback: function(r) {
             console.log('Server response:', r);
