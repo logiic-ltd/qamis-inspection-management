@@ -127,7 +127,7 @@ function show_team_management_dialog(frm) {
         ],
         primary_action_label: 'Add Team',
         primary_action(values) {
-            add_team_to_inspection(frm, values);
+            create_team_and_link_to_inspection(frm, values);
             d.hide();
             frm.refresh();
         }
@@ -345,12 +345,12 @@ function adjust_table_columns(dialog) {
     });
 }
 
-function add_team_to_inspection(frm, values) {
+function create_team_and_link_to_inspection(frm, values) {
     let team_name = values.team_name;
     let selected_members = values.selected_members || [];
     let selected_schools = values.selected_schools || [];
 
-    console.log('Adding team to inspection:', { team_name, selected_members, selected_schools });
+    console.log('Creating team and linking to inspection:', { team_name, selected_members, selected_schools });
 
     if (!team_name || selected_members.length === 0 || selected_schools.length === 0) {
         frappe.msgprint('Please enter a team name, select at least one member and one school.');
@@ -372,25 +372,22 @@ function add_team_to_inspection(frm, values) {
             schools: JSON.stringify(selected_schools)
         },
         callback: function(r) {
-            console.log('Server response:', r);
             if (r.message) {
                 let new_team = {
-                    team_id: r.message.name,  // Use the returned document name as team_id
+                    team_id: r.message.name,
                     team_name: r.message.team_name,
                     members_count: r.message.members_count,
                     schools_count: r.message.schools_count
                 };
 
-                console.log('Adding new team to form:', new_team);
+                console.log('Linking new team to inspection:', new_team);
 
                 frm.doc.teams = frm.doc.teams || [];
                 frm.add_child('teams', new_team);
                 frm.refresh_field('teams');
-                frappe.show_alert(`Team "${team_name}" added successfully`, 5);
+                frappe.show_alert(`Team "${team_name}" created and linked successfully`, 5);
                 
-                // Mark form as dirty to ensure changes are saved
                 frm.dirty();
-                console.log('Form marked as dirty');
             } else {
                 frappe.msgprint('Failed to create team. Please try again.');
                 console.error('Failed to create team:', r);
