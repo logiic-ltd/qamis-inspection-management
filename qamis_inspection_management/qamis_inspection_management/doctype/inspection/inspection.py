@@ -238,6 +238,44 @@ def search_schools(search_term):
     url = f"{API_BASE_URL}/api/schools/search?name={search_term}&page=0&size=20&sort=schoolName,asc"
     return _make_api_request(url, "schools")
 
+@frappe.whitelist()
+def create_inspection_team(team_name, members, schools, inspection):
+    try:
+        team_doc = frappe.get_doc({
+            "doctype": "Inspection Team",
+            "team_name": team_name,
+            "inspection": inspection
+        })
+
+        for member in json.loads(members):
+            team_doc.append("members", {
+                "id": member.get("id"),
+                "username": member.get("username"),
+                "displayName": member.get("displayName")
+            })
+
+        for school in json.loads(schools):
+            team_doc.append("schools", {
+                "school_code": school.get("id"),
+                "school_name": school.get("schoolName"),
+                "province": school.get("province"),
+                "district": school.get("district")
+            })
+
+        team_doc.insert(ignore_permissions=True)
+        team_doc.save()
+
+        return {
+            "name": team_doc.name,
+            "team_name": team_doc.team_name,
+            "members_count": len(team_doc.members),
+            "schools_count": len(team_doc.schools)
+        }
+    except Exception as e:
+        logger.error(f"Error creating Inspection Team: {str(e)}")
+        frappe.log_error(f"Error creating Inspection Team: {str(e)}")
+        return None
+
 def _make_api_request(url, item_type):
     try:
         logger.info(f"Sending request to: {url}")

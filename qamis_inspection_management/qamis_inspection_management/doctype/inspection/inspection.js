@@ -355,19 +355,32 @@ function add_team_to_inspection(frm, values) {
         return;
     }
 
-    let new_team = {
-        team_name: team_name,
-        members: selected_members,
-        schools: selected_schools,
-        schools_count: selected_schools.length,
-        members_count: selected_members.length
-    };
+    frappe.call({
+        method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.create_inspection_team',
+        args: {
+            team_name: team_name,
+            members: selected_members,
+            schools: selected_schools,
+            inspection: frm.doc.name
+        },
+        callback: function(r) {
+            if (r.message) {
+                let new_team = {
+                    team: r.message.name,
+                    team_name: r.message.team_name,
+                    members_count: r.message.members_count,
+                    schools_count: r.message.schools_count
+                };
 
-    frm.doc.teams = frm.doc.teams || [];
-    frm.add_child('teams', new_team);
-
-    frm.refresh_field('teams');
-    frappe.show_alert(`Team "${team_name}" added successfully`, 5);
+                frm.doc.teams = frm.doc.teams || [];
+                frm.add_child('teams', new_team);
+                frm.refresh_field('teams');
+                frappe.show_alert(`Team "${team_name}" added successfully`, 5);
+            } else {
+                frappe.msgprint('Failed to create team. Please try again.');
+            }
+        }
+    });
 }
 
 
