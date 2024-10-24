@@ -84,35 +84,30 @@ function show_team_management_dialog(frm) {
                 fieldname: 'selected_schools',
                 fieldtype: 'Table',
                 label: 'Selected Schools',
-                cannot_add_rows: true,
                 fields: [
                     {
                         fieldname: 'id',
                         fieldtype: 'Data',
                         label: 'ID',
-                        in_list_view: 1,
-                        read_only: 1
+                        in_list_view: 1
                     },
                     {
                         fieldname: 'schoolName',
                         fieldtype: 'Data',
                         label: 'School Name',
-                        in_list_view: 1,
-                        read_only: 1
+                        in_list_view: 1
                     },
                     {
                         fieldname: 'province',
                         fieldtype: 'Data',
                         label: 'Province',
-                        in_list_view: 1,
-                        read_only: 1
+                        in_list_view: 1
                     },
                     {
                         fieldname: 'district',
                         fieldtype: 'Data',
                         label: 'District',
-                        in_list_view: 1,
-                        read_only: 1
+                        in_list_view: 1
                     }
                 ]
             }
@@ -298,8 +293,8 @@ function add_member_to_selection(dialog, member) {
 }
 
 function add_school_to_selection(dialog, school) {
-    let table = dialog.fields_dict.selected_schools;
-    let existing_school = table.get_data().find(s => s.id === school.id);
+    let grid = dialog.fields_dict.selected_schools.grid;
+    let existing_school = grid.data.find(s => s.id === school.id);
     
     if (!existing_school) {
         let new_row = {
@@ -308,8 +303,12 @@ function add_school_to_selection(dialog, school) {
             province: school.province,
             district: school.district
         };
-        table.df.data.push(new_row);
-        table.refresh();
+        grid.add_new_row();
+        let added_row = grid.data[grid.data.length - 1];
+        Object.assign(added_row, new_row);
+        
+        grid.refresh();
+        dialog.fields_dict.school_search.$input.val('').trigger('input');
     } else {
         frappe.show_alert(`${school.schoolName} is already in the team.`, 5);
     }
