@@ -30,7 +30,7 @@
    "fieldtype": "Link",
    "label": "Inspection",
    "options": "Inspection",
-   "reqd": 0
+   "reqd": 1
   },
   {
    "fieldname": "members_section",

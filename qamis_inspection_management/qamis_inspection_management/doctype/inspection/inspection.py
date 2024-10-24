@@ -78,38 +78,24 @@ class Inspection(Document):
 
     def update_or_create_teams(self):
         try:
-            # Begin a transaction to ensure all teams are created before saving the inspection
             frappe.db.begin()
             
+            # Clear existing teams
+            self.teams = []
+            
             # Iterate through each team in the Inspection
-            for team in self.teams:
-                logger.info(f"Processing team: {team.team_name}")
-                team_data = {
+            for team_data in self.get("teams", []):
+                logger.info(f"Processing team: {team_data.get('team_name')}")
+                
+                team_doc = frappe.get_doc({
                     "doctype": "Inspection Team",
-                    "team_name": team.team_name,
+                    "team_name": team_data.get("team_name"),
                     "inspection": self.name
-                }
-
-                team_doc = None  # Initialize team_doc for clarity
-                try:
-                    # Check if the team already exists by team_name
-                    existing_team = frappe.get_doc("Inspection Team", {"team_name": team.team_name})
-                    logger.info(f"Updating existing team: {existing_team.name}")
-                    # Update existing team data
-                    existing_team.update(team_data)
-                    team_doc = existing_team
-                except frappe.DoesNotExistError:
-                    logger.info(f"Creating new team: {team.team_name}")
-                    # Create new team if it doesn't exist
-                    team_doc = frappe.get_doc(team_data)
-                    team_doc.insert(ignore_permissions=True)  # Ensure the team is inserted before referencing it
-
-                # Now, ensure the team is linked to this inspection
-                team_doc.inspection = self.name
+                })
 
                 # Update team members
                 team_doc.members = []
-                for member in team.get("members", []):
+                for member in team_data.get("members", []):
                     logger.info(f"Adding member to team: {member.get('displayName')}")
                     team_doc.append("members", {
                         "id": member.get("id"),
@@ -119,7 +105,7 @@ class Inspection(Document):
 
                 # Update team schools
                 team_doc.schools = []
-                for school in team.get("schools", []):
+                for school in team_data.get("schools", []):
                     logger.info(f"Adding school to team: {school.get('schoolName')}")
                     team_doc.append("schools", {
                         "school_code": school.get("id"),
@@ -128,22 +114,26 @@ class Inspection(Document):
                         "district": school.get("district")
                     })
 
-                # Save the team document
-                try:
-                    team_doc.save(ignore_permissions=True)
-                    logger.info(f"Team {team.team_name} saved successfully for Inspection {self.name}")
-                except Exception as save_error:
-                    logger.error(f"Error saving team {team.team_name}: {str(save_error)}")
-                    frappe.log_error(f"Error saving team {team.team_name}: {str(save_error)}")
-                    raise
-            
-            # After all teams are saved, update the inspection's team counts and save it
+                # Save or update the team document
+                if frappe.db.exists("Inspection Team", {"team_name": team_doc.team_name}):
+                    existing_team = frappe.get_doc("Inspection Team", {"team_name": team_doc.team_name})
+                    existing_team.update(team_doc)
+                    existing_team.save(ignore_permissions=True)
+                    team_doc = existing_team
+                else:
+                    team_doc.insert(ignore_permissions=True)
+
+                # Link the team to this inspection
+                self.append("teams", {"team": team_doc.name})
+
+                logger.info(f"Team {team_doc.team_name} saved successfully for Inspection {self.name}")
+
             self.update_team_counts()
-            self.db_update()
-            frappe.db.commit()  # Commit the transaction to ensure data integrity
+            self.save(ignore_permissions=True)
+            frappe.db.commit()
             logger.info(f"Teams updated successfully for Inspection {self.name}")
         except Exception as e:
-            frappe.db.rollback()  # Rollback in case of any error
+            frappe.db.rollback()
             logger.error(f"Error updating teams for Inspection {self.name}: {str(e)}")
             frappe.log_error(f"Error updating teams for Inspection {self.name}: {str(e)}")
             frappe.throw(_("An error occurred while updating the inspection teams. Please check the error log for details."))
@@ -151,8 +141,8 @@ class Inspection(Document):
     def update_team_counts(self):
         self.schools_count = 0
         self.team_members_count = 0
-        for team in frappe.get_all("Inspection Team", filters={"inspection": self.name}, fields=["name"]):
-            team_doc = frappe.get_doc("Inspection Team", team.name)
+        for team_link in self.teams:
+            team_doc = frappe.get_doc("Inspection Team", team_link.team)
             self.schools_count += team_doc.schools_count
             self.team_members_count += team_doc.members_count
 
