@@ -25,7 +25,10 @@ class Inspection(Document):
         self.validate_teams()
 
     def save(self, *args, **kwargs):
-        self.custom_save_method()
+        logger.info("About to save document")
+        logger.info(f"Document data: {self.as_dict()}")
+        super(Inspection, self).save(*args, **kwargs)
+        logger.info("Document saved successfully")
 
     def validate_teams(self):
         if not self.teams:
