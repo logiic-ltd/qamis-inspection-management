@@ -83,7 +83,7 @@
    "fieldname": "teams",
    "fieldtype": "Table",
    "label": "Teams",
-   "options": "Inspection Team Link"
+   "options": "Inspection Team"
   },
   {
    "fieldname": "summary_section",

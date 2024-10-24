@@ -18,18 +18,7 @@ frappe.ui.form.on('Inspection', {
     }
 });
 
-frappe.ui.form.on('Inspection Team Link', {
-    team_name: function(frm, cdt, cdn) {
-        let row = locals[cdt][cdn];
-        if (row.team_name) {
-            frappe.db.get_doc('Inspection Team', row.team_name)
-                .then(team_doc => {
-                    frappe.model.set_value(cdt, cdn, 'members_count', team_doc.members_count);
-                    frappe.model.set_value(cdt, cdn, 'schools_count', team_doc.schools_count);
-                });
-        }
-    }
-});
+// Remove the Inspection Team Link event handler as it's no longer needed
 
 function show_team_management_dialog(frm) {
     let d = new frappe.ui.Dialog({
@@ -357,7 +346,7 @@ function create_team_and_link_to_inspection(frm, values) {
         return;
     }
 
-    // Check if the team already exists in the inspection
+    // Check if the team name already exists in the inspection
     let existing_team = frm.doc.teams.find(team => team.team_name === team_name);
     if (existing_team) {
         frappe.msgprint(`Team "${team_name}" already exists in this inspection.`);
@@ -369,16 +358,12 @@ function create_team_and_link_to_inspection(frm, values) {
         args: {
             team_name: team_name,
             members: JSON.stringify(selected_members),
-            schools: JSON.stringify(selected_schools)
+            schools: JSON.stringify(selected_schools),
+            inspection: frm.doc.name
         },
         callback: function(r) {
             if (r.message) {
-                let new_team = {
-                    team_name: r.message.team_name,
-                    members_count: r.message.members_count,
-                    schools_count: r.message.schools_count
-                };
-
+                let new_team = r.message;
                 console.log('Linking new team to inspection:', new_team);
 
                 frm.doc.teams = frm.doc.teams || [];
