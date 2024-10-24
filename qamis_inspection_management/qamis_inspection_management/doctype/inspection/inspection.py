@@ -18,10 +18,11 @@ class Inspection(Document):
         self.validate_status_transition()
         self.validate_teams()
 
-    def save(self, *args, **kwargs):
+    def before_save(self):
         logger.info("About to save document")
         logger.info(f"Document data: {self.as_dict()}")
-        super(Inspection, self).save(*args, **kwargs)
+
+    def after_save(self):
         logger.info("Document saved successfully")
 
     def validate_teams(self):
