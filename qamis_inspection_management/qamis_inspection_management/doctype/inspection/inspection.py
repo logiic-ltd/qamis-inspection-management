@@ -10,12 +10,6 @@ from qamis_inspection_management.config.api_config import API_BASE_URL
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def custom_save_method(self):
-    logger.info("About to save document")
-    logger.info(f"Document data: {self.as_dict()}")
-    # Your existing save logic here
-    super(Inspection, self).save()
-    logger.info("Document saved successfully")
 
 class Inspection(Document):
     def validate(self):
