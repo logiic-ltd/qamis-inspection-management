@@ -33,12 +33,13 @@ class Inspection(Document):
     def validate_teams(self):
         if not self.teams:
             frappe.throw(_("At least one team must be added to the inspection."))
-        for team in self.teams:
-            if not team.team_name:
+        for team_link in self.teams:
+            if not team_link.team:
                 frappe.throw(_("Team name is required for all teams."))
-            if not team.get("members"):
+            team_doc = frappe.get_doc("Inspection Team", team_link.team)
+            if not team_doc.members:
                 frappe.throw(_("Each team must have at least one member."))
-            if not team.get("schools"):
+            if not team_doc.schools:
                 frappe.throw(_("Each team must have at least one school assigned."))
 
     def validate_status_transition(self):
@@ -80,17 +81,16 @@ class Inspection(Document):
         try:
             frappe.db.begin()
             
-            # Clear existing teams
-            self.teams = []
+            # Get existing teams
+            existing_teams = {team.team: team for team in self.teams}
             
             # Iterate through each team in the Inspection
             for team_data in self.get("teams", []):
                 logger.info(f"Processing team: {team_data.get('team_name')}")
                 
                 # Check if the team already exists
-                if frappe.db.exists("Inspection Team", {"team_name": team_data.get("team_name")}):
-                    team_doc = frappe.get_doc("Inspection Team", {"team_name": team_data.get("team_name")})
-                    team_doc.inspection = self.name
+                if team_data.get('team') and frappe.db.exists("Inspection Team", team_data.get('team')):
+                    team_doc = frappe.get_doc("Inspection Team", team_data.get('team'))
                 else:
                     team_doc = frappe.get_doc({
                         "doctype": "Inspection Team",
@@ -122,13 +122,25 @@ class Inspection(Document):
                 # Save or update the team document
                 team_doc.save(ignore_permissions=True)
 
-                # Link the team to this inspection
-                self.append("teams", {"team": team_doc.name})
+                # Update or add the team link
+                if team_doc.name in existing_teams:
+                    existing_teams[team_doc.name].team_name = team_doc.team_name
+                    existing_teams[team_doc.name].members_count = len(team_doc.members)
+                    existing_teams[team_doc.name].schools_count = len(team_doc.schools)
+                else:
+                    self.append("teams", {
+                        "team": team_doc.name,
+                        "team_name": team_doc.team_name,
+                        "members_count": len(team_doc.members),
+                        "schools_count": len(team_doc.schools)
+                    })
 
                 logger.info(f"Team {team_doc.team_name} saved successfully for Inspection {self.name}")
 
+            # Remove teams that are no longer in the inspection
+            self.teams = [team for team in self.teams if team.team in [t.get('team') for t in self.get("teams", [])]]
+
             self.update_team_counts()
-            self.save(ignore_permissions=True)
             frappe.db.commit()
             logger.info(f"Teams updated successfully for Inspection {self.name}")
         except Exception as e:
