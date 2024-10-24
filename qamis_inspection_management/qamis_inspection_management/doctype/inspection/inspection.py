@@ -65,14 +65,14 @@ class Inspection(Document):
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")
-        logger.info(f"Teams before update: {[{'team': team.team, 'team_name': team.team_name} for team in self.teams]}")
+        logger.info(f"Teams before update: {[{'team': team.team_name} for team in self.teams]}")
         try:
             frappe.db.begin()
             self.update_or_create_teams()
             self.db_update()
             frappe.db.commit()
             logger.info(f"Inspection {self.name} updated successfully")
-            logger.info(f"Teams after update: {[{'team': team.team, 'team_name': team.team_name} for team in self.teams]}")
+            logger.info(f"Teams after update: {[{'team': team.team_name} for team in self.teams]}")
         except Exception as e:
             frappe.db.rollback()
             logger.error(f"Error updating Inspection {self.name}: {str(e)}")
@@ -84,22 +84,42 @@ class Inspection(Document):
             logger.info(f"Linking teams for Inspection {self.name}")
             logger.info(f"Current teams in the Inspection: {[team.team_name for team in self.teams]}")
             
+            # Get existing teams linked to this inspection
+            existing_teams = frappe.get_all("Inspection Team", 
+                filters={"inspection": self.name},
+                fields=["name", "team_name"])
+            existing_team_names = {team.team_name: team.name for team in existing_teams}
+            
             # Iterate through each team in the Inspection
             for team_link in self.get("teams", []):
                 logger.info(f"Processing team: {team_link.team_name}")
                 
-                # Check if the team exists using team_name
-                if team_link.team_name and frappe.db.exists("Inspection Team", team_link.team_name):
-                    team_doc = frappe.get_doc("Inspection Team", team_link.team_name)
-                    logger.info(f"Linking existing team: {team_doc.name}")
-                    
-                    # Update the inspection field of the team
-                    if team_doc.inspection != self.name:
-                        team_doc.inspection = self.name
-                        team_doc.save(ignore_permissions=True)
-                        logger.info(f"Updated inspection link for team {team_doc.name}")
+                if team_link.team_name in existing_team_names:
+                    # Team already linked, update if necessary
+                    team_doc = frappe.get_doc("Inspection Team", existing_team_names[team_link.team_name])
+                    logger.info(f"Updating existing team: {team_doc.name}")
+                    team_doc.members_count = team_link.members_count
+                    team_doc.schools_count = team_link.schools_count
+                    team_doc.save(ignore_permissions=True)
                 else:
-                    logger.warning(f"Team {team_link.team_name} not found in the database")
+                    # Create new team link
+                    new_team = frappe.get_doc({
+                        "doctype": "Inspection Team",
+                        "team_name": team_link.team_name,
+                        "inspection": self.name,
+                        "members_count": team_link.members_count,
+                        "schools_count": team_link.schools_count
+                    })
+                    new_team.insert(ignore_permissions=True)
+                    logger.info(f"Created new team link: {new_team.name}")
+                
+                # Remove processed team from existing_team_names
+                existing_team_names.pop(team_link.team_name, None)
+            
+            # Remove teams that are no longer in the inspection
+            for team_name, team_id in existing_team_names.items():
+                frappe.delete_doc("Inspection Team", team_id, ignore_permissions=True)
+                logger.info(f"Removed team link: {team_id}")
 
             self.update_team_counts()
             logger.info(f"Teams linked successfully for Inspection {self.name}")
