@@ -29,16 +29,16 @@ class Inspection(Document):
         if not self.teams:
             frappe.throw(_("At least one team must be added to the inspection."))
         for team_link in self.teams:
-            if not team_link.team_id:
-                frappe.throw(_("Team ID is required for all teams."))
+            if not team_link.team_name:
+                frappe.throw(_("Team Name is required for all teams."))
             try:
-                team_doc = frappe.get_doc("Inspection Team", team_link.team_id)
+                team_doc = frappe.get_doc("Inspection Team", team_link.team_name)
                 if not team_doc.members:
                     frappe.throw(_("Team {0} must have at least one member.").format(team_doc.team_name))
                 if not team_doc.schools:
                     frappe.throw(_("Team {0} must have at least one school assigned.").format(team_doc.team_name))
             except frappe.DoesNotExistError:
-                frappe.throw(_("Inspection Team {0} not found.").format(team_link.team_id))
+                frappe.throw(_("Inspection Team {0} not found.").format(team_link.team_name))
 
     def validate_status_transition(self):
         if not self.is_new():
