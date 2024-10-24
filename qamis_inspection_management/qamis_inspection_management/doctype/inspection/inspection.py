@@ -30,8 +30,7 @@ class Inspection(Document):
         for team_link in self.teams:
             team_doc = frappe.get_doc("Inspection Team", team_link.team_name)
             if team_doc.inspection != self.name:
-                team_doc.inspection = self.name
-                team_doc.save(ignore_permissions=True)
+                team_doc.db_set('inspection', self.name, update_modified=False)
 
     def validate_teams(self):
         if not self.teams:
