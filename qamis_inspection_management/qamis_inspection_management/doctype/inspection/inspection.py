@@ -87,11 +87,16 @@ class Inspection(Document):
             for team_data in self.get("teams", []):
                 logger.info(f"Processing team: {team_data.get('team_name')}")
                 
-                team_doc = frappe.get_doc({
-                    "doctype": "Inspection Team",
-                    "team_name": team_data.get("team_name"),
-                    "inspection": self.name
-                })
+                # Check if the team already exists
+                if frappe.db.exists("Inspection Team", {"team_name": team_data.get("team_name")}):
+                    team_doc = frappe.get_doc("Inspection Team", {"team_name": team_data.get("team_name")})
+                    team_doc.inspection = self.name
+                else:
+                    team_doc = frappe.get_doc({
+                        "doctype": "Inspection Team",
+                        "team_name": team_data.get("team_name"),
+                        "inspection": self.name
+                    })
 
                 # Update team members
                 team_doc.members = []
@@ -115,13 +120,7 @@ class Inspection(Document):
                     })
 
                 # Save or update the team document
-                if frappe.db.exists("Inspection Team", {"team_name": team_doc.team_name}):
-                    existing_team = frappe.get_doc("Inspection Team", {"team_name": team_doc.team_name})
-                    existing_team.update(team_doc)
-                    existing_team.save(ignore_permissions=True)
-                    team_doc = existing_team
-                else:
-                    team_doc.insert(ignore_permissions=True)
+                team_doc.save(ignore_permissions=True)
 
                 # Link the team to this inspection
                 self.append("teams", {"team": team_doc.name})

@@ -17,10 +17,10 @@ class InspectionTeam(Document):
 
     def update_inspection(self):
         if self.inspection:
-            inspection = frappe.get_doc("Inspection", self.inspection)
-            inspection.update_team_counts()
-            inspection.save()
-        else:
-            # If inspection is not set, we're likely in the process of creating a new inspection
-            # We'll handle updating the inspection later in the process
-            pass
+            try:
+                inspection = frappe.get_doc("Inspection", self.inspection)
+                inspection.update_team_counts()
+                inspection.save()
+            except frappe.DoesNotExistError:
+                frappe.msgprint(f"Inspection {self.inspection} not found. It may have been deleted or not yet created.")
+        # If inspection is not set, we don't need to do anything
