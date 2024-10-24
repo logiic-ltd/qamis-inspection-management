@@ -27,14 +27,15 @@ class InspectionTeam(Document):
         # If inspection is not set, we don't need to do anything
 
 @frappe.whitelist()
-def create_inspection_team(team_name, members, schools):
+def create_inspection_team(team_name, members, schools, inspection=None):
     try:
         members = json.loads(members)
         schools = json.loads(schools)
 
         team_doc = frappe.get_doc({
             "doctype": "Inspection Team",
-            "team_name": team_name
+            "team_name": team_name,
+            "inspection": inspection
         })
 
         for member in members:
