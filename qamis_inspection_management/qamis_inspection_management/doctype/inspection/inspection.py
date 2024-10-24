@@ -34,13 +34,16 @@ class Inspection(Document):
         if not self.teams:
             frappe.throw(_("At least one team must be added to the inspection."))
         for team_link in self.teams:
-            if not team_link.team_name:
-                frappe.throw(_("Team name is required for all teams."))
-            team_doc = frappe.get_doc("Inspection Team", team_link.team_name)
-            if not team_doc.members:
-                frappe.throw(_("Each team must have at least one member."))
-            if not team_doc.schools:
-                frappe.throw(_("Each team must have at least one school assigned."))
+            if not team_link.team_id:
+                frappe.throw(_("Team ID is required for all teams."))
+            try:
+                team_doc = frappe.get_doc("Inspection Team", team_link.team_id)
+                if not team_doc.members:
+                    frappe.throw(_("Team {0} must have at least one member.").format(team_doc.team_name))
+                if not team_doc.schools:
+                    frappe.throw(_("Team {0} must have at least one school assigned.").format(team_doc.team_name))
+            except frappe.DoesNotExistError:
+                frappe.throw(_("Inspection Team {0} not found.").format(team_link.team_id))
 
     def validate_status_transition(self):
         if not self.is_new():
@@ -82,7 +85,7 @@ class Inspection(Document):
     def update_or_create_teams(self):
         try:
             logger.info(f"Linking teams for Inspection {self.name}")
-            logger.info(f"Current teams in the Inspection: {[team.team_name for team in self.teams]}")
+            logger.info(f"Current teams in the Inspection: {[team.team_id for team in self.teams]}")
             
             # Get existing teams linked to this inspection
             existing_teams = frappe.get_all("Inspection Team", 
@@ -92,18 +95,18 @@ class Inspection(Document):
             
             # Iterate through each team in the Inspection
             for team_link in self.get("teams", []):
-                logger.info(f"Processing team: {team_link.team_name}")
+                logger.info(f"Processing team: {team_link.team_id}")
                 
-                if team_link.team_id in existing_team_ids:
-                    # Team already linked, update if necessary
+                try:
                     team_doc = frappe.get_doc("Inspection Team", team_link.team_id)
                     logger.info(f"Updating existing team: {team_doc.name}")
                     team_doc.team_name = team_link.team_name
+                    team_doc.inspection = self.name
                     team_doc.members_count = team_link.members_count
                     team_doc.schools_count = team_link.schools_count
                     team_doc.save(ignore_permissions=True)
-                else:
-                    # Create new team link
+                except frappe.DoesNotExistError:
+                    logger.info(f"Creating new team: {team_link.team_id}")
                     new_team = frappe.get_doc({
                         "doctype": "Inspection Team",
                         "name": team_link.team_id,
@@ -113,7 +116,6 @@ class Inspection(Document):
                         "schools_count": team_link.schools_count
                     })
                     new_team.insert(ignore_permissions=True)
-                    logger.info(f"Created new team link: {new_team.name}")
                 
                 # Remove processed team from existing_team_ids
                 existing_team_ids.pop(team_link.team_id, None)
@@ -134,9 +136,12 @@ class Inspection(Document):
         self.schools_count = 0
         self.team_members_count = 0
         for team_link in self.teams:
-            team_doc = frappe.get_doc("Inspection Team", team_link.team_id)
-            self.schools_count += team_doc.schools_count
-            self.team_members_count += team_doc.members_count
+            try:
+                team_doc = frappe.get_doc("Inspection Team", team_link.team_id)
+                self.schools_count += team_doc.schools_count
+                self.team_members_count += team_doc.members_count
+            except frappe.DoesNotExistError:
+                logger.error(f"Inspection Team {team_link.team_id} not found.")
 
     def update_or_create_team_members(self, team_doc, members):
         existing_members = frappe.get_all("Inspection Team Member", 
