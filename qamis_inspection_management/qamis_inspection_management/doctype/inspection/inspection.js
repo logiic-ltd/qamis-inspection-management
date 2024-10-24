@@ -375,8 +375,9 @@ function create_team_and_link_to_inspection(frm, values) {
                         schools_count: new_team.schools_count
                     });
                     frm.refresh_field('teams');
-                    frappe.show_alert(`Team "${team_name}" created and added to the inspection`, 5);
-                    frm.dirty();
+                    frm.save().then(() => {
+                        frappe.show_alert(`Team "${team_name}" created and added to the inspection`, 5);
+                    });
                 } else {
                     // If we're not in an Inspection form, just show a success message
                     frappe.show_alert(`Team "${team_name}" created successfully`, 5);
