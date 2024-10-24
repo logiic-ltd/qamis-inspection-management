@@ -50,54 +50,35 @@ class Inspection(Document):
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")
-        logger.info(f"Teams before update: {[{'team': team.team_name} for team in self.teams]}")
-        try:
-            frappe.db.begin()
-            self.link_teams()
-            frappe.db.commit()
-            logger.info(f"Inspection {self.name} updated successfully")
-            logger.info(f"Teams after update: {[{'team': team.team_name} for team in self.teams]}")
-        except Exception as e:
-            frappe.db.rollback()
-            logger.error(f"Error updating Inspection {self.name}: {str(e)}")
-            frappe.log_error(f"Error updating Inspection {self.name}: {str(e)}")
-            frappe.throw(_("An error occurred while updating the inspection. Please check the error log for details."))
+        self.link_teams()
+        logger.info(f"Inspection {self.name} updated successfully")
 
     def link_teams(self):
         try:
             logger.info(f"Linking teams for Inspection {self.name}")
             
-            # Get existing teams linked to this inspection
+            # Get current teams linked to this inspection
+            current_team_ids = [team.team_id for team in self.teams]
+            
+            # Update inspection reference for current teams
+            for team_id in current_team_ids:
+                team_doc = frappe.get_doc("Inspection Team", team_id)
+                if team_doc.inspection != self.name:
+                    team_doc.inspection = self.name
+                    team_doc.save(ignore_permissions=True)
+                    logger.info(f"Linked team {team_id} to inspection {self.name}")
+            
+            # Remove inspection reference from teams no longer in the inspection
             existing_teams = frappe.get_all("Inspection Team", 
                 filters={"inspection": self.name},
-                fields=["name", "team_name"])
-            existing_team_ids = {team.name: team.team_name for team in existing_teams}
+                fields=["name"])
             
-            # Iterate through each team in the Inspection
-            for team_link in self.get("teams", []):
-                logger.info(f"Processing team: {team_link.team_id}")
-                
-                if team_link.team_id in existing_team_ids:
-                    logger.info(f"Team {team_link.team_id} already linked to this inspection. Skipping.")
-                    existing_team_ids.pop(team_link.team_id, None)
-                    continue
-                
-                try:
-                    team_doc = frappe.get_doc("Inspection Team", team_link.team_id)
-                    if team_doc.inspection != self.name:
-                        logger.info(f"Linking team {team_doc.name} to inspection {self.name}")
-                        team_doc.inspection = self.name
-                        team_doc.save(ignore_permissions=True)
-                except frappe.DoesNotExistError:
-                    logger.error(f"Inspection Team {team_link.team_id} not found.")
-                    continue
-            
-            # Remove teams that are no longer in the inspection
-            for team_id in existing_team_ids:
-                team_doc = frappe.get_doc("Inspection Team", team_id)
-                team_doc.inspection = None
-                team_doc.save(ignore_permissions=True)
-                logger.info(f"Removed team link: {team_id}")
+            for team in existing_teams:
+                if team.name not in current_team_ids:
+                    team_doc = frappe.get_doc("Inspection Team", team.name)
+                    team_doc.inspection = None
+                    team_doc.save(ignore_permissions=True)
+                    logger.info(f"Removed link for team {team.name} from inspection {self.name}")
 
             logger.info(f"Teams linked successfully for Inspection {self.name}")
         except Exception as e:
