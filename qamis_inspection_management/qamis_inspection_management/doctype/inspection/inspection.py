@@ -72,7 +72,6 @@ class Inspection(Document):
         try:
             frappe.db.begin()
             self.update_or_create_teams()
-            self.db_update()
             frappe.db.commit()
             logger.info(f"Inspection {self.name} updated successfully")
             logger.info(f"Teams after update: {[{'team': team.team_name} for team in self.teams]}")
@@ -266,7 +265,7 @@ def create_inspection_team(team_name, members, schools):
         logger.info("Inserting team document")
         team_doc.insert(ignore_permissions=True)
         logger.info("Saving team document")
-        team_doc.save()
+        team_doc.save(ignore_permissions=True)
 
         result = {
             "name": team_doc.name,
@@ -279,7 +278,7 @@ def create_inspection_team(team_name, members, schools):
     except Exception as e:
         logger.error(f"Error creating Inspection Team: {str(e)}")
         frappe.log_error(f"Error creating Inspection Team: {str(e)}")
-        return None
+        frappe.throw(_("An error occurred while creating the inspection team. Please check the error log for details."))
 
 def _make_api_request(url, item_type):
     try:

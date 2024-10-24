@@ -361,8 +361,8 @@ function add_team_to_inspection(frm, values) {
         method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.create_inspection_team',
         args: {
             team_name: team_name,
-            members: selected_members,
-            schools: selected_schools
+            members: JSON.stringify(selected_members),
+            schools: JSON.stringify(selected_schools)
         },
         callback: function(r) {
             console.log('Server response:', r);
@@ -382,7 +382,7 @@ function add_team_to_inspection(frm, values) {
                 frappe.show_alert(`Team "${team_name}" added successfully`, 5);
                 
                 // Mark form as dirty to ensure changes are saved
-                frm.set_dirty();
+                frm.dirty();
                 console.log('Form marked as dirty');
             } else {
                 frappe.msgprint('Failed to create team. Please try again.');
