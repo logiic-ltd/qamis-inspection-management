@@ -349,7 +349,8 @@ function create_team_and_link_to_inspection(frm, values) {
     // Check if the team name already exists in the inspection
     let existing_team = frm.doc.teams && frm.doc.teams.find(team => team.team_name === team_name);
     if (existing_team) {
-        frappe.msgprint(`Team "${team_name}" already exists in this inspection.`);
+        console.log(`Team "${team_name}" already exists in this inspection. Proceeding with saving.`);
+        save_inspection(frm);
         return;
     }
 
@@ -375,9 +376,7 @@ function create_team_and_link_to_inspection(frm, values) {
                         schools_count: new_team.schools_count
                     });
                     frm.refresh_field('teams');
-                    frm.save().then(() => {
-                        frappe.show_alert(`Team "${team_name}" created and added to the inspection`, 5);
-                    });
+                    save_inspection(frm);
                 } else {
                     // If we're not in an Inspection form, just show a success message
                     frappe.show_alert(`Team "${team_name}" created successfully`, 5);
@@ -391,6 +390,15 @@ function create_team_and_link_to_inspection(frm, values) {
             console.error('Error creating team:', r);
             frappe.msgprint('An error occurred while creating the team. Please try again.');
         }
+    });
+}
+
+function save_inspection(frm) {
+    frm.save().then(() => {
+        frappe.show_alert(`Inspection saved successfully`, 5);
+    }).catch((error) => {
+        console.error('Error saving inspection:', error);
+        frappe.msgprint('An error occurred while saving the inspection. Please try again.');
     });
 }
 
