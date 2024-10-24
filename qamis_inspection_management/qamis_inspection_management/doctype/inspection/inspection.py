@@ -24,6 +24,14 @@ class Inspection(Document):
 
     def after_save(self):
         logger.info("Document saved successfully")
+        self.update_or_create_teams()
+
+    def update_or_create_teams(self):
+        for team_link in self.teams:
+            team_doc = frappe.get_doc("Inspection Team", team_link.team_name)
+            if team_doc.inspection != self.name:
+                team_doc.inspection = self.name
+                team_doc.save(ignore_permissions=True)
 
     def validate_teams(self):
         if not self.teams:
