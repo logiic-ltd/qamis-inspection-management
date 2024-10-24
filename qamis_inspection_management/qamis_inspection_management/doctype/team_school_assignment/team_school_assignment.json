@@ -29,13 +29,13 @@
    "fieldname": "province",
    "fieldtype": "Data",
    "label": "Province",
-   "reqd": 1
+   "reqd": 0
   },
   {
    "fieldname": "district",
    "fieldtype": "Data",
    "label": "District",
-   "reqd": 1
+   "reqd": 0
   }
  ],
  "index_web_pages_for_search": 1,

@@ -258,8 +258,8 @@ function add_school_to_selection(dialog, school) {
         let new_row = {
             id: school.id,
             schoolName: school.schoolName,
-            province: school.province,
-            district: school.district
+            province: school.province || '',
+            district: school.district || ''
         };
         grid.add_new_row();
         let added_row = grid.data[grid.data.length - 1];
