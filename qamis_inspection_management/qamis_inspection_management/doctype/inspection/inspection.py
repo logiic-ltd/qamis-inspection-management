@@ -237,6 +237,9 @@ def search_schools(search_term):
 
 @frappe.whitelist()
 def create_inspection_team(team_name, members, schools):
+    logger.info(f"Creating inspection team: {team_name}")
+    logger.info(f"Members: {members}")
+    logger.info(f"Schools: {schools}")
     try:
         team_doc = frappe.get_doc({
             "doctype": "Inspection Team",
@@ -244,6 +247,7 @@ def create_inspection_team(team_name, members, schools):
         })
 
         for member in json.loads(members):
+            logger.info(f"Adding member to team: {member}")
             team_doc.append("members", {
                 "id": member.get("id"),
                 "username": member.get("username"),
@@ -251,6 +255,7 @@ def create_inspection_team(team_name, members, schools):
             })
 
         for school in json.loads(schools):
+            logger.info(f"Adding school to team: {school}")
             team_doc.append("schools", {
                 "school_code": school.get("id"),
                 "school_name": school.get("schoolName"),
@@ -258,15 +263,19 @@ def create_inspection_team(team_name, members, schools):
                 "district": school.get("district")
             })
 
+        logger.info("Inserting team document")
         team_doc.insert(ignore_permissions=True)
+        logger.info("Saving team document")
         team_doc.save()
 
-        return {
+        result = {
             "name": team_doc.name,
             "team_name": team_doc.team_name,
             "members_count": len(team_doc.members),
             "schools_count": len(team_doc.schools)
         }
+        logger.info(f"Team created successfully: {result}")
+        return result
     except Exception as e:
         logger.error(f"Error creating Inspection Team: {str(e)}")
         frappe.log_error(f"Error creating Inspection Team: {str(e)}")

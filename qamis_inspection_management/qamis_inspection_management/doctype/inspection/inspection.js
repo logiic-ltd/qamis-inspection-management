@@ -350,6 +350,8 @@ function add_team_to_inspection(frm, values) {
     let selected_members = values.selected_members || [];
     let selected_schools = values.selected_schools || [];
 
+    console.log('Adding team to inspection:', { team_name, selected_members, selected_schools });
+
     if (!team_name || selected_members.length === 0 || selected_schools.length === 0) {
         frappe.msgprint('Please enter a team name, select at least one member and one school.');
         return;
@@ -363,6 +365,7 @@ function add_team_to_inspection(frm, values) {
             schools: selected_schools
         },
         callback: function(r) {
+            console.log('Server response:', r);
             if (r.message) {
                 let new_team = {
                     team_id: r.message.name,  // Use the returned document name as team_id
@@ -371,6 +374,8 @@ function add_team_to_inspection(frm, values) {
                     schools_count: r.message.schools_count
                 };
 
+                console.log('Adding new team to form:', new_team);
+
                 frm.doc.teams = frm.doc.teams || [];
                 frm.add_child('teams', new_team);
                 frm.refresh_field('teams');
@@ -378,8 +383,10 @@ function add_team_to_inspection(frm, values) {
                 
                 // Mark form as dirty to ensure changes are saved
                 frm.set_dirty();
+                console.log('Form marked as dirty');
             } else {
                 frappe.msgprint('Failed to create team. Please try again.');
+                console.error('Failed to create team:', r);
             }
         }
     });
