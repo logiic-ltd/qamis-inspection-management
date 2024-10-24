@@ -239,8 +239,6 @@ function init_school_search(dialog) {
                                 province: item.province,
                                 district: item.district
                             });
-                            $results.empty();
-                            $search_input.val('');
                         });
                     } else {
                         $results.html('<p>No results found or unable to connect to the API. Please try again later.</p>');
@@ -248,12 +246,6 @@ function init_school_search(dialog) {
                 }
             });
         }, 300);
-    });
-
-    $search_input.on('change', function() {
-        if ($search_input.val() === '') {
-            $results.empty();
-        }
     });
 
     $search_input.on('input', function() {
@@ -264,8 +256,8 @@ function init_school_search(dialog) {
 }
 
 function add_school_to_selection(dialog, school) {
-    let table = dialog.fields_dict.selected_schools;
-    let existing_school = table.get_data().find(s => s.id === school.id);
+    let grid = dialog.fields_dict.selected_schools.grid;
+    let existing_school = grid.data.find(s => s.id === school.id);
     
     if (!existing_school) {
         let new_row = {
@@ -274,8 +266,12 @@ function add_school_to_selection(dialog, school) {
             province: school.province,
             district: school.district
         };
-        table.df.data.push(new_row);
-        table.refresh();
+        grid.add_new_row();
+        let added_row = grid.data[grid.data.length - 1];
+        Object.assign(added_row, new_row);
+        
+        grid.refresh();
+        dialog.fields_dict.school_search.$input.val('').trigger('input');
     } else {
         frappe.show_alert(`${school.schoolName} is already in the team.`, 5);
     }
