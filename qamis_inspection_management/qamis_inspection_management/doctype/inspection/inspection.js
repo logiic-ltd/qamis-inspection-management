@@ -233,16 +233,17 @@ function init_school_search(dialog) {
                         $results.find('.school-item').on('click', function() {
                             let index = $(this).index();
                             let item = results[index];
-                            console.log("Selected school item:", item);  // Debug log
                             add_school_to_selection(dialog, {
                                 id: item.id || item.schoolCode,  // Use schoolCode as fallback
-                                schoolName: item.schoolName
+                                schoolName: item.schoolName,
+                                province: item.province,
+                                district: item.district
                             });
-                            $results.empty();  // Clear the results after selection
-                            $search_input.val('');  // Clear the search input
+                            $results.empty();
+                            $search_input.val('');
                         });
                     } else {
-                        $results.html('<p>No results found</p>');
+                        $results.html('<p>No results found or unable to connect to the API. Please try again later.</p>');
                     }
                 }
             });
@@ -251,20 +252,18 @@ function init_school_search(dialog) {
 }
 
 function add_school_to_selection(dialog, school) {
-    let grid = dialog.fields_dict.selected_schools.grid;
-    let existing_school = grid.data.find(s => s.id === school.id);
+    let table = dialog.fields_dict.selected_schools;
+    let existing_school = table.get_data().find(s => s.id === school.id);
     
     if (!existing_school) {
         let new_row = {
             id: school.id,
-            schoolName: school.schoolName
+            schoolName: school.schoolName,
+            province: school.province,
+            district: school.district
         };
-        grid.add_new_row();
-        let added_row = grid.data[grid.data.length - 1];
-        Object.assign(added_row, new_row);
-        
-        grid.refresh();
-        dialog.refresh_field('selected_schools');
+        table.df.data.push(new_row);
+        table.refresh();
     } else {
         frappe.show_alert(`${school.schoolName} is already in the team.`, 5);
     }
