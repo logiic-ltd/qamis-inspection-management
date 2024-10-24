@@ -113,8 +113,8 @@ class Inspection(Document):
                 team_doc.schools = []
                 for school in team.get("schools", []):
                     team_doc.append("schools", {
-                        "school_code": school.get("id"),
-                        "school_name": school.get("schoolName")
+                        "school_code": school.get("id") or school.get("school_code"),
+                        "school_name": school.get("schoolName") or school.get("school_name")
                     })
                 
                 # Save the team document
