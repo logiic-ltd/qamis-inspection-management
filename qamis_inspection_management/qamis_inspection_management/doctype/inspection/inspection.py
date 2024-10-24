@@ -178,12 +178,21 @@ class Inspection(Document):
                 frappe.delete_doc("Inspection Team Member", existing_name, ignore_permissions=True)
 
     def update_or_create_team_schools(self, team_doc, schools):
-        team_doc.schools = []
+        existing_schools = {school.school_code: school for school in team_doc.schools}
+        
         for school in schools:
-            team_doc.append("schools", {
-                "school_code": school.get("id"),
-                "school_name": school.get("schoolName")
-            })
+            school_code = school.get("id")
+            if school_code in existing_schools:
+                existing_school = existing_schools[school_code]
+                existing_school.school_name = school.get("schoolName")
+            else:
+                team_doc.append("schools", {
+                    "school_code": school_code,
+                    "school_name": school.get("schoolName")
+                })
+        
+        # Remove schools that are no longer in the team
+        team_doc.schools = [school for school in team_doc.schools if school.school_code in [s.get("id") for s in schools]]
 
     def after_insert(self):
         try:

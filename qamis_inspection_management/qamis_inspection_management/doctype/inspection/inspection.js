@@ -286,11 +286,14 @@ function add_school_to_selection(dialog, school) {
             schoolName: school.schoolName
         };
         grid.add_new_row();
-        Object.assign(grid.data[grid.data.length - 1], new_row);
+        let added_row = grid.data[grid.data.length - 1];
+        Object.assign(added_row, new_row);
+        
         grid.refresh();
+        dialog.refresh_field('selected_schools');
+    } else {
+        frappe.show_alert(`${school.schoolName} is already in the team.`, 5);
     }
-    
-    console.log("Selected schools:", grid.data);  // Keep this line for debugging
 }
 
 function adjust_table_columns(dialog) {
