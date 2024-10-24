@@ -47,25 +47,12 @@ class Inspection(Document):
             elif old_status == "Approved" and self.status in ["Draft", "Pending Review"]:
                 frappe.throw(_("Approved inspections cannot be set back to Draft or Pending Review status."))
 
-    def before_save(self):
-        logger.info(f"Before saving Inspection: {self.name}")
-        self.update_count_fields()
-
-    def update_count_fields(self):
-        self.schools_count = 0
-        self.team_members_count = 0
-        for team in self.teams:
-            team_doc = frappe.get_doc("Inspection Team", team.name)
-            self.schools_count += team_doc.schools_count
-            self.team_members_count += team_doc.members_count
-        logger.info(f"Updated count fields for Inspection {self.name}: Schools: {self.schools_count}, Team Members: {self.team_members_count}")
-
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")
         logger.info(f"Teams before update: {[{'team': team.team_name} for team in self.teams]}")
         try:
             frappe.db.begin()
-            self.update_or_create_teams()
+            self.link_teams()
             frappe.db.commit()
             logger.info(f"Inspection {self.name} updated successfully")
             logger.info(f"Teams after update: {[{'team': team.team_name} for team in self.teams]}")
@@ -75,7 +62,7 @@ class Inspection(Document):
             frappe.log_error(f"Error updating Inspection {self.name}: {str(e)}")
             frappe.throw(_("An error occurred while updating the inspection. Please check the error log for details."))
 
-    def update_or_create_teams(self):
+    def link_teams(self):
         try:
             logger.info(f"Linking teams for Inspection {self.name}")
             logger.info(f"Current teams in the Inspection: {[team.team_id for team in self.teams]}")
@@ -93,48 +80,27 @@ class Inspection(Document):
                 try:
                     team_doc = frappe.get_doc("Inspection Team", team_link.team_id)
                     logger.info(f"Updating existing team: {team_doc.name}")
-                    team_doc.team_name = team_link.team_name
                     team_doc.inspection = self.name
-                    team_doc.members_count = team_link.members_count
-                    team_doc.schools_count = team_link.schools_count
                     team_doc.save(ignore_permissions=True)
                 except frappe.DoesNotExistError:
-                    logger.info(f"Creating new team: {team_link.team_id}")
-                    new_team = frappe.get_doc({
-                        "doctype": "Inspection Team",
-                        "name": team_link.team_id,
-                        "team_name": team_link.team_name,
-                        "inspection": self.name,
-                        "members_count": team_link.members_count,
-                        "schools_count": team_link.schools_count
-                    })
-                    new_team.insert(ignore_permissions=True)
+                    logger.error(f"Inspection Team {team_link.team_id} not found.")
+                    continue
                 
                 # Remove processed team from existing_team_ids
                 existing_team_ids.pop(team_link.team_id, None)
             
             # Remove teams that are no longer in the inspection
             for team_id in existing_team_ids:
-                frappe.delete_doc("Inspection Team", team_id, ignore_permissions=True)
+                team_doc = frappe.get_doc("Inspection Team", team_id)
+                team_doc.inspection = None
+                team_doc.save(ignore_permissions=True)
                 logger.info(f"Removed team link: {team_id}")
 
-            self.update_team_counts()
             logger.info(f"Teams linked successfully for Inspection {self.name}")
         except Exception as e:
             logger.error(f"Error linking teams for Inspection {self.name}: {str(e)}")
             frappe.log_error(f"Error linking teams for Inspection {self.name}: {str(e)}")
             frappe.throw(_("An error occurred while linking the inspection teams. Please check the error log for details."))
-
-    def update_team_counts(self):
-        self.schools_count = 0
-        self.team_members_count = 0
-        for team_link in self.teams:
-            try:
-                team_doc = frappe.get_doc("Inspection Team", team_link.team_id)
-                self.schools_count += team_doc.schools_count
-                self.team_members_count += team_doc.members_count
-            except frappe.DoesNotExistError:
-                logger.error(f"Inspection Team {team_link.team_id} not found.")
 
     def update_or_create_team_members(self, team_doc, members):
         existing_members = frappe.get_all("Inspection Team Member", 
