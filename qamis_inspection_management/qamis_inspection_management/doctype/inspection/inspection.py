@@ -185,10 +185,14 @@ class Inspection(Document):
             if school_code in existing_schools:
                 existing_school = existing_schools[school_code]
                 existing_school.school_name = school.get("schoolName")
+                existing_school.province = school.get("province")
+                existing_school.district = school.get("district")
             else:
                 team_doc.append("schools", {
                     "school_code": school_code,
-                    "school_name": school.get("schoolName")
+                    "school_name": school.get("schoolName"),
+                    "province": school.get("province"),
+                    "district": school.get("district")
                 })
         
         # Remove schools that are no longer in the team

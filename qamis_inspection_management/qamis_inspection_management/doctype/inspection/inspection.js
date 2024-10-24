@@ -99,6 +99,20 @@ function show_team_management_dialog(frm) {
                         label: 'School Name',
                         in_list_view: 1,
                         read_only: 1
+                    },
+                    {
+                        fieldname: 'province',
+                        fieldtype: 'Data',
+                        label: 'Province',
+                        in_list_view: 1,
+                        read_only: 1
+                    },
+                    {
+                        fieldname: 'district',
+                        fieldtype: 'Data',
+                        label: 'District',
+                        in_list_view: 1,
+                        read_only: 1
                     }
                 ]
             }
