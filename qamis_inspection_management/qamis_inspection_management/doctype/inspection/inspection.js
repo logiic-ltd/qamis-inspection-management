@@ -359,7 +359,7 @@ function create_team_and_link_to_inspection(frm, values) {
             team_name: team_name,
             members: JSON.stringify(selected_members),
             schools: JSON.stringify(selected_schools),
-            inspection: frm.doc.name
+            inspection: frm.doc.name || null
         },
         callback: function(r) {
             if (r.message) {

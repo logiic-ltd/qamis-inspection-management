@@ -34,9 +34,11 @@ def create_inspection_team(team_name, members, schools, inspection=None):
 
         team_doc = frappe.get_doc({
             "doctype": "Inspection Team",
-            "team_name": team_name,
-            "inspection": inspection
+            "team_name": team_name
         })
+        
+        if inspection:
+            team_doc.inspection = inspection
 
         for member in members:
             team_doc.append("members", {
