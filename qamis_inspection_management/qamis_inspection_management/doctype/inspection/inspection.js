@@ -247,7 +247,7 @@ function init_school_search(dialog) {
                     }
                 }
             });
-        }, 300);
+        }, 200);  // Reduced timeout from 300ms to 200ms for even faster response
     });
 
     $search_input.on('change', function() {
