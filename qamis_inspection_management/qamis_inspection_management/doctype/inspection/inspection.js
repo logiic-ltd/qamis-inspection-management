@@ -357,6 +357,13 @@ function add_team_to_inspection(frm, values) {
         return;
     }
 
+    // Check if the team already exists in the inspection
+    let existing_team = frm.doc.teams.find(team => team.team_name === team_name);
+    if (existing_team) {
+        frappe.msgprint(`Team "${team_name}" already exists in this inspection.`);
+        return;
+    }
+
     frappe.call({
         method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.create_inspection_team',
         args: {

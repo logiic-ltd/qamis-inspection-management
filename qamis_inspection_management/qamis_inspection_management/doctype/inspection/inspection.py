@@ -77,6 +77,11 @@ class Inspection(Document):
             for team_link in self.get("teams", []):
                 logger.info(f"Processing team: {team_link.team_id}")
                 
+                if team_link.team_id in existing_team_ids:
+                    logger.info(f"Team {team_link.team_id} already linked to this inspection. Skipping.")
+                    existing_team_ids.pop(team_link.team_id, None)
+                    continue
+                
                 try:
                     team_doc = frappe.get_doc("Inspection Team", team_link.team_id)
                     logger.info(f"Updating existing team: {team_doc.name}")
@@ -85,9 +90,6 @@ class Inspection(Document):
                 except frappe.DoesNotExistError:
                     logger.error(f"Inspection Team {team_link.team_id} not found.")
                     continue
-                
-                # Remove processed team from existing_team_ids
-                existing_team_ids.pop(team_link.team_id, None)
             
             # Remove teams that are no longer in the inspection
             for team_id in existing_team_ids:
