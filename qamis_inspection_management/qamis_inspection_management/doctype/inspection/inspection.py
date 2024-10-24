@@ -34,9 +34,9 @@ class Inspection(Document):
         if not self.teams:
             frappe.throw(_("At least one team must be added to the inspection."))
         for team_link in self.teams:
-            if not team_link.team:
+            if not team_link.team_name:
                 frappe.throw(_("Team name is required for all teams."))
-            team_doc = frappe.get_doc("Inspection Team", team_link.team)
+            team_doc = frappe.get_doc("Inspection Team", team_link.team_name)
             if not team_doc.members:
                 frappe.throw(_("Each team must have at least one member."))
             if not team_doc.schools:
@@ -85,12 +85,12 @@ class Inspection(Document):
             logger.info(f"Current teams in the Inspection: {[team.team_name for team in self.teams]}")
             
             # Iterate through each team in the Inspection
-            for team_data in self.get("teams", []):
-                logger.info(f"Processing team: {team_data.get('team_name')}")
+            for team_link in self.get("teams", []):
+                logger.info(f"Processing team: {team_link.team_name}")
                 
                 # Check if the team exists using team_name
-                if team_data.get('team_name') and frappe.db.exists("Inspection Team", team_data.get('team_name')):
-                    team_doc = frappe.get_doc("Inspection Team", team_data.get('team_name'))
+                if team_link.team_name and frappe.db.exists("Inspection Team", team_link.team_name):
+                    team_doc = frappe.get_doc("Inspection Team", team_link.team_name)
                     logger.info(f"Linking existing team: {team_doc.name}")
                     
                     # Update the inspection field of the team
@@ -99,7 +99,7 @@ class Inspection(Document):
                         team_doc.save(ignore_permissions=True)
                         logger.info(f"Updated inspection link for team {team_doc.name}")
                 else:
-                    logger.warning(f"Team {team_data.get('team_name')} not found in the database")
+                    logger.warning(f"Team {team_link.team_name} not found in the database")
 
             self.update_team_counts()
             logger.info(f"Teams linked successfully for Inspection {self.name}")
