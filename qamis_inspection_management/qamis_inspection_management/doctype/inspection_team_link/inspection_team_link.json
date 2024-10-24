@@ -17,7 +17,8 @@
    "label": "Team Name",
    "options": "Inspection Team",
    "reqd": 1,
-   "in_list_view": 1
+   "in_list_view": 1,
+   "unique": 1
   },
   {
    "fieldname": "members_count",

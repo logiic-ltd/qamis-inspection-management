@@ -88,9 +88,9 @@ class Inspection(Document):
             for team_data in self.get("teams", []):
                 logger.info(f"Processing team: {team_data.get('team_name')}")
                 
-                # Check if the team exists
-                if team_data.get('team') and frappe.db.exists("Inspection Team", team_data.get('team')):
-                    team_doc = frappe.get_doc("Inspection Team", team_data.get('team'))
+                # Check if the team exists using team_name
+                if team_data.get('team_name') and frappe.db.exists("Inspection Team", team_data.get('team_name')):
+                    team_doc = frappe.get_doc("Inspection Team", team_data.get('team_name'))
                     logger.info(f"Linking existing team: {team_doc.name}")
                     
                     # Update the inspection field of the team

@@ -365,7 +365,6 @@ function add_team_to_inspection(frm, values) {
         callback: function(r) {
             if (r.message) {
                 let new_team = {
-                    team: r.message.name,
                     team_name: r.message.team_name,
                     members_count: r.message.members_count,
                     schools_count: r.message.schools_count
