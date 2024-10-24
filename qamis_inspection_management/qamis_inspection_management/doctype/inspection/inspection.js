@@ -240,9 +240,6 @@ function add_school_to_selection(dialog, school) {
     let grid = dialog.fields_dict.selected_schools.grid;
     let existing_school = grid.data.find(s => s.id === school.id);
     
-    console.log("Adding school:", school);  // Debug log
-    console.log("Existing grid data:", grid.data);  // Debug log
-
     if (!existing_school) {
         let new_row = {
             id: school.id,
@@ -252,15 +249,11 @@ function add_school_to_selection(dialog, school) {
         let added_row = grid.data[grid.data.length - 1];
         Object.assign(added_row, new_row);
         
-        console.log("New row added:", added_row);  // Debug log
-        
         grid.refresh();
         dialog.refresh_field('selected_schools');
     } else {
-        console.log("School already exists in the grid");  // Debug log
+        frappe.show_alert(`${school.schoolName} is already in the team.`, 5);
     }
-    
-    console.log("Updated grid data:", grid.data);  // Debug log
 }
 
 function add_member_to_selection(dialog, member) {
