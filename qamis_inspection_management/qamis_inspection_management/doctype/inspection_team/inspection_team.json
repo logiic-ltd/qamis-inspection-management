@@ -29,7 +29,8 @@
    "fieldtype": "Link",
    "label": "Inspection",
    "options": "Inspection",
-   "reqd": 0
+   "reqd": 0,
+   "allow_in_quick_entry": 0
   },
   {
    "fieldname": "members_section",
