@@ -65,12 +65,14 @@ class Inspection(Document):
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")
+        logger.info(f"Teams before update: {[{'team': team.team, 'team_name': team.team_name} for team in self.teams]}")
         try:
             frappe.db.begin()
             self.update_or_create_teams()
             self.db_update()
             frappe.db.commit()
             logger.info(f"Inspection {self.name} updated successfully")
+            logger.info(f"Teams after update: {[{'team': team.team, 'team_name': team.team_name} for team in self.teams]}")
         except Exception as e:
             frappe.db.rollback()
             logger.error(f"Error updating Inspection {self.name}: {str(e)}")
@@ -80,6 +82,9 @@ class Inspection(Document):
     def update_or_create_teams(self):
         try:
             frappe.db.begin()
+            
+            logger.info(f"Updating teams for Inspection {self.name}")
+            logger.info(f"Current teams in the Inspection: {[team.team_name for team in self.teams]}")
             
             # Get existing teams
             existing_teams = {team.team: team for team in self.teams}
@@ -91,43 +96,30 @@ class Inspection(Document):
                 # Check if the team already exists
                 if team_data.get('team') and frappe.db.exists("Inspection Team", team_data.get('team')):
                     team_doc = frappe.get_doc("Inspection Team", team_data.get('team'))
+                    logger.info(f"Existing team found: {team_doc.name}")
                 else:
                     team_doc = frappe.get_doc({
                         "doctype": "Inspection Team",
                         "team_name": team_data.get("team_name"),
                         "inspection": self.name
                     })
+                    logger.info(f"Creating new team: {team_doc.team_name}")
 
-                # Update team members
-                team_doc.members = []
-                for member in team_data.get("members", []):
-                    logger.info(f"Adding member to team: {member.get('displayName')}")
-                    team_doc.append("members", {
-                        "id": member.get("id"),
-                        "username": member.get("username"),
-                        "displayName": member.get("displayName")
-                    })
-
-                # Update team schools
-                team_doc.schools = []
-                for school in team_data.get("schools", []):
-                    logger.info(f"Adding school to team: {school.get('schoolName')}")
-                    team_doc.append("schools", {
-                        "school_code": school.get("id"),
-                        "school_name": school.get("schoolName"),
-                        "province": school.get("province"),
-                        "district": school.get("district")
-                    })
+                # Update team members and schools
+                self.update_team_members_and_schools(team_doc, team_data)
 
                 # Save or update the team document
                 team_doc.save(ignore_permissions=True)
+                logger.info(f"Team {team_doc.name} saved successfully")
 
                 # Update or add the team link
                 if team_doc.name in existing_teams:
+                    logger.info(f"Updating existing team link: {team_doc.name}")
                     existing_teams[team_doc.name].team_name = team_doc.team_name
                     existing_teams[team_doc.name].members_count = len(team_doc.members)
                     existing_teams[team_doc.name].schools_count = len(team_doc.schools)
                 else:
+                    logger.info(f"Adding new team link: {team_doc.name}")
                     self.append("teams", {
                         "team": team_doc.name,
                         "team_name": team_doc.team_name,
@@ -135,10 +127,9 @@ class Inspection(Document):
                         "schools_count": len(team_doc.schools)
                     })
 
-                logger.info(f"Team {team_doc.team_name} saved successfully for Inspection {self.name}")
-
             # Remove teams that are no longer in the inspection
             self.teams = [team for team in self.teams if team.team in [t.get('team') for t in self.get("teams", [])]]
+            logger.info(f"Final teams in the Inspection: {[team.team_name for team in self.teams]}")
 
             self.update_team_counts()
             frappe.db.commit()
@@ -316,3 +307,24 @@ def on_submit(doc, method):
         doc.status = "Pending Review"
         doc.save()
     frappe.msgprint(_("Inspection submitted successfully and status updated to Pending Review"))
+    def update_team_members_and_schools(self, team_doc, team_data):
+        # Update team members
+        team_doc.members = []
+        for member in team_data.get("members", []):
+            logger.info(f"Adding member to team: {member.get('displayName')}")
+            team_doc.append("members", {
+                "id": member.get("id"),
+                "username": member.get("username"),
+                "displayName": member.get("displayName")
+            })
+
+        # Update team schools
+        team_doc.schools = []
+        for school in team_data.get("schools", []):
+            logger.info(f"Adding school to team: {school.get('schoolName')}")
+            team_doc.append("schools", {
+                "school_code": school.get("id"),
+                "school_name": school.get("schoolName"),
+                "province": school.get("province"),
+                "district": school.get("district")
+            })
