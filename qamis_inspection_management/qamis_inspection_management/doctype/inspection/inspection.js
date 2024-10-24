@@ -8,13 +8,27 @@ frappe.ui.form.on('Inspection', {
         });
     },
     teams_add: function(frm) {
-        frm.fields_dict.teams.grid.get_field('team_name').get_query = function() {
+        frm.fields_dict.teams.grid.get_field('team').get_query = function() {
             return {
                 filters: {
                     'docstatus': 1
                 }
             };
         };
+    }
+});
+
+frappe.ui.form.on('Inspection Team Link', {
+    team: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        if (row.team) {
+            frappe.db.get_doc('Inspection Team', row.team)
+                .then(team_doc => {
+                    frappe.model.set_value(cdt, cdn, 'team_name', team_doc.team_name);
+                    frappe.model.set_value(cdt, cdn, 'members_count', team_doc.members_count);
+                    frappe.model.set_value(cdt, cdn, 'schools_count', team_doc.schools_count);
+                });
+        }
     }
 });
 

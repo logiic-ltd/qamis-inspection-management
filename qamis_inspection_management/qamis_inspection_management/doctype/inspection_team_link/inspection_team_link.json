@@ -6,7 +6,10 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "team"
+  "team",
+  "team_name",
+  "members_count",
+  "schools_count"
  ],
  "fields": [
   {
@@ -15,6 +18,27 @@
    "label": "Team",
    "options": "Inspection Team",
    "reqd": 1
+  },
+  {
+   "fieldname": "team_name",
+   "fieldtype": "Data",
+   "label": "Team Name",
+   "fetch_from": "team.team_name",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "members_count",
+   "fieldtype": "Int",
+   "label": "Members Count",
+   "fetch_from": "team.members_count",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "schools_count",
+   "fieldtype": "Int",
+   "label": "Schools Count",
+   "fetch_from": "team.schools_count",
+   "in_list_view": 1
   }
  ],
  "index_web_pages_for_search": 1,
