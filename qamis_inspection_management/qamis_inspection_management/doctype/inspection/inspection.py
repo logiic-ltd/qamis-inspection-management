@@ -51,8 +51,17 @@ class Inspection(Document):
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")
-        self.update_or_create_teams()
-        logger.info(f"Inspection {self.name} updated successfully")
+        try:
+            frappe.db.begin()
+            self.update_or_create_teams()
+            self.db_update()
+            frappe.db.commit()
+            logger.info(f"Inspection {self.name} updated successfully")
+        except Exception as e:
+            frappe.db.rollback()
+            logger.error(f"Error updating Inspection {self.name}: {str(e)}")
+            frappe.log_error(f"Error updating Inspection {self.name}: {str(e)}")
+            frappe.throw(_("An error occurred while updating the inspection. Please check the error log for details."))
 
     def update_or_create_teams(self):
         try:
@@ -173,7 +182,17 @@ class Inspection(Document):
                 frappe.delete_doc("Team School Assignment", existing_name, ignore_permissions=True)
 
     def after_insert(self):
-        self.update_or_create_teams()
+        try:
+            frappe.db.begin()
+            self.update_or_create_teams()
+            self.db_update()
+            frappe.db.commit()
+            logger.info(f"Inspection {self.name} inserted and teams created successfully")
+        except Exception as e:
+            frappe.db.rollback()
+            logger.error(f"Error inserting Inspection {self.name}: {str(e)}")
+            frappe.log_error(f"Error inserting Inspection {self.name}: {str(e)}")
+            frappe.throw(_("An error occurred while creating the inspection. Please check the error log for details."))
 
     def validate_dates(self):
         logger.info(f"Validating dates for Inspection: {self.name}")
