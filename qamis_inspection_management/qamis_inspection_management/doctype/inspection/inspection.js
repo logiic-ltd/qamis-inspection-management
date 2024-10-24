@@ -302,20 +302,18 @@ function add_member_to_selection(dialog, member) {
 }
 
 function add_school_to_selection(dialog, school) {
-    let grid = dialog.fields_dict.selected_schools.grid;
-    let existing_school = grid.data.find(s => s.id === school.id);
+    let table = dialog.fields_dict.selected_schools;
+    let existing_school = table.get_data().find(s => s.id === school.id);
     
     if (!existing_school) {
         let new_row = {
             id: school.id,
-            schoolName: school.schoolName
+            schoolName: school.schoolName,
+            province: school.province,
+            district: school.district
         };
-        grid.add_new_row();
-        let added_row = grid.data[grid.data.length - 1];
-        Object.assign(added_row, new_row);
-        
-        grid.refresh();
-        dialog.refresh_field('selected_schools');
+        table.df.data.push(new_row);
+        table.refresh();
     } else {
         frappe.show_alert(`${school.schoolName} is already in the team.`, 5);
     }
