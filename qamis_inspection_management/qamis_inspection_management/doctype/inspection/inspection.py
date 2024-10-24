@@ -88,15 +88,15 @@ class Inspection(Document):
                 }
                 
                 try:
-                    # Check if the team already exists
+                    # Check if the team already exists by team_name
                     existing_team = frappe.get_doc("Inspection Team", {"team_name": team.team_name})
                     logger.info(f"Updating existing team: {existing_team.name}")
-                    # Update existing team
+                    # Update existing team data
                     existing_team.update(team_data)
                     team_doc = existing_team
                 except frappe.DoesNotExistError:
                     logger.info(f"Creating new team: {team.team_name}")
-                    # Create new team
+                    # Create new team if it doesn't exist
                     team_doc = frappe.get_doc(team_data)
                     team_doc.insert(ignore_permissions=True)
                 
@@ -116,10 +116,12 @@ class Inspection(Document):
                 # Update team schools
                 team_doc.schools = []
                 for school in team.get("schools", []):
-                    logger.info(f"Adding school to team: {school.get('schoolName') or school.get('school_name')}")
+                    logger.info(f"Adding school to team: {school.get('schoolName')}")
                     team_doc.append("schools", {
-                        "school_code": school.get("id") or school.get("school_code"),
-                        "school_name": school.get("schoolName") or school.get("school_name")
+                        "school_code": school.get("id"),
+                        "school_name": school.get("schoolName"),
+                        "province": school.get("province"),
+                        "district": school.get("district")
                     })
                 
                 # Save the team document
