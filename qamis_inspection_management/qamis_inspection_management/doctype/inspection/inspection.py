@@ -184,7 +184,7 @@ def create_inspection_team(team_name, members, schools, inspection=None):
             "schools": [{"school_code": s["id"], "school_name": s["schoolName"], "province": s.get("province", ""), "district": s.get("district", "")} for s in schools_data]
         })
         
-        if inspection:
+        if inspection and frappe.db.exists("Inspection", inspection):
             team_doc.parent_inspection = inspection
         
         team_doc.insert(ignore_permissions=True)
@@ -193,7 +193,8 @@ def create_inspection_team(team_name, members, schools, inspection=None):
             "name": team_doc.name,
             "team_name": team_doc.team_name,
             "members_count": len(team_doc.members),
-            "schools_count": len(team_doc.schools)
+            "schools_count": len(team_doc.schools),
+            "parent_inspection": team_doc.parent_inspection
         }
         logger.info(f"Team created successfully: {result}")
         return result
