@@ -375,32 +375,20 @@ function create_team_and_link_to_inspection(frm, values) {
         args: {
             team_name: team_name,
             members: JSON.stringify(selected_members),
-            schools: JSON.stringify(selected_schools),
-            inspection: frm.doc.__islocal ? null : frm.doc.name
+            schools: JSON.stringify(selected_schools)
         },
         callback: function(r) {
             if (r.message) {
                 let new_team = r.message;
                 console.log('New team created:', new_team);
 
-                // Always store the team to be linked later, whether the inspection is saved or not
-                let teams_to_link = localStorage.getItem('teams_to_link');
-                teams_to_link = teams_to_link ? JSON.parse(teams_to_link) : [];
-                teams_to_link.push(new_team);
-                localStorage.setItem('teams_to_link', JSON.stringify(teams_to_link));
-
-                // If the inspection is already saved, add the team to the form
-                if (!frm.doc.__islocal) {
-                    frm.add_child('inspection_teams', {
-                        team_name: new_team.team_name,
-                        name: new_team.name,
-                        members_count: new_team.members_count,
-                        schools_count: new_team.schools_count,
-                        members: new_team.members,
-                        schools: new_team.schools
-                    });
-                    frm.refresh_field('inspection_teams');
-                }
+                frm.add_child('inspection_teams', {
+                    team: new_team.name,
+                    team_name: new_team.team_name,
+                    members_count: new_team.members_count,
+                    schools_count: new_team.schools_count
+                });
+                frm.refresh_field('inspection_teams');
 
                 frappe.show_alert(`Team "${team_name}" created successfully`, 5);
             } else {
