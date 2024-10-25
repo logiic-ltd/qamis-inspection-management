@@ -174,11 +174,14 @@ def create_inspection_team(team_name, members, schools, inspection=None):
     logger.info(f"Schools: {schools}")
     logger.info(f"Inspection: {inspection}")
     try:
+        members_data = json.loads(members)
+        schools_data = json.loads(schools)
+
         team_doc = frappe.get_doc({
             "doctype": "Inspection Team",
             "team_name": team_name,
-            "members": json.loads(members),
-            "schools": json.loads(schools)
+            "members": [{"id": m["id"], "username": m["username"], "displayName": m["displayName"]} for m in members_data],
+            "schools": [{"school_code": s["id"], "school_name": s["schoolName"], "province": s.get("province", ""), "district": s.get("district", "")} for s in schools_data]
         })
         
         if inspection:

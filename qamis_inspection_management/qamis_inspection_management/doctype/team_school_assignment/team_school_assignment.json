@@ -17,13 +17,15 @@
    "fieldname": "school_code",
    "fieldtype": "Data",
    "label": "School Code",
-   "reqd": 1
+   "reqd": 1,
+   "in_list_view": 1
   },
   {
    "fieldname": "school_name",
    "fieldtype": "Data",
    "label": "School Name",
-   "reqd": 1
+   "reqd": 1,
+   "in_list_view": 1
   },
   {
    "fieldname": "province",
