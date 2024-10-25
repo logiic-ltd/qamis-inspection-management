@@ -1,20 +1,18 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "hash",
+ "autoname": "field:team_name",
  "creation": "2023-05-20 12:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "team_name",
-  "parent_inspection",
+  "parent",
   "members_section",
   "members",
   "schools_section",
-  "schools",
-  "members_count",
-  "schools_count"
+  "schools"
  ],
  "fields": [
   {
@@ -22,15 +20,14 @@
    "fieldtype": "Data",
    "label": "Team Name",
    "reqd": 1,
+   "unique": 1,
    "in_list_view": 1
   },
   {
    "fieldname": "parent",
    "fieldtype": "Link",
    "label": "Parent Inspection",
-   "options": "Inspection",
-   "reqd": 0,
-   "allow_in_quick_entry": 0
+   "options": "Inspection"
   },
   {
    "fieldname": "members_section",
@@ -53,20 +50,6 @@
    "fieldtype": "Table",
    "label": "Schools",
    "options": "Team School Assignment"
-  },
-  {
-   "fieldname": "schools_count",
-   "fieldtype": "Int",
-   "label": "Schools Count",
-   "read_only": 1,
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "members_count",
-   "fieldtype": "Int",
-   "label": "Members Count",
-   "read_only": 1,
-   "in_list_view": 1
   }
  ],
  "index_web_pages_for_search": 1,

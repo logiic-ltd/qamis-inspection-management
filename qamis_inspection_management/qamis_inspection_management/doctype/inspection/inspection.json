@@ -8,7 +8,6 @@
  "engine": "InnoDB",
  "field_order": [
   "basic_information_section",
-  "inspection",
   "inspection_name",
   "start_date",
   "end_date",
@@ -16,20 +15,14 @@
   "status",
   "inspection_teams_section",
   "inspection_teams",
+  "checklists_section",
+  "checklists",
   "inspection_details_section",
   "introduction",
   "objectives",
   "methodology",
-  "checklists_section",
-  "checklists",
-  "teams_section",
-  "teams",
   "summary_section",
-  "executive_summary",
-  "inspection_details_section",
-  "introduction",
-  "objectives",
-  "methodology"
+  "executive_summary"
  ],
  "fields": [
   {
@@ -46,12 +39,14 @@
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
-   "label": "Start Date"
+   "label": "Start Date",
+   "reqd": 1
   },
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
-   "label": "End Date"
+   "label": "End Date",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_5",
@@ -61,7 +56,19 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Draft\nPending Review\nApproved"
+   "options": "Draft\nPending Review\nApproved\nCompleted",
+   "default": "Draft"
+  },
+  {
+   "fieldname": "inspection_teams_section",
+   "fieldtype": "Section Break",
+   "label": "Inspection Teams"
+  },
+  {
+   "fieldname": "inspection_teams",
+   "fieldtype": "Table",
+   "label": "Inspection Teams",
+   "options": "Inspection Team"
   },
   {
    "fieldname": "checklists_section",
@@ -73,27 +80,6 @@
    "fieldtype": "Table",
    "label": "Checklists",
    "options": "Inspection Checklist"
-  },
-  {
-   "fieldname": "teams_section",
-   "fieldtype": "Section Break",
-   "label": "Teams"
-  },
-  {
-   "fieldname": "inspection_teams",
-   "fieldtype": "Table",
-   "label": "Inspection Teams",
-   "options": "Inspection Team"
-  },
-  {
-   "fieldname": "summary_section",
-   "fieldtype": "Section Break",
-   "label": "Summary"
-  },
-  {
-   "fieldname": "executive_summary",
-   "fieldtype": "Text Editor",
-   "label": "Executive Summary"
   },
   {
    "fieldname": "inspection_details_section",
@@ -114,6 +100,16 @@
    "fieldname": "methodology",
    "fieldtype": "Text Editor",
    "label": "Methodology"
+  },
+  {
+   "fieldname": "summary_section",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "executive_summary",
+   "fieldtype": "Text Editor",
+   "label": "Executive Summary"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -122,7 +118,7 @@
  "modified_by": "Administrator",
  "module": "Qamis Inspection Management",
  "name": "Inspection",
- "naming_rule": "By fieldname",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -141,31 +137,7 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "search_fields": "inspection_name,start_date,end_date,status",
- "list_view_fields": [
-  {
-   "fieldname": "inspection_name",
-   "fieldtype": "Data",
-   "label": "Inspection Name",
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "start_date",
-   "fieldtype": "Date",
-   "label": "Start Date",
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "end_date",
-   "fieldtype": "Date",
-   "label": "End Date",
-   "in_list_view": 1
-  },
-  {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "in_list_view": 1
-  }
- ]
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
 }
