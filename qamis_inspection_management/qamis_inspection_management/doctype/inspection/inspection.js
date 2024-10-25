@@ -383,14 +383,14 @@ function create_team_and_link_to_inspection(frm, values) {
                 let new_team = r.message;
                 console.log('New team created:', new_team);
 
-                if (frm.doc.__islocal) {
-                    // If the inspection is not saved yet, store the team to be linked later
-                    let teams_to_link = localStorage.getItem('teams_to_link');
-                    teams_to_link = teams_to_link ? JSON.parse(teams_to_link) : [];
-                    teams_to_link.push(new_team);
-                    localStorage.setItem('teams_to_link', JSON.stringify(teams_to_link));
-                } else {
-                    // If the inspection is already saved, add the team directly
+                // Always store the team to be linked later, whether the inspection is saved or not
+                let teams_to_link = localStorage.getItem('teams_to_link');
+                teams_to_link = teams_to_link ? JSON.parse(teams_to_link) : [];
+                teams_to_link.push(new_team);
+                localStorage.setItem('teams_to_link', JSON.stringify(teams_to_link));
+
+                // If the inspection is already saved, add the team to the form
+                if (!frm.doc.__islocal) {
                     frm.add_child('inspection_teams', {
                         team_name: new_team.team_name,
                         name: new_team.name,
