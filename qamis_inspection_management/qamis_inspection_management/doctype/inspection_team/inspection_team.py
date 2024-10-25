@@ -14,7 +14,7 @@ class InspectionTeam(Document):
         self.schools_count = len(self.schools)
 
     def on_update(self):
-        if self.parent_inspection:
+        if self.parent:
             self.update_inspection()
 
     def update_inspection(self):

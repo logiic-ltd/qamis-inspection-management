@@ -177,7 +177,7 @@ def create_inspection_team(team_name, members, schools, inspection=None):
         
         if inspection:
             if frappe.db.exists("Inspection", inspection):
-                team_doc.parent_inspection = inspection
+                team_doc.parent = inspection
             else:
                 logger.warning(f"Inspection {inspection} does not exist. Creating team without linking to inspection.")
         
