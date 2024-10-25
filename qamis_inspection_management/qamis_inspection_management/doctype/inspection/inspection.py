@@ -31,7 +31,7 @@ class Inspection(Document):
             team_data = {
                 "doctype": "Inspection Team",
                 "team_name": team.team_name,
-                "parent_inspection": self.name,
+                "parent": self.name,
                 "members": team.members,
                 "schools": team.schools
             }

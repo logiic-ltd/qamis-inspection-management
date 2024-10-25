@@ -18,8 +18,8 @@ class InspectionTeam(Document):
             self.update_inspection()
 
     def update_inspection(self):
-        if self.parent_inspection:
-            inspection = frappe.get_doc("Inspection", self.parent_inspection)
+        if self.parent:
+            inspection = frappe.get_doc("Inspection", self.parent)
             for team in inspection.inspection_teams:
                 if team.name == self.name:
                     team.team_name = self.team_name
