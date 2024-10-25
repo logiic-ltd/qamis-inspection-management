@@ -27,25 +27,33 @@ class Inspection(Document):
         self.update_or_create_teams()
 
     def update_or_create_teams(self):
-        for team_link in self.teams:
-            team_doc = frappe.get_doc("Inspection Team", team_link.team_name)
-            if team_doc.inspection != self.name:
-                team_doc.db_set('inspection', self.name, update_modified=False)
+        for team in self.inspection_teams:
+            if not frappe.db.exists("Inspection Team", team.name):
+                team_doc = frappe.get_doc({
+                    "doctype": "Inspection Team",
+                    "team_name": team.team_name,
+                    "parent_inspection": self.name,
+                    "members": team.members,
+                    "schools": team.schools
+                })
+                team_doc.insert(ignore_permissions=True)
+            else:
+                team_doc = frappe.get_doc("Inspection Team", team.name)
+                team_doc.team_name = team.team_name
+                team_doc.members = team.members
+                team_doc.schools = team.schools
+                team_doc.save(ignore_permissions=True)
 
     def validate_teams(self):
-        if not self.teams:
+        if not self.inspection_teams:
             frappe.throw(_("At least one team must be added to the inspection."))
-        for team_link in self.teams:
-            if not team_link.team_name:
+        for team in self.inspection_teams:
+            if not team.team_name:
                 frappe.throw(_("Team Name is required for all teams."))
-            try:
-                team_doc = frappe.get_doc("Inspection Team", team_link.team_name)
-                if not team_doc.members:
-                    frappe.throw(_("Team {0} must have at least one member.").format(team_doc.team_name))
-                if not team_doc.schools:
-                    frappe.throw(_("Team {0} must have at least one school assigned.").format(team_doc.team_name))
-            except frappe.DoesNotExistError:
-                frappe.throw(_("Inspection Team {0} not found.").format(team_link.team_name))
+            if not team.members:
+                frappe.throw(_("Team {0} must have at least one member.").format(team.team_name))
+            if not team.schools:
+                frappe.throw(_("Team {0} must have at least one school assigned.").format(team.team_name))
 
     def validate_status_transition(self):
         if not self.is_new():
@@ -166,39 +174,24 @@ def create_inspection_team(team_name, members, schools, inspection):
     logger.info(f"Schools: {schools}")
     logger.info(f"Inspection: {inspection}")
     try:
-        team_doc = frappe.get_doc({
-            "doctype": "Inspection Team",
+        inspection_doc = frappe.get_doc("Inspection", inspection)
+        
+        team_data = {
             "team_name": team_name,
-            "inspection": inspection
-        })
-
-        for member in json.loads(members):
-            logger.info(f"Adding member to team: {member}")
-            team_doc.append("members", {
-                "id": member.get("id"),
-                "username": member.get("username"),
-                "displayName": member.get("displayName")
-            })
-
-        for school in json.loads(schools):
-            logger.info(f"Adding school to team: {school}")
-            team_doc.append("schools", {
-                "school_code": school.get("id"),
-                "school_name": school.get("schoolName"),
-                "province": school.get("province"),
-                "district": school.get("district")
-            })
-
-        logger.info("Inserting team document")
-        team_doc.insert(ignore_permissions=True)
-        logger.info("Saving team document")
-        team_doc.save(ignore_permissions=True)
-
+            "members": json.loads(members),
+            "schools": json.loads(schools)
+        }
+        
+        inspection_doc.append("inspection_teams", team_data)
+        inspection_doc.save(ignore_permissions=True)
+        
+        new_team = inspection_doc.inspection_teams[-1]
+        
         result = {
-            "name": team_doc.name,
-            "team_name": team_doc.team_name,
-            "members_count": len(team_doc.members),
-            "schools_count": len(team_doc.schools)
+            "name": new_team.name,
+            "team_name": new_team.team_name,
+            "members_count": len(new_team.members),
+            "schools_count": len(new_team.schools)
         }
         logger.info(f"Team created successfully: {result}")
         return result

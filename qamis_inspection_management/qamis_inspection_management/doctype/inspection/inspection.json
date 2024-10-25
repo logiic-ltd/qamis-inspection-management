@@ -14,8 +14,8 @@
   "end_date",
   "column_break_5",
   "status",
-  "teams_section",
-  "teams",
+  "inspection_teams_section",
+  "inspection_teams",
   "inspection_details_section",
   "introduction",
   "objectives",
@@ -80,9 +80,9 @@
    "label": "Teams"
   },
   {
-   "fieldname": "teams",
+   "fieldname": "inspection_teams",
    "fieldtype": "Table",
-   "label": "Teams",
+   "label": "Inspection Teams",
    "options": "Inspection Team"
   },
   {

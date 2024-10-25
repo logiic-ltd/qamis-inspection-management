@@ -1,14 +1,14 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:team_name",
+ "autoname": "hash",
  "creation": "2023-05-20 12:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "team_name",
-  "inspection",
+  "parent_inspection",
   "members_section",
   "members",
   "schools_section",
@@ -25,11 +25,11 @@
    "in_list_view": 1
   },
   {
-   "fieldname": "inspection",
+   "fieldname": "parent_inspection",
    "fieldtype": "Link",
-   "label": "Inspection",
+   "label": "Parent Inspection",
    "options": "Inspection",
-   "reqd": 0,
+   "reqd": 1,
    "allow_in_quick_entry": 0
   },
   {

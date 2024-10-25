@@ -7,14 +7,8 @@ frappe.ui.form.on('Inspection', {
             show_checklist_search_dialog(frm);
         });
     },
-    teams_add: function(frm) {
-        frm.fields_dict.teams.grid.get_field('team_name').get_query = function() {
-            return {
-                filters: {
-                    'docstatus': 1
-                }
-            };
-        };
+    inspection_teams_add: function(frm) {
+        // No need for a get_query function as teams are now child tables
     }
 });
 
@@ -347,7 +341,7 @@ function create_team_and_link_to_inspection(frm, values) {
     }
 
     // Check if the team name already exists in the inspection
-    let existing_team = frm.doc.teams && frm.doc.teams.find(team => team.team_name === team_name);
+    let existing_team = frm.doc.inspection_teams && frm.doc.inspection_teams.find(team => team.team_name === team_name);
     if (existing_team) {
         console.log(`Team "${team_name}" already exists in this inspection.`);
         frappe.show_alert(`Team "${team_name}" already exists in this inspection.`, 5);
@@ -360,23 +354,14 @@ function create_team_and_link_to_inspection(frm, values) {
             team_name: team_name,
             members: JSON.stringify(selected_members),
             schools: JSON.stringify(selected_schools),
-            inspection: frm.doc.name || null
+            inspection: frm.doc.name
         },
         callback: function(r) {
             if (r.message) {
                 let new_team = r.message;
                 console.log('New team created:', new_team);
 
-                if (frm.doc.name) {
-                    // If we're in an Inspection form, add the team to the inspection
-                    frm.doc.teams = frm.doc.teams || [];
-                    frm.add_child('teams', {
-                        team_name: new_team.name,
-                        members_count: new_team.members_count,
-                        schools_count: new_team.schools_count
-                    });
-                    frm.refresh_field('teams');
-                }
+                frm.refresh_field('inspection_teams');
                 frappe.show_alert(`Team "${team_name}" created successfully`, 5);
             } else {
                 frappe.msgprint('Failed to create team. Please try again.');

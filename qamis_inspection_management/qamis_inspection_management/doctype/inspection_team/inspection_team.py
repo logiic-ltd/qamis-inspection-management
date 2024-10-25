@@ -14,11 +14,18 @@ class InspectionTeam(Document):
         self.schools_count = len(self.schools)
 
     def on_update(self):
-        pass  # Remove the update_inspection call
+        self.update_inspection()
 
     def update_inspection(self):
-        # This method is no longer needed
-        pass
+        inspection = frappe.get_doc("Inspection", self.parent_inspection)
+        for team in inspection.inspection_teams:
+            if team.name == self.name:
+                team.team_name = self.team_name
+                team.members = self.members
+                team.schools = self.schools
+                team.members_count = self.members_count
+                team.schools_count = self.schools_count
+        inspection.save(ignore_permissions=True)
 
 @frappe.whitelist()
 def create_inspection_team(team_name, members, schools, inspection=None):
