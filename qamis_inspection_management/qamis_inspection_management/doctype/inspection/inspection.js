@@ -395,7 +395,9 @@ function create_team_and_link_to_inspection(frm, values) {
                         team_name: new_team.team_name,
                         name: new_team.name,
                         members_count: new_team.members_count,
-                        schools_count: new_team.schools_count
+                        schools_count: new_team.schools_count,
+                        members: new_team.members,
+                        schools: new_team.schools
                     });
                     frm.refresh_field('inspection_teams');
                 }

@@ -50,10 +50,6 @@ class Inspection(Document):
         for team in self.inspection_teams:
             if not team.team_name:
                 frappe.throw(_("Team Name is required for all teams."))
-            if not team.members:
-                frappe.throw(_("Team {0} must have at least one member.").format(team.team_name))
-            if not team.schools:
-                frappe.throw(_("Team {0} must have at least one school assigned.").format(team.team_name))
 
     def validate_status_transition(self):
         if not self.is_new():
@@ -197,7 +193,9 @@ def create_inspection_team(team_name, members, schools, inspection=None):
             "team_name": team_doc.team_name,
             "members_count": len(team_doc.members),
             "schools_count": len(team_doc.schools),
-            "parent_inspection": team_doc.parent_inspection if team_doc.parent_inspection else None
+            "parent_inspection": team_doc.parent_inspection if team_doc.parent_inspection else None,
+            "members": [{"id": m.id, "username": m.username, "displayName": m.displayName} for m in team_doc.members],
+            "schools": [{"school_code": s.school_code, "school_name": s.school_name, "province": s.province, "district": s.district} for s in team_doc.schools]
         }
         logger.info(f"Team created successfully: {result}")
         return result
