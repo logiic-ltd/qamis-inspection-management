@@ -14,17 +14,11 @@ class InspectionTeam(Document):
         self.schools_count = len(self.schools)
 
     def on_update(self):
-        self.update_inspection()
+        pass  # Remove the update_inspection call
 
     def update_inspection(self):
-        if self.inspection:
-            try:
-                inspection = frappe.get_doc("Inspection", self.inspection)
-                inspection.update_team_counts()
-                inspection.save()
-            except frappe.DoesNotExistError:
-                frappe.msgprint(f"Inspection {self.inspection} not found. It may have been deleted or not yet created.")
-        # If inspection is not set, we don't need to do anything
+        # This method is no longer needed
+        pass
 
 @frappe.whitelist()
 def create_inspection_team(team_name, members, schools, inspection=None):
