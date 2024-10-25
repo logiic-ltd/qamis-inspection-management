@@ -9,8 +9,30 @@ frappe.ui.form.on('Inspection', {
     },
     inspection_teams_add: function(frm) {
         // No need for a get_query function as teams are now child tables
+    },
+    before_save: function(frm) {
+        link_teams_to_inspection(frm);
     }
 });
+
+function link_teams_to_inspection(frm) {
+    if (frm.doc.__islocal) {
+        let teams_to_link = localStorage.getItem('teams_to_link');
+        if (teams_to_link) {
+            teams_to_link = JSON.parse(teams_to_link);
+            teams_to_link.forEach(team => {
+                frm.add_child('inspection_teams', {
+                    team_name: team.team_name,
+                    name: team.name,
+                    members_count: team.members_count,
+                    schools_count: team.schools_count
+                });
+            });
+            frm.refresh_field('inspection_teams');
+            localStorage.removeItem('teams_to_link');
+        }
+    }
+}
 
 // Remove the Inspection Team Link event handler as it's no longer needed
 
@@ -349,19 +371,35 @@ function create_team_and_link_to_inspection(frm, values) {
     }
 
     frappe.call({
-        method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection_team.inspection_team.create_inspection_team',
+        method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.create_inspection_team',
         args: {
             team_name: team_name,
             members: JSON.stringify(selected_members),
             schools: JSON.stringify(selected_schools),
-            inspection: frm.doc.name
+            inspection: frm.doc.__islocal ? null : frm.doc.name
         },
         callback: function(r) {
             if (r.message) {
                 let new_team = r.message;
                 console.log('New team created:', new_team);
 
-                frm.refresh_field('inspection_teams');
+                if (frm.doc.__islocal) {
+                    // If the inspection is not saved yet, store the team to be linked later
+                    let teams_to_link = localStorage.getItem('teams_to_link');
+                    teams_to_link = teams_to_link ? JSON.parse(teams_to_link) : [];
+                    teams_to_link.push(new_team);
+                    localStorage.setItem('teams_to_link', JSON.stringify(teams_to_link));
+                } else {
+                    // If the inspection is already saved, add the team directly
+                    frm.add_child('inspection_teams', {
+                        team_name: new_team.team_name,
+                        name: new_team.name,
+                        members_count: new_team.members_count,
+                        schools_count: new_team.schools_count
+                    });
+                    frm.refresh_field('inspection_teams');
+                }
+
                 frappe.show_alert(`Team "${team_name}" created successfully`, 5);
             } else {
                 frappe.msgprint('Failed to create team. Please try again.');

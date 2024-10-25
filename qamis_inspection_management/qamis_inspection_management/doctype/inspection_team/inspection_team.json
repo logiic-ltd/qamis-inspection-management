@@ -29,7 +29,7 @@
    "fieldtype": "Link",
    "label": "Parent Inspection",
    "options": "Inspection",
-   "reqd": 1,
+   "reqd": 0,
    "allow_in_quick_entry": 0
   },
   {

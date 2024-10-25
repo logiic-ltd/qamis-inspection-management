@@ -168,30 +168,29 @@ def search_schools(search_term):
     return _make_api_request(url, "schools")
 
 @frappe.whitelist()
-def create_inspection_team(team_name, members, schools, inspection):
+def create_inspection_team(team_name, members, schools, inspection=None):
     logger.info(f"Creating inspection team: {team_name}")
     logger.info(f"Members: {members}")
     logger.info(f"Schools: {schools}")
     logger.info(f"Inspection: {inspection}")
     try:
-        inspection_doc = frappe.get_doc("Inspection", inspection)
-        
-        team_data = {
+        team_doc = frappe.get_doc({
+            "doctype": "Inspection Team",
             "team_name": team_name,
             "members": json.loads(members),
             "schools": json.loads(schools)
-        }
+        })
         
-        inspection_doc.append("inspection_teams", team_data)
-        inspection_doc.save(ignore_permissions=True)
+        if inspection:
+            team_doc.parent_inspection = inspection
         
-        new_team = inspection_doc.inspection_teams[-1]
+        team_doc.insert(ignore_permissions=True)
         
         result = {
-            "name": new_team.name,
-            "team_name": new_team.team_name,
-            "members_count": len(new_team.members),
-            "schools_count": len(new_team.schools)
+            "name": team_doc.name,
+            "team_name": team_doc.team_name,
+            "members_count": len(team_doc.members),
+            "schools_count": len(team_doc.schools)
         }
         logger.info(f"Team created successfully: {result}")
         return result
