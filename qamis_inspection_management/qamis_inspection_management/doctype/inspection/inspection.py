@@ -28,21 +28,19 @@ class Inspection(Document):
 
     def update_or_create_teams(self):
         for team in self.inspection_teams:
-            if not frappe.db.exists("Inspection Team", team.name):
-                team_doc = frappe.get_doc({
-                    "doctype": "Inspection Team",
-                    "team_name": team.team_name,
-                    "parent_inspection": self.name,
-                    "members": team.members,
-                    "schools": team.schools
-                })
-                team_doc.insert(ignore_permissions=True)
-            else:
+            team_data = {
+                "doctype": "Inspection Team",
+                "team_name": team.team_name,
+                "parent_inspection": self.name,
+                "members": team.members,
+                "schools": team.schools
+            }
+            if frappe.db.exists("Inspection Team", team.name):
                 team_doc = frappe.get_doc("Inspection Team", team.name)
-                team_doc.team_name = team.team_name
-                team_doc.members = team.members
-                team_doc.schools = team.schools
+                team_doc.update(team_data)
                 team_doc.save(ignore_permissions=True)
+            else:
+                frappe.get_doc(team_data).insert(ignore_permissions=True)
 
     def validate_teams(self):
         if not self.inspection_teams:
@@ -122,13 +120,10 @@ class Inspection(Document):
 
     def after_insert(self):
         try:
-            frappe.db.begin()
             self.update_or_create_teams()
             self.db_update()
-            frappe.db.commit()
             logger.info(f"Inspection {self.name} inserted and teams created successfully")
         except Exception as e:
-            frappe.db.rollback()
             logger.error(f"Error inserting Inspection {self.name}: {str(e)}")
             frappe.log_error(f"Error inserting Inspection {self.name}: {str(e)}")
             frappe.throw(_("An error occurred while creating the inspection. Please check the error log for details."))
