@@ -57,6 +57,7 @@ class Inspection(Document):
 
     def on_update(self):
         logger.info(f"Updating Inspection: {self.name}")
+        # We don't need to update teams here, as they are already linked
         logger.info(f"Inspection {self.name} updated successfully")
 
     def update_or_create_team_members(self, team_doc, members):

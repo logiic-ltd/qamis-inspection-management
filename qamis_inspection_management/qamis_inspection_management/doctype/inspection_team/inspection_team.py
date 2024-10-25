@@ -54,7 +54,6 @@ def create_inspection_team(team_name, members, schools, inspection=None):
             })
 
         team_doc.insert(ignore_permissions=True)
-        team_doc.save(ignore_permissions=True)
 
         return {
             "name": team_doc.name,
