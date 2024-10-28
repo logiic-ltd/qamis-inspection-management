@@ -68,7 +68,7 @@
    "fieldname": "inspection_teams",
    "fieldtype": "Table",
    "label": "Inspection Teams",
-   "options": "Inspection Team"
+   "options": "Inspection Team Link"
   },
   {
    "fieldname": "checklists_section",
