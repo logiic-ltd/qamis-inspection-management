@@ -404,6 +404,7 @@ function create_team_and_link_to_inspection(frm, values) {
 }
 
 function save_inspection(frm) {
+    console.log('Attempting to save inspection');
     frm.save().then(() => {
         frappe.show_alert(`Inspection saved successfully`, 5);
     }).catch((error) => {

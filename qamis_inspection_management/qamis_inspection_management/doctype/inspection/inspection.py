@@ -31,12 +31,14 @@ class Inspection(Document):
                 frappe.throw(_("Approved inspections cannot be set back to Draft or Pending Review status."))
 
     def after_insert(self):
+        logger.info(f"After insert: updating team links for inspection {self.name}")
         self.update_team_links()
 
     def update_team_links(self):
         for team in self.inspection_teams:
             if frappe.db.exists("Inspection Team", team.team):
                 frappe.db.set_value("Inspection Team", team.team, "parent", self.name)
+        logger.info(f"Team links updated for inspection {self.name}")
         frappe.db.commit()
 
 @frappe.whitelist()
