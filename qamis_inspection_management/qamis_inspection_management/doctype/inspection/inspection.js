@@ -21,12 +21,17 @@ function link_teams_to_inspection(frm) {
         if (teams_to_link) {
             teams_to_link = JSON.parse(teams_to_link);
             teams_to_link.forEach(team => {
-                frm.add_child('inspection_teams', {
-                    team_name: team.team_name,
-                    name: team.name,
-                    members_count: team.members_count,
-                    schools_count: team.schools_count
-                });
+                let existing_team = frm.doc.inspection_teams.find(t => t.name === team.name);
+                if (!existing_team) {
+                    frm.add_child('inspection_teams', {
+                        team_name: team.team_name,
+                        name: team.name,
+                        members_count: team.members_count,
+                        schools_count: team.schools_count
+                    });
+                } else {
+                    frappe.show_alert(`Team "${team.team_name}" is already linked to this inspection.`, 5);
+                }
             });
             frm.refresh_field('inspection_teams');
             localStorage.removeItem('teams_to_link');
