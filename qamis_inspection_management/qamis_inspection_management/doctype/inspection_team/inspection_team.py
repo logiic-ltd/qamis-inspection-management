@@ -31,4 +31,4 @@ class InspectionTeam(Document):
                     "team": self.name,
                     "team_name": self.team_name
                 })
-                inspection.save(ignore_permissions=True)
+                inspection.save(ignore_permissions=True, ignore_links=True)
