@@ -100,5 +100,5 @@ def create_inspection_team(team_name, members, schools):
 def on_submit(doc, method):
     if doc.status == "Draft":
         doc.status = "Pending Review"
-        doc.save()
+        doc.save(ignore_links=True)
     frappe.msgprint(_("Inspection submitted successfully and status updated to Pending Review"))
