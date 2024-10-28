@@ -98,6 +98,7 @@ def create_inspection_team(team_name, members, schools):
         frappe.throw(_("An error occurred while creating the inspection team. Please check the error log for details."))
 
 def on_submit(doc, method):
+    logger.info(f"Saving inspection with ID: {doc.name} and status: {doc.status}")
     if doc.status == "Draft":
         doc.status = "Pending Review"
         doc.save(ignore_links=True)
