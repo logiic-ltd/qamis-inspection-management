@@ -36,8 +36,8 @@ class Inspection(Document):
 
     def update_team_links(self):
         for team in self.inspection_teams:
-            if frappe.db.exists("Inspection Team", team.team):
-                frappe.db.set_value("Inspection Team", team.team, "parent", self.name)
+            if frappe.db.exists("Inspection Team", team.team_name):
+                frappe.db.set_value("Inspection Team", team.team_name, "parent", self.name)
         logger.info(f"Team links updated for inspection {self.name}")
         frappe.db.commit()
 
