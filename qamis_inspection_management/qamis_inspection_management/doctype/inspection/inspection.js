@@ -16,7 +16,7 @@ frappe.ui.form.on('Inspection', {
                 frappe.set_route('Form', 'Inspection Team', team_name);
             });
         }
-    }
+    },
     inspection_teams_add: function(frm) {
         // No need for a get_query function as teams are now child tables
     },
