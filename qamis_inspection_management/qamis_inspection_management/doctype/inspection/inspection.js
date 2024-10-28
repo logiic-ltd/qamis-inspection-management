@@ -367,43 +367,52 @@ function create_team_and_link_to_inspection(frm, values) {
         return;
     }
 
-    // Check if the team name already exists in the inspection
-    let existing_team = frm.doc.inspection_teams && frm.doc.inspection_teams.find(team => team.team_name === team_name);
-    if (existing_team) {
-        console.log(`Team "${team_name}" already exists in this inspection.`);
-        frappe.show_alert(`Team "${team_name}" already exists in this inspection.`, 5);
-        return;
-    }
-
+    // Check if the team name already exists in the database
     frappe.call({
-        method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.create_inspection_team',
+        method: 'frappe.client.get_list',
         args: {
-            team_name: team_name,
-            members: JSON.stringify(selected_members),
-            schools: JSON.stringify(selected_schools)
+            doctype: 'Inspection Team',
+            filters: { 'team_name': team_name },
+            fields: ['name']
         },
-        callback: function(r) {
-            if (r.message) {
-                let new_team = r.message;
-                console.log('New team created:', new_team);
-
-                frm.add_child('inspection_teams', {
-                    team: new_team.name,
-                    team_name: new_team.team_name,
-                    members_count: new_team.members_count,
-                    schools_count: new_team.schools_count
-                });
-                frm.refresh_field('inspection_teams');
-
-                frappe.show_alert(`Team "${team_name}" created successfully`, 5);
-            } else {
-                frappe.msgprint('Failed to create team. Please try again.');
-                console.error('Failed to create team:', r);
+        callback: function(response) {
+            if (response.message.length > 0) {
+                console.log(`Team "${team_name}" already exists in the database.`);
+                frappe.show_alert(`Team "${team_name}" already exists in the database.`, 5);
+                return;
             }
-        },
-        error: function(r) {
-            console.error('Error creating team:', r);
-            frappe.msgprint('An error occurred while creating the team. Please try again.');
+
+            frappe.call({
+                method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.create_inspection_team',
+                args: {
+                    team_name: team_name,
+                    members: JSON.stringify(selected_members),
+                    schools: JSON.stringify(selected_schools)
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        let new_team = r.message;
+                        console.log('New team created:', new_team);
+
+                        frm.add_child('inspection_teams', {
+                            team: new_team.name,
+                            team_name: new_team.team_name,
+                            members_count: new_team.members_count,
+                            schools_count: new_team.schools_count
+                        });
+                        frm.refresh_field('inspection_teams');
+
+                        frappe.show_alert(`Team "${team_name}" created successfully`, 5);
+                    } else {
+                        frappe.msgprint('Failed to create team. Please try again.');
+                        console.error('Failed to create team:', r);
+                    }
+                },
+                error: function(r) {
+                    console.error('Error creating team:', r);
+                    frappe.msgprint('An error occurred while creating the team. Please try again.');
+                }
+            });
         }
     });
 }
