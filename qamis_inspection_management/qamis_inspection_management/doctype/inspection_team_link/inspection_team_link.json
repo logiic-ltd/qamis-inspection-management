@@ -24,14 +24,12 @@
    "fieldname": "members_count",
    "fieldtype": "Int",
    "label": "Members Count",
-   "fetch_from": "team_name.members_count",
    "in_list_view": 1
   },
   {
    "fieldname": "schools_count",
    "fieldtype": "Int",
    "label": "Schools Count",
-   "fetch_from": "team_name.schools_count",
    "in_list_view": 1
   }
  ],
