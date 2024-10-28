@@ -360,61 +360,21 @@ function create_team_and_link_to_inspection(frm, values) {
     let selected_members = values.selected_members || [];
     let selected_schools = values.selected_schools || [];
 
-    console.log('Creating team:', { team_name, selected_members, selected_schools });
+    console.log('Linking team:', { team_name, selected_members, selected_schools });
 
     if (!team_name || selected_members.length === 0 || selected_schools.length === 0) {
         frappe.msgprint('Please enter a team name, select at least one member and one school.');
         return;
     }
 
-    // Check if the team name already exists in the database
-    frappe.call({
-        method: 'frappe.client.get_list',
-        args: {
-            doctype: 'Inspection Team',
-            filters: { 'team_name': team_name },
-            fields: ['name']
-        },
-        callback: function(response) {
-            if (response.message.length > 0) {
-                console.log(`Team "${team_name}" already exists in the database.`);
-                frappe.show_alert(`Team "${team_name}" already exists in the database.`, 5);
-                return;
-            }
-
-            frappe.call({
-                method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.create_inspection_team',
-                args: {
-                    team_name: team_name,
-                    members: JSON.stringify(selected_members),
-                    schools: JSON.stringify(selected_schools)
-                },
-                callback: function(r) {
-                    if (r.message) {
-                        let new_team = r.message;
-                        console.log('New team created:', new_team);
-
-                        frm.add_child('inspection_teams', {
-                            team: new_team.name,
-                            team_name: new_team.team_name,
-                            members_count: new_team.members_count,
-                            schools_count: new_team.schools_count
-                        });
-                        frm.refresh_field('inspection_teams');
-
-                        frappe.show_alert(`Team "${team_name}" created successfully`, 5);
-                    } else {
-                        frappe.msgprint('Failed to create team. Please try again.');
-                        console.error('Failed to create team:', r);
-                    }
-                },
-                error: function(r) {
-                    console.error('Error creating team:', r);
-                    frappe.msgprint('An error occurred while creating the team. Please try again.');
-                }
-            });
-        }
+    // Directly link the team to the inspection without saving
+    frm.add_child('inspection_teams', {
+        team_name: team_name,
+        members_count: selected_members.length,
+        schools_count: selected_schools.length
     });
+    frm.refresh_field('inspection_teams');
+    frappe.show_alert(`Team "${team_name}" linked successfully`, 5);
 }
 
 function save_inspection(frm) {
