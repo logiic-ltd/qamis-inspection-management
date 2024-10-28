@@ -360,21 +360,33 @@ function create_team_and_link_to_inspection(frm, values) {
     let selected_members = values.selected_members || [];
     let selected_schools = values.selected_schools || [];
 
-    console.log('Linking team:', { team_name, selected_members, selected_schools });
+    console.log('Creating and linking team:', { team_name, selected_members, selected_schools });
 
     if (!team_name || selected_members.length === 0 || selected_schools.length === 0) {
         frappe.msgprint('Please enter a team name, select at least one member and one school.');
         return;
     }
 
-    // Directly link the team to the inspection without saving
-    frm.add_child('inspection_teams', {
-        team_name: team_name,
-        members_count: selected_members.length,
-        schools_count: selected_schools.length
+    frappe.call({
+        method: 'qamis_inspection_management.qamis_inspection_management.doctype.inspection.inspection.create_inspection_team',
+        args: {
+            team_name: team_name,
+            members: JSON.stringify(selected_members),
+            schools: JSON.stringify(selected_schools)
+        },
+        callback: function(r) {
+            if (r.message) {
+                let team = r.message;
+                frm.add_child('inspection_teams', {
+                    team_name: team.team_name,
+                    members_count: team.members_count,
+                    schools_count: team.schools_count
+                });
+                frm.refresh_field('inspection_teams');
+                frappe.show_alert(`Team "${team_name}" created and linked successfully`, 5);
+            }
+        }
     });
-    frm.refresh_field('inspection_teams');
-    frappe.show_alert(`Team "${team_name}" linked successfully`, 5);
 }
 
 function save_inspection(frm) {
