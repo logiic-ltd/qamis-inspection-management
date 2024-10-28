@@ -368,7 +368,7 @@ function create_team_and_link_to_inspection(frm, values) {
     }
 
     // Check if the team name already exists in the inspection
-    let existing_team = frm.doc.inspection_teams && frm.doc.inspection_teams.find(team => team.name === team_name);
+    let existing_team = frm.doc.inspection_teams && frm.doc.inspection_teams.find(team => team.team_name === team_name);
     if (existing_team) {
         console.log(`Team "${team_name}" already exists in this inspection.`);
         frappe.show_alert(`Team "${team_name}" already exists in this inspection.`, 5);
@@ -387,17 +387,12 @@ function create_team_and_link_to_inspection(frm, values) {
                 let new_team = r.message;
                 console.log('New team created:', new_team);
 
-                let existing_team = frm.doc.inspection_teams.find(t => t.team === new_team.name);
-                if (!existing_team) {
-                    frm.add_child('inspection_teams', {
-                        team: new_team.name,
-                        team_name: new_team.team_name,
-                        members_count: new_team.members_count,
-                        schools_count: new_team.schools_count
-                    });
-                } else {
-                    frappe.show_alert(`Team "${new_team.team_name}" is already linked to this inspection.`, 5);
-                }
+                frm.add_child('inspection_teams', {
+                    team: new_team.name,
+                    team_name: new_team.team_name,
+                    members_count: new_team.members_count,
+                    schools_count: new_team.schools_count
+                });
                 frm.refresh_field('inspection_teams');
 
                 frappe.show_alert(`Team "${team_name}" created successfully`, 5);
