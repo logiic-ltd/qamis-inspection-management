@@ -363,7 +363,7 @@ function create_team_and_link_to_inspection(frm, values) {
     }
 
     // Check if the team name already exists in the inspection
-    let existing_team = frm.doc.inspection_teams && frm.doc.inspection_teams.find(team => team.team_name === team_name);
+    let existing_team = frm.doc.inspection_teams && frm.doc.inspection_teams.find(team => team.name === team_name);
     if (existing_team) {
         console.log(`Team "${team_name}" already exists in this inspection.`);
         frappe.show_alert(`Team "${team_name}" already exists in this inspection.`, 5);
