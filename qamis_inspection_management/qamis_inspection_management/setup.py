@@ -20,6 +20,7 @@ def setup_roles_and_workflow():
             if not frappe.db.exists('Workflow State', {'state': state['state']}):
                 frappe.get_doc({
                     "doctype": "Workflow State",
+                    "workflow_state_name": state['state'],  # Ensure the state name is set
                     "state": state['state'],
                     "doc_status": state['doc_status'],
                     "allow_edit": state['allow_edit']
