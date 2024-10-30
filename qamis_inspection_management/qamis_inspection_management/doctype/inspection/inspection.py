@@ -103,5 +103,5 @@ def on_submit(doc, method):
     logger.info(f"Saving inspection with ID: {doc.name} and status: {doc.status}")
     if doc.status == "Draft":
         doc.status = "Pending Review"
-        doc.save(ignore_links=True)
+        doc.save()
     frappe.msgprint(_("Inspection submitted successfully and status updated to Pending Review"))
