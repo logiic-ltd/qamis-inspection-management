@@ -1,4 +1,5 @@
 import frappe
+import os
 
 def setup_roles_and_workflow():
     roles = ["Division Manager", "Head of Department", "Director General"]
@@ -8,7 +9,8 @@ def setup_roles_and_workflow():
                 "doctype": "Role",
                 "role_name": role
             }).insert(ignore_permissions=True)
-    workflow_data = frappe.get_file_json('qamis_inspection_management/qamis_inspection_management/workflow/inspection_workflow.json')
+    workflow_file_path = os.path.join(os.path.dirname(__file__), 'workflow', 'inspection_workflow.json')
+    workflow_data = frappe.get_file_json(workflow_file_path)
     if not frappe.db.exists('Workflow', {'workflow_name': workflow_data['workflow_name']}):
         workflow_doc = frappe.get_doc(workflow_data)
         workflow_doc.insert(ignore_permissions=True)
