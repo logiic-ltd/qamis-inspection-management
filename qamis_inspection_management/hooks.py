@@ -84,6 +84,9 @@ app_license = "MIT"
 # Installation
 # ------------
 
+after_install = "qamis_inspection_management.qamis_inspection_management.setup.setup_workflow"
+before_uninstall = "qamis_inspection_management.qamis_inspection_management.setup.remove_workflow"
+
 # before_install = "qamis_inspection_management.install.before_install"
 # after_install = "qamis_inspection_management.install.after_install"
 
