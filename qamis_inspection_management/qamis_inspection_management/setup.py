@@ -13,7 +13,7 @@ def setup_roles_and_workflow():
     workflow_data = frappe.get_file_json(workflow_file_path)
     if not frappe.db.exists('Workflow', {'workflow_name': workflow_data['workflow_name']}):
         workflow_doc = frappe.get_doc(workflow_data)
-        workflow_doc.insert(ignore_permissions=True)
+        workflow_doc.insert(ignore_permissions=True, ignore_links=True)
 
 def remove_roles_and_workflow():
     roles = ["Division Manager", "Head of Department", "Director General"]
