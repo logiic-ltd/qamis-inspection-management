@@ -1,0 +1,21 @@
+{
+  "doctype": "Workflow",
+  "workflow_name": "Inspection Workflow",
+  "document_type": "Inspection",
+  "is_active": 1,
+  "states": [
+    {"state": "Draft", "allow_edit": "Division Manager", "doc_status": 0},
+    {"state": "Pending HoD Review", "allow_edit": "Head of Department", "doc_status": 0},
+    {"state": "Under HoD Review", "allow_edit": "Head of Department", "doc_status": 0},
+    {"state": "Pending DG Approval", "allow_edit": "Director General", "doc_status": 0},
+    {"state": "Approved by DG", "allow_edit": "Director General", "doc_status": 1},
+    {"state": "Rejected by DG", "allow_edit": "Director General", "doc_status": 2}
+  ],
+  "transitions": [
+    {"state": "Draft", "action": "Submit for Review", "next_state": "Pending HoD Review", "allowed": "Division Manager"},
+    {"state": "Pending HoD Review", "action": "Start Review", "next_state": "Under HoD Review", "allowed": "Head of Department"},
+    {"state": "Under HoD Review", "action": "Send for Approval", "next_state": "Pending DG Approval", "allowed": "Head of Department"},
+    {"state": "Pending DG Approval", "action": "Approve", "next_state": "Approved by DG", "allowed": "Director General"},
+    {"state": "Pending DG Approval", "action": "Reject", "next_state": "Rejected by DG", "allowed": "Director General"}
+  ]
+}
