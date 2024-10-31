@@ -47,4 +47,6 @@ Pre-commit is configured to use the following tools for checking and formatting 
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License, a permissive free software license. This means you are free to use, modify, and distribute the software, provided that all copies or substantial portions of the software include the original MIT License text. This license is well-suited for government and educational projects as it encourages collaboration and sharing while protecting the original authors' rights.
+
+For more details, see the [LICENSE](./license.txt) file.
