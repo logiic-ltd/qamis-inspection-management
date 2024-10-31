@@ -105,6 +105,6 @@ def on_submit(doc, method):
         doc.status = "Pending Review"
         doc.save()
     if doc.status == "Rejected by DG":
-        frappe.msgprint(_("Inspection rejected successfully"))
+        frappe.msgprint(_("Inspection has been rejected"))
     else:
         frappe.msgprint(_("Inspection approved successfully"))
