@@ -103,5 +103,8 @@ def on_submit(doc, method):
     logger.info(f"Saving inspection with ID: {doc.name} and status: {doc.status}")
     if doc.status == "Draft":
         doc.status = "Pending Review"
-        doc.save(ignore_links=True)
-    frappe.msgprint(_("Inspection submitted successfully and status updated to Pending Review"))
+        doc.save()
+    if doc.status == "Rejected by DG":
+        frappe.msgprint(_("Inspection has been rejected"))
+    else:
+        frappe.msgprint(_("Inspection approved successfully"))

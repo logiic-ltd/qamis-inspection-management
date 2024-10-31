@@ -56,8 +56,9 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Draft\nPending Review\nApproved\nCompleted",
-   "default": "Draft"
+   "options": "Initial Draft\nPending HoD Review\nUnder HoD Review\nPending DG Approval\nApproved by DG\nRejected by DG",
+   "default": "Initial Draft",
+   "read_only": 1
   },
   {
    "fieldname": "inspection_teams_section",

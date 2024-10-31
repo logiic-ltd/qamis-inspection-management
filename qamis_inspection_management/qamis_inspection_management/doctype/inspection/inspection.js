@@ -7,6 +7,16 @@ frappe.ui.form.on('Inspection', {
             show_checklist_search_dialog(frm);
         });
     },
+    inspection_teams_on_form_rendered: function(frm, cdt, cdn) {
+        const grid_row = frm.fields_dict.inspection_teams.grid.get_row(cdn);
+        const team_name = grid_row.doc.team_name;
+
+        if (team_name) {
+            grid_row.wrapper.find('.grid-row-check').off('click').on('click', function() {
+                frappe.set_route('Form', 'Inspection Team', team_name);
+            });
+        }
+    },
     inspection_teams_add: function(frm) {
         // No need for a get_query function as teams are now child tables
     },
