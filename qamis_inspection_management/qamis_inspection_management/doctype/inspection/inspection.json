@@ -56,8 +56,8 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Draft\nPending Review\nApproved\nCompleted",
-   "default": "Draft"
+   "options": "Initial Draft\nPending Review\nApproved\nCompleted",
+   "default": "Initial Draft"
   },
   {
    "fieldname": "inspection_teams_section",
