@@ -15,7 +15,7 @@
     {"state": "Initial Draft", "action": "Submit for HoD Review", "next_state": "Pending HoD Review", "allowed": "Division Manager"},
     {"state": "Pending HoD Review", "action": "Start Review", "next_state": "Under HoD Review", "allowed": "Head of Department"},
     {"state": "Under HoD Review", "action": "Return to DM", "next_state": "Initial Draft", "allowed": "Head of Department"},
-    {"state": "Under HoD Review", "action": "Send for Approval", "next_state": "Pending DG Approval", "allowed": "Head of Department"},
+    {"state": "Under HoD Review", "action": "Send for DG Approval", "next_state": "Pending DG Approval", "allowed": "Head of Department"},
     {"state": "Pending DG Approval", "action": "Approve", "next_state": "Approved by DG", "allowed": "Director General"},
     {"state": "Pending DG Approval", "action": "Reject", "next_state": "Rejected by DG", "allowed": "Director General"},
     {"state": "Pending DG Approval", "action": "Return to HoD", "next_state": "Under HoD Review", "allowed": "Director General"}
