@@ -104,4 +104,4 @@ def on_submit(doc, method):
     if doc.status == "Draft":
         doc.status = "Pending Review"
         doc.save()
-    frappe.msgprint(_("Inspection submitted successfully and status updated to Pending Review"))
+    frappe.msgprint(_("Inspection approved successfully"))
