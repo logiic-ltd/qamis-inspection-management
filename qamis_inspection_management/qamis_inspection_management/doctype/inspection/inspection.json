@@ -56,7 +56,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Initial Draft\nPending Review\nApproved\nCompleted",
+   "options": "Initial Draft\nPending HoD Review\nUnder HoD Review\nPending DG Approval\nApproved by DG\nRejected by DG",
    "default": "Initial Draft"
   },
   {
