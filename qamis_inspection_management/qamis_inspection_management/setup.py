@@ -36,5 +36,6 @@ def remove_roles_and_workflow():
         for state in workflow_doc.states:
             frappe.delete_doc('Workflow State', state.state, ignore_permissions=True)
         for action in workflow_doc.transitions:
-            frappe.delete_doc('Workflow Action', action.action, ignore_permissions=True)
+            if frappe.db.exists('Workflow Action', action.action):
+                frappe.delete_doc('Workflow Action', action.action, ignore_permissions=True, ignore_linked_doctypes=True)
         frappe.delete_doc('Workflow', 'Inspection Workflow', ignore_permissions=True)
